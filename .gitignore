@@ -2,3 +2,4 @@ build/
 data_cluster/
 experiments_cluster/
 runjob.sh
+.DS_Store
