@@ -1,0 +1,5 @@
+build/
+data_cluster/
+experiments_cluster/
+.DS_Store
+runjob.sh
