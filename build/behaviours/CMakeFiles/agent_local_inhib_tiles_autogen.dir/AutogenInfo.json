@@ -1,0 +1,94 @@
+{
+	"BUILD_DIR" : "/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/build/behaviours/agent_local_inhib_tiles_autogen",
+	"CMAKE_BINARY_DIR" : "/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/build",
+	"CMAKE_CURRENT_BINARY_DIR" : "/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/build/behaviours",
+	"CMAKE_CURRENT_SOURCE_DIR" : "/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/behaviours",
+	"CMAKE_EXECUTABLE" : "/usr/local/Cellar/cmake/3.21.4/bin/cmake",
+	"CMAKE_LIST_FILES" : 
+	[
+		"/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/behaviours/CMakeLists.txt"
+	],
+	"CMAKE_SOURCE_DIR" : "/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation",
+	"DEP_FILE" : "",
+	"DEP_FILE_RULE_NAME" : "",
+	"HEADERS" : 
+	[
+		[
+			"/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/behaviours/agentCDCIlocal.h",
+			"Mu",
+			"EWIEGA46WW/moc_agentCDCIlocal.cpp",
+			null
+		]
+	],
+	"HEADER_EXTENSIONS" : [ "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" ],
+	"INCLUDE_DIR" : "/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/build/behaviours/agent_local_inhib_tiles_autogen/include",
+	"MOC_COMPILATION_FILE" : "/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/build/behaviours/agent_local_inhib_tiles_autogen/mocs_compilation.cpp",
+	"MOC_DEFINITIONS" : 
+	[
+		"ARGOS_simulator_BUILD",
+		"GL_SILENCE_DEPRECATION",
+		"QT_CORE_LIB",
+		"QT_GUI_LIB",
+		"QT_WIDGETS_LIB"
+	],
+	"MOC_DEPEND_FILTERS" : 
+	[
+		[
+			"Q_PLUGIN_METADATA",
+			"[\n][ \t]*Q_PLUGIN_METADATA[ \t]*\\([^\\)]*FILE[ \t]*\"([^\"]+)\""
+		]
+	],
+	"MOC_INCLUDES" : 
+	[
+		"/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/build/behaviours",
+		"/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/behaviours",
+		"/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation",
+		"/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/build",
+		"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.0.sdk/System/Library/Frameworks/OpenGL.framework/Headers",
+		"/usr/local/opt/qt@5/lib/QtWidgets.framework",
+		"/usr/local/opt/qt@5/lib/QtWidgets.framework/Headers",
+		"/usr/local/opt/qt@5/lib/QtGui.framework",
+		"/usr/local/opt/qt@5/lib/QtGui.framework/Headers",
+		"/usr/local/opt/qt@5/lib/QtCore.framework",
+		"/usr/local/opt/qt@5/lib/QtCore.framework/Headers",
+		"/usr/local/opt/qt@5/mkspecs/macx-clang",
+		"/usr/local/include",
+		"/Users/a/argos3-kilobot-master/build/plugins/robots/kilobot",
+		"/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/argos3/plugins/robots/kilobot/control_interface",
+		"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.0.sdk/usr/include/c++/v1",
+		"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include",
+		"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.0.sdk/usr/include",
+		"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"
+	],
+	"MOC_MACRO_NAMES" : [ "Q_OBJECT", "Q_GADGET", "Q_NAMESPACE", "Q_NAMESPACE_EXPORT" ],
+	"MOC_OPTIONS" : [],
+	"MOC_PATH_PREFIX" : false,
+	"MOC_PREDEFS_CMD" : 
+	[
+		"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++",
+		"-dM",
+		"-E",
+		"-c",
+		"/usr/local/Cellar/cmake/3.21.4/share/cmake/Modules/CMakeCXXCompilerABI.cpp"
+	],
+	"MOC_PREDEFS_FILE" : "/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/build/behaviours/agent_local_inhib_tiles_autogen/moc_predefs.h",
+	"MOC_RELAXED_MODE" : false,
+	"MOC_SKIP" : [],
+	"MULTI_CONFIG" : false,
+	"PARALLEL" : 6,
+	"PARSE_CACHE_FILE" : "/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/build/behaviours/CMakeFiles/agent_local_inhib_tiles_autogen.dir/ParseCache.txt",
+	"QT_MOC_EXECUTABLE" : "/usr/local/opt/qt@5/bin/moc",
+	"QT_UIC_EXECUTABLE" : "",
+	"QT_VERSION_MAJOR" : 5,
+	"QT_VERSION_MINOR" : 15,
+	"SETTINGS_FILE" : "/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/build/behaviours/CMakeFiles/agent_local_inhib_tiles_autogen.dir/AutogenUsed.txt",
+	"SOURCES" : 
+	[
+		[
+			"/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/behaviours/agent_local_inhib_tiles.c",
+			"Mu",
+			null
+		]
+	],
+	"VERBOSITY" : 0
+}
