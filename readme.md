@@ -1,19 +1,19 @@
-### Adaptive Symmetry Breaking 
+# Adaptive Symmetry Breaking 
 
 ## How to build the code
-'''
+```
 mkdir build
 cd build
 cmake ../ARGoS_simulation
 make 
-'''
+```
 This should build it 
 
-## how to run the code
+## How to run the code
 
-'''
+```
 sh ARGoS_simulation/data_generation_scripts/<experiment-to-run>.argos
-'''
+```
 
 This should run the experiments.
 
