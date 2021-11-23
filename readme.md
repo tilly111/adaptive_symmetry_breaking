@@ -13,8 +13,11 @@ This should build it. TODO
 
 ```
 cd argos3-test
-sh ARGoS_simulation/data_generation_scripts/<experiment-to-run>.sh <start> <end> <model_type> <visualization> <number_of_options> <on_cluster>```
+sh ARGoS_simulation/data_generation_scripts/<experiment-to-run>.sh <start> <end> <model_type> <visualization> <number_of_options> <on_cluster>
+```
+
 A list of parameters to configure your experiment:  
+
 ```
 |Name               |Values |Description|
 |---                |---    |---        |
@@ -28,14 +31,13 @@ A list of parameters to configure your experiment:
 
 This runs the experiments local. (You have to proper build it first!)
 An example run, e.g., to test the behavior is:
+
 ```
 sh ARGoS_simulation/data_generation_scripts/runexps_kilogird.sh 0 0 local 1 3 0
 ```
 
 ## TODO 
 Installation instruction for 
-- argos
-- kilobot plugin
 - installation on cluster ?
 - installation on new cluster ?
 - installation of sidepkg aka lua5.3 mein erzfeind
@@ -43,37 +45,50 @@ Installation instruction for
 ## Installation argos3 & Kilobot-plugin on Newmajorana
 ### argos3
 Load required tools.
+
 ```
 module load cmake 
 ```
+
 gcc is already installed, we skip lua because I do not have the permission to install it ~ we have various problems with it.
 If not already done create Programs folder 
+
 ```
 mkdir Programs 
 cd Programs 
 ```
+
 Now we get argos3.
+
 ```
 git clone https://github.com/ilpincy/argos3
 cd argos3
 ```
+
 I moved to a older version (which works fine for me ~ the current version gave me some trouble).
+
 ```
 git checkout 86f60d26b2ad148c0455a290cd6bd6fa2109172d
 ```
+
 Now create build folder.
+
 ```
 mkdir build_simulator
 cd build_simulator
 ```
+
 Use cmake.
+
 ```
 cmake -DCMAKE_INSTALL_PREFIX=$HOME/Programs/argos3/install -DCMAKE_BUILD_TYPE=Release -DARGOS_INSTALL_LDSOCONF=OFF -DARGOS_DOCUMENTATION=OFF ../src
 make -j4
 make install
 ```
+
 Now you need to create a env file for argos3. 
 I did it in the argos3/folder
+
 ```
 cd argos3/
 nano set_argos_env.sh
@@ -86,43 +101,55 @@ export LD_LIBRARY_PATH=$ARGOS_PLUGIN_PATH:$LD_LIBRARY_PATH
 export C_INCLUDE_PATH=/home/taust/Programs/argos3/install/include:/home/taust/Programs/argos3/install/include:  
 export CPLUS_INCLUDE_PATH=/home/taust/Programs/argos3/install/include:/home/taust/Programs/argos3/install/include:  
 export PATH=/home/taust/Programs/argos3/install/bin:$PATH
-
 ```
+
 Now you can source argos3.
+
 ```
 source set_argos_env.sh
 ```
+
 The following command should now return version 3.0.0-beta56.
+
 ```
 argos3 -v
 ```
 
 ### Kilobot-Plugin
 First you have to source and load modules, if not already done 
+
 ```
 module load cmake
 source set_argos_env
 ```
+
 Now we can download the plugin.
+
 ```
 cd Programs
 git clone https://github.com/ilpincy/argos3-kilobot.git
 cd argos3-kilobot
 ```
+
 Now we have to renew the link (first remove it).
+
 ```
 cd src/
 rm argos3
 cd ..
 ln -s ~/Programs/argos3-kilobot/src/ src/argos3
 ```
+
 In the next step we adjust some CMakeFiles to get rid of runtime errors and stuff. Further you have to remove all dependencies for lua because we are missing lua-devel. 
 The following should be sufficient. 
 Replace the content of ARGoSBuildChecks.cmake:
+
 ```
 nano src/cmake/ARGoSBuildChecks.cmake
 ```
+
 with 
+
 ```
 #
 # Find the ARGoS package
@@ -159,12 +186,16 @@ include_directories(${CMAKE_SOURCE_DIR} ${ARGOS_INCLUDE_DIRS})
 #
 link_directories(${ARGOS_LIBRARY_DIRS})
 ```
+
 Next we replace
+
 ```
 rm src/plugins/robots/kilobot/CMakeLists.txt
 nano src/plugins/robots/kilobot/CMakeLists.txt
 ```
+
 with content
+
 ```
 #
 # kilobot headers
@@ -280,27 +311,29 @@ if(ARGOS_BUILD_FOR_SIMULATOR)
     ARCHIVE DESTINATION lib/argos3)
 endif(ARGOS_BUILD_FOR_SIMULATOR)
 ```
+
 Now we are ready to build.
 Therefore go to argos3-kilobot/
+
 ```
 mkdir build
 cd build
 ```
+
 Now cmake (some of this options are not required - they throw a warning but you can ignore it).
+
 ```
 cmake -DCMAKE_INSTALL_PREFIX=$HOME/Programs/argos3/install -DCMAKE_BUILD_TYPE=Release -DARGOS_INCLUDE_DIR=$HOME/Programs/argos3/install/include -DARGOS_CORE_LIBRARY=$HOME/Programs/argos3/install/lib/argos3/libargos3core_simulator.so -DARGOS_DYNAMICS2D_LIBRARY=$HOME/Programs/argos3/install/lib/argos3/libargos3plugin_simulator_dynamics2d.so -DARGOS_DYNAMICS3D_LIBRARY=$HOME/Programs/argos3/install/lib/argos3/libargos3plugin_simulator_dynamics3d.so -DARGOS_ENTITIES_LIBRARY=$HOME/Programs/argos3/install/lib/argos3/libargos3plugin_simulator_entities.so -DARGOS_GENERICROBOT_LIBRARY=$HOME/Programs/argos3/install/lib/argos3/libargos3plugin_simulator_genericrobot.so -DARGOS_POINTMASS3D_LIBRARY=$HOME/Programs/argos3/install/lib/argos3/libargos3plugin_simulator_pointmass3d.so -DARGOS_QTOPENGL_LIBRARY=$HOME/Programs/argos3/install/lib/argos3/libargos3plugin_simulator_qtopengl.so ../src
 ```
+
 Now make
+
 ```
 make -j4
 make install
 ```
+
 This should install these to components on newmajorana. 
-
-
-
-
-
 
 ### Notes regarding the implementation
 Message types 
