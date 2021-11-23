@@ -18,7 +18,6 @@ sh ARGoS_simulation/data_generation_scripts/<experiment-to-run>.sh <start> <end>
 
 A list of parameters to configure your experiment:  
 
-```
 |Name               |Values |Description|
 |---                |---    |---        |
 |`start`            |int number|Start-index of first experiment.|
@@ -27,7 +26,6 @@ A list of parameters to configure your experiment:
 |`visualization`    |0,1|Visualization flag (Visualization=1)|
 |`number_of_options`|3,5|Number of different options.|
 |`on_cluster`       |0,1|Flag for running on the cluster (Cluster=1)|
-```
 
 This runs the experiments local. (You have to proper build it first!)
 An example run, e.g., to test the behavior is:
