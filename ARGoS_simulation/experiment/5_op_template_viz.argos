@@ -40,16 +40,9 @@
 <!-- * Loop functions * -->
 <!-- ****************** -->
 <loop_functions 
-    library="expfolder/build/loop_functions/libkilogrid"
-    label="grid_loop_functions">
-
-    <tracking
-        position="true"
-        orientation="true"
-        color="true">
-    </tracking>
-
-        
+    library="loopfunctionpath"
+    label="kilogrid_loop_functions">
+    
     <variables
         datafilename="data_file"
         dynamic_virtual_environment="false"
@@ -61,15 +54,15 @@
     </variables>
 
     <environments type="manual">
-        <option id="1" quality="16" position="0.1,0.1" radius="0.1" color="255,0,127,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1">
+        <option id="1" quality="16" position="0.1,0.1" radius="0.1" color="255,0,127,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop1">
         </option>
-        <option id="2" quality="140" position="1.0,0.0" radius="0.1" color="0,255,0,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1">
+        <option id="2" quality="140" position="1.0,0.0" radius="0.1" color="0,255,0,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop2">
         </option>
-        <option id="3" quality="140" position="0.0,1.0" radius="0.1" color="127,0,255,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1">
+        <option id="3" quality="140" position="0.0,1.0" radius="0.1" color="127,0,255,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop3">
         </option>
-        <option id="4" quality="140" position="1.0,1.0" radius="0.1" color="255,127,0,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1">
+        <option id="4" quality="140" position="1.0,1.0" radius="0.1" color="255,127,0,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop4">
         </option>
-        <option id="5" quality="140" position="0.5,0.5" radius="0.1" color="0,255,255,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1">
+        <option id="5" quality="140" position="0.5,0.5" radius="0.1" color="0,255,255,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop5">
         </option>
     </environments>
 
@@ -136,7 +129,19 @@
 <!-- ****************** -->
 
 <visualization>
+    <qt-opengl>
+        <camera>
+          <placements>
+            <placement index="0" position="0.543348,-1.64842,1.67276" look_at="0.528236,-0.825479,1.10484" up="-0.0104278,0.56783,0.82308" lens_focal_length="53.75" />
+          </placements>
+        </camera>
 
+        <camera>
+          <placements>
+            <placement index="1" position="0.919574,3.81777,2.34657" look_at="0.881784,3.06057,1.69448" up="-0.0325027,-0.651275,0.758145" lens_focal_length="53.75" />
+          </placements>
+        </camera>
+    </qt-opengl>
 </visualization>
-      
+
 </argos-configuration>

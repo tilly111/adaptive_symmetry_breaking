@@ -19,6 +19,7 @@
 #define AGENT_MSG 21
 #define GRID_MSG 22
 #define GLOBAL_MSG 23  // msg mimicing the global communication
+#define INIT_MSG 10
 
 #define size(x)  (sizeof(x) / sizeof((x)[0]))  // length of array bc c is fun
 

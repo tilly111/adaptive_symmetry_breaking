@@ -5,10 +5,10 @@
 <!-- * General configuration * -->
 <!-- ************************* -->
 <framework>
-<system threads="1" />
-<experiment length="2400"
+<system threads="3" />
+<experiment length="exp_length"
     ticks_per_second="10"
-    random_seed="123" />
+    random_seed="randomseed" />
 </framework>
         
 <!-- *************** -->
@@ -30,7 +30,7 @@
         <kilobot_communication implementation="default" medium="kilocomm" show_rays="false" />
     </sensors>
 
-    <params behavior="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/build/behaviours/agent_simple_tiles" />
+    <params behavior="behaviourpath" />
 
     </kilobot_controller>
 
@@ -40,39 +40,24 @@
 <!-- * Loop functions * -->
 <!-- ****************** -->
 <loop_functions 
-    library="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/build/loop_functions/libkilogrid"
-    label="ark_loop_functions">
-
-    <tracking
-        position="true"
-        orientation="true"
-        color="true">
-    </tracking>
-
+    library="loopfunctionpath"
+    label="kilogrid_loop_functions">
         
     <variables
-        datafilename="test.txt"
-        dynamic_virtual_environment="true"
-        frequency="1"
-        ohcfrequency="10"
-        quorum="1.1"
-        initial_opinion="1"
-        timeforonemessage="0.05"
-        gps_cellsX="20"
-        quality_variance="0.1"
+        datafilename="data_file"
+        dynamic_virtual_environment="false"
+        frequency="datafrequency"
+        quorum="quorumvalue"
+        gps_cellsX="numberofgpscells"
         Trobot="T_ROBOT">
     </variables>
 
     <environments type="manual">
-        <option id="1" quality="16" position="0.1,0.1" radius="0.1" color="255,0,127,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1">
+        <option id="1" quality="76" position="0.1,0.1" radius="0.1" color="255,0,127,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop1">
         </option>
-        <option id="2" quality="140" position="1.0,0.0" radius="0.1" color="0,255,0,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1">
+        <option id="2" quality="250" position="1.0,0.0" radius="0.1" color="0,255,0,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop2">
         </option>
-        <option id="3" quality="140" position="0.0,1.0" radius="0.1" color="127,0,255,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1">
-        </option>
-        <option id="4" quality="140" position="1.0,1.0" radius="0.1" color="255,127,0,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1">
-        </option>
-        <option id="5" quality="140" position="0.5,0.5" radius="0.1" color="0,255,255,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1">
+        <option id="3" quality="250" position="0.0,1.0" radius="0.1" color="127,0,255,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop3">
         </option>
     </environments>
 
@@ -103,8 +88,8 @@
     <distribute>
         <position method="uniform" min="0.12,0.12,0" max="0.88,1.88,0" />
         <orientation method="uniform" min="0,0,0" max="360,0,0" />
-        <entity quantity="50" max_trials="100">
-            <kilobot id="kb" communication_range="0.1">
+        <entity quantity="num_robots" max_trials="100">
+            <kilobot id="kb" communication_range="commrng">
                 <controller config="kbc"/>
                 <dynamics2d friction="0.7" />
             </kilobot>
@@ -138,7 +123,7 @@
 <!-- * Visualization  * -->
 <!-- ****************** -->
 
-<visualization><!--
+<visualization>
     <qt-opengl>
         <camera>
           <placements>
@@ -151,7 +136,7 @@
             <placement index="1" position="0.919574,3.81777,2.34657" look_at="0.881784,3.06057,1.69448" up="-0.0325027,-0.651275,0.758145" lens_focal_length="53.75" />
           </placements>
         </camera>
-    </qt-opengl> -->
+    </qt-opengl>
 </visualization>
 
 </argos-configuration>

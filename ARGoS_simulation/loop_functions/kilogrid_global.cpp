@@ -1,4 +1,4 @@
-#include "ark.h"
+#include "kilogrid.h"
 
 // some notes for the grid
 // border is 2 tiles thic thus -> 20*40 -> 16*36 = 576
@@ -6,34 +6,36 @@
 /*-----------------------------------------------------------------------------------------------*/
 /* Initialization of the Loopfunctions.                                                          */
 /*-----------------------------------------------------------------------------------------------*/
-CArk::CArk():
+CKilogrid::CKilogrid():
 CLoopFunctions(),  // ??
 shuffle(true),  // if the tiles should be shuffled -> should always be true
-global(false),  // TODO for mimicing global communication
+init_flag(true),
 m_fTimeInSeconds(0),  // current simulation time in sec
 m_unDataSavingCounter(1),
 m_bDynamicVirtualEnvironments(false),  // if the system is dynamic
 m_unDataFrequency(100),
 m_fQuorum(1.0),  // quorum of consensus
-m_bQuorumReached(false),  // flag for quorum reached
-initial_opinion(20){}  // initial opinion
+m_bQuorumReached(false) {}  // flag for quorum reached
 
-CArk::~CArk(){}
+CKilogrid::~CKilogrid(){}
 
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Init method runs before every experiment starts.                                              */
 /*-----------------------------------------------------------------------------------------------*/
-void CArk::Init(TConfigurationNode& t_node) {
-    
-    // Create random number generator
-    m_pcRNG = CRandom::CreateRNG("argos");
-    
+void CKilogrid::Init(TConfigurationNode& t_node) {
     // Get experiment variables from the .argos file
     GetExperimentVariables(t_node);
     
     // Get the virtual environment from the .argos file & set up the kilogrid
     SetupVirtualEnvironments(t_node);
+    
+    // set commitment state of the swarm -> needed here because used in initial robot states
+    // initialized with zero
+    m_tCommitmentState.resize(m_tOptions.size()+1);
+    for(int i = 0; i < m_tOptions.size()+1; i++){
+        m_tCommitmentState[i] = 0;
+    }
     
     // Get the initial kilobots' states
     SetupInitialKilobotsStates();
@@ -56,22 +58,13 @@ void CArk::Init(TConfigurationNode& t_node) {
     
     // Intializing variables
     m_fQuorumRobots=m_fQuorum*m_tKilobotsEntities.size();
-    m_tCommitmentState.resize(m_tOptions.size()+1);
-    // TODO make cleaner dirty init
-    for(int till = 0; till < 4; till++){
-        if(till == 1){
-            m_tCommitmentState[till] = 50;
-        }else{
-            m_tCommitmentState[till] = 0;
-        }
-    }
 }
 
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Gets called when the experiment is resetted.                                                  */
 /*-----------------------------------------------------------------------------------------------*/
-void CArk::Reset() {
+void CKilogrid::Reset() {
     // Close data file
     m_cOutput.close();
     
@@ -91,7 +84,7 @@ void CArk::Reset() {
 /*-----------------------------------------------------------------------------------------------*/
 /* Gets called when the experiment ended.                                                        */
 /*-----------------------------------------------------------------------------------------------*/
-void CArk::Destroy() {
+void CKilogrid::Destroy() {
     // Close data file
     m_cOutput.close();
 }
@@ -100,7 +93,7 @@ void CArk::Destroy() {
 /*-----------------------------------------------------------------------------------------------*/
 /* Gets called before every simulation step.                                                     */
 /*-----------------------------------------------------------------------------------------------*/
-void CArk::PreStep(){
+void CKilogrid::PreStep(){
     // Update the time variable required for the experiment (in sec)
     m_fTimeInSeconds=GetSpace().GetSimulationClock()/CPhysicsEngine::GetInverseSimulationClockTick();
     
@@ -118,7 +111,7 @@ void CArk::PreStep(){
 /*-----------------------------------------------------------------------------------------------*/
 /* Gets called after every simulation step.                                                      */
 /*-----------------------------------------------------------------------------------------------*/
-void CArk::PostStep(){
+void CKilogrid::PostStep(){
     // Save experiment data to the specified log file
     
     // check if quorum is reached
@@ -127,11 +120,15 @@ void CArk::PostStep(){
         m_tCommitmentState[((unsigned int) m_tKBs[i]->commitement)]++;
         // not initial state (crappy option) and uncommitted and more than 0 robots and more than
         // robots than needed for quorum
-        if((m_tKBs[i]->commitement!=initial_opinion) && (m_tKBs[i]->commitement!=0)
-           && (m_fQuorumRobots>0)
+        if((m_tKBs[i]->commitement!=1) && (m_tKBs[i]->commitement!=0) && (m_fQuorumRobots>0)
            && (m_tCommitmentState[((unsigned int) m_tKBs[i]->commitement)]>=m_fQuorumRobots) ){
             m_bQuorumReached=true;
         }
+    }
+    
+    // if all robots left uncommitment we can reset
+    if (m_tCommitmentState[0] == 0){
+        init_flag = false;
     }
     
     // if quroum reached, time to write something down, max time passed
@@ -164,7 +161,7 @@ void CArk::PostStep(){
 /*-----------------------------------------------------------------------------------------------*/
 /* Returns the position of the kilobot.                                                          */
 /*-----------------------------------------------------------------------------------------------*/
-CVector2 CArk::GetKilobotPosition(CKilobotEntity& c_kilobot_entity){
+CVector2 CKilogrid::GetKilobotPosition(CKilobotEntity& c_kilobot_entity){
     CVector2 vecKP(c_kilobot_entity.GetEmbodiedEntity().GetOriginAnchor().Position.GetX(),
                    c_kilobot_entity.GetEmbodiedEntity().GetOriginAnchor().Position.GetY());
     return vecKP;
@@ -174,7 +171,7 @@ CVector2 CArk::GetKilobotPosition(CKilobotEntity& c_kilobot_entity){
 /*-----------------------------------------------------------------------------------------------*/
 /* Returns the orientation of the kilobot.                                                       */
 /*-----------------------------------------------------------------------------------------------*/
-CRadians CArk::GetKilobotOrientation(CKilobotEntity& c_kilobot_entity){
+CRadians CKilogrid::GetKilobotOrientation(CKilobotEntity& c_kilobot_entity){
     CRadians cZAngle;
     CRadians cYAngle;
     CRadians cXAngle;
@@ -191,7 +188,7 @@ CRadians CArk::GetKilobotOrientation(CKilobotEntity& c_kilobot_entity){
 /*-----------------------------------------------------------------------------------------------*/
 /* Returns the id of the kilobot.                                                                */
 /*-----------------------------------------------------------------------------------------------*/
-UInt16 CArk::GetKilobotId(CKilobotEntity& c_kilobot_entity){
+UInt16 CKilogrid::GetKilobotId(CKilobotEntity& c_kilobot_entity){
     std::string strKilobotID((c_kilobot_entity).GetControllableEntity().GetController().GetId());
     return std::stoul(strKilobotID.substr(2));
 }
@@ -200,7 +197,7 @@ UInt16 CArk::GetKilobotId(CKilobotEntity& c_kilobot_entity){
 /*-----------------------------------------------------------------------------------------------*/
 /* Returns the LED Color of the kilobot.                                                         */
 /*-----------------------------------------------------------------------------------------------*/
-CColor CArk::GetKilobotLedColor(CKilobotEntity &c_kilobot_entity){
+CColor CKilogrid::GetKilobotLedColor(CKilobotEntity &c_kilobot_entity){
     return c_kilobot_entity.GetLEDEquippedEntity().GetLED(0).GetColor();
 }
 
@@ -208,7 +205,7 @@ CColor CArk::GetKilobotLedColor(CKilobotEntity &c_kilobot_entity){
 /*-----------------------------------------------------------------------------------------------*/
 /* Creates a list of kilobot robot entities.                                                     */
 /*-----------------------------------------------------------------------------------------------*/
-void CArk::GetKilobotsEntities(){
+void CKilogrid::GetKilobotsEntities(){
     // Go through all the robots in the environment and create a
     // vector of pointers on their entities
     
@@ -225,7 +222,7 @@ void CArk::GetKilobotsEntities(){
 /*-----------------------------------------------------------------------------------------------*/
 /* Set up the getting of debug information from the robot (e.g. the robots state).               */
 /*-----------------------------------------------------------------------------------------------*/
-void CArk::GetDebugInfo(){
+void CKilogrid::GetDebugInfo(){
     m_tKBs.clear();
     for(UInt16 it=0;it< m_tKilobotsEntities.size();it++){
         // Check if there is a message to send to the kilobot "i" and get the message
@@ -249,7 +246,7 @@ void CArk::GetDebugInfo(){
 /*-----------------------------------------------------------------------------------------------*/
 /* Setting up the kilobot states and needed varibales for handling the communication.            */
 /*-----------------------------------------------------------------------------------------------*/
-void CArk::SetupInitialKilobotsStates(){
+void CKilogrid::SetupInitialKilobotsStates(){
     // Get the Kilobots entities from the space.
     GetKilobotsEntities();
     
@@ -257,19 +254,27 @@ void CArk::SetupInitialKilobotsStates(){
     m_tMessages=TKilobotsMessagesVector(m_tKilobotsEntities.size());
     
     // timer for the cell messaging
-    tLastTimeMessagedGPS.resize(m_tKilobotsEntities.size());
+    tLastTimeMessaged.resize(m_tKilobotsEntities.size());
     
     for(UInt16 it=0;it< m_tKilobotsEntities.size();it++){
-        // init msg timer
-        tLastTimeMessagedGPS[GetKilobotId(*m_tKilobotsEntities[it])]=-1000;  // ?
+        SetupInitialKilobotState(*m_tKilobotsEntities[it]);
     }
+}
+
+
+/*-----------------------------------------------------------------------------------------------*/
+/* Implementation of SetupInitialKilobotsStates                                                  */
+/*-----------------------------------------------------------------------------------------------*/
+void CKilogrid::SetupInitialKilobotState(CKilobotEntity& c_kilobot_entity){
+    // init msg timer
+    tLastTimeMessaged[GetKilobotId(c_kilobot_entity)] = 5;  // wait a bit before sending in order to init
 }
 
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Sets up the kilogrid environment.                                                             */
 /*-----------------------------------------------------------------------------------------------*/
-void CArk::SetupVirtualEnvironments(TConfigurationNode& t_tree){
+void CKilogrid::SetupVirtualEnvironments(TConfigurationNode& t_tree){
     TConfigurationNode& tVirtualEnvironmentsNode=GetNode(t_tree,"environments");
     std::string type;
     GetNodeAttribute(tVirtualEnvironmentsNode,"type",type);
@@ -331,7 +336,7 @@ void CArk::SetupVirtualEnvironments(TConfigurationNode& t_tree){
 /*-----------------------------------------------------------------------------------------------*/
 /* Sets the experiment variables.                                                                */
 /*-----------------------------------------------------------------------------------------------*/
-void CArk::GetExperimentVariables(TConfigurationNode& t_tree){
+void CKilogrid::GetExperimentVariables(TConfigurationNode& t_tree){
     
     TConfigurationNode& tExperimentVariablesNode = GetNode(t_tree,"variables");
     
@@ -349,13 +354,8 @@ void CArk::GetExperimentVariables(TConfigurationNode& t_tree){
     // Get the quorum value
     GetNodeAttributeOrDefault(tExperimentVariablesNode, "quorum", m_fQuorum, m_fQuorum);
     
-    
-    // Get the initial opinion of the robots
-    GetNodeAttributeOrDefault(tExperimentVariablesNode, "initial_opinion", initial_opinion,
-                              initial_opinion);
-    
     // Get the time for one kilobot message
-    MinTimeBetweenTwoMsg = 1.0;  // TODO change back - ark has every 5 sec
+    MinTimeBetweenTwoMsg = 1.0;
     
     // Get the gps cell size - oriented on kilogrid so basically its hard coded
     GetNodeAttributeOrDefault(tExperimentVariablesNode, "gps_cellsX", m_unGpsCellsX, m_unGpsCellsX);
@@ -368,7 +368,7 @@ void CArk::GetExperimentVariables(TConfigurationNode& t_tree){
 /* This function updates the virtual sensors of each robot after certain time (like the kilogird */
 /* only sends position - of the cell - and the cells opinion).                                   */
 /*-----------------------------------------------------------------------------------------------*/
-void CArk::UpdateVirtualSensors(){
+void CKilogrid::UpdateVirtualSensors(){
     for(UInt16 it=0;it< m_tKilobotsEntities.size();it++){
         // Update the virtual sensor of a kilobot based on its current state
         UpdateVirtualSensor(*m_tKilobotsEntities[it]);
@@ -379,11 +379,35 @@ void CArk::UpdateVirtualSensors(){
 /*-----------------------------------------------------------------------------------------------*/
 /* Implementation of UpdateVirtualSensors.                                                       */
 /*-----------------------------------------------------------------------------------------------*/
-void CArk::UpdateVirtualSensor(CKilobotEntity &c_kilobot_entity){
-    // send msg like it comes from a tile every MinTimeBetweenTwoMsg
-    if(m_fTimeInSeconds - tLastTimeMessagedGPS[GetKilobotId(c_kilobot_entity)] > MinTimeBetweenTwoMsg){
+void CKilogrid::UpdateVirtualSensor(CKilobotEntity &c_kilobot_entity){
+    if(init_flag){
+        int tmp_sum = 0;
+        int initial_commitment = 0;
+        int initial_quality = 0;
+        for(int i=0; i < m_tOptions.size();i++){
+            tmp_sum += m_tOptions[i].initRobotPopulation;
+            if(GetKilobotId(c_kilobot_entity)<tmp_sum){
+                initial_commitment = i + 1;  // set inital commitment
+                initial_quality = (UInt8) ((m_tOptions[i].quality/576) * 255);  // TODO: implement some noise -> implemented on robot side ...
+                m_tCommitmentState[i+1]++;
+                break;
+            }
+        }
+        
+        // send initial commitment + initial quality
+        m_tMessages[GetKilobotId(c_kilobot_entity)].type = 10;
+        m_tMessages[GetKilobotId(c_kilobot_entity)].data[0] = initial_commitment;
+        m_tMessages[GetKilobotId(c_kilobot_entity)].data[1] = initial_quality;
+        m_tMessages[GetKilobotId(c_kilobot_entity)].data[2] = m_tOptions.size();
+        m_tMessages[GetKilobotId(c_kilobot_entity)].data[3] =PositionToOption(GetKilobotPosition(c_kilobot_entity))+1;
+        
+        // sends msg to the robot
+        GetSimulator().GetMedium<CKilobotCommunicationMedium>("kilocomm").SendOHCMessageTo(c_kilobot_entity,&m_tMessages[GetKilobotId(c_kilobot_entity)]);
+        return;
+    }
+    if(m_fTimeInSeconds - tLastTimeMessaged[GetKilobotId(c_kilobot_entity)] > MinTimeBetweenTwoMsg){
         // reset counter
-        tLastTimeMessagedGPS[GetKilobotId(c_kilobot_entity)] = m_fTimeInSeconds;
+        tLastTimeMessaged[GetKilobotId(c_kilobot_entity)] = m_fTimeInSeconds;
         // Set type of the message 22 means msg from the kilogrid
         m_tMessages[GetKilobotId(c_kilobot_entity)].type = 22;
         // send option of the robot
@@ -399,30 +423,28 @@ void CArk::UpdateVirtualSensor(CKilobotEntity &c_kilobot_entity){
         
         
     }else{
-        // imitate the global communication
-        // TODO: is limited to one crappy option and else good option bc of limited space in msg
-        if (global){
-            m_tMessages[GetKilobotId(c_kilobot_entity)].type = 23;
-            for (int i = 1; i < m_tCommitmentState.size(); i++){
-                m_tMessages[GetKilobotId(c_kilobot_entity)].data[i - 1] = m_tCommitmentState[i];
-                if(i==1){ // crappy option
-                    m_tMessages[GetKilobotId(c_kilobot_entity)].data[i - 1 + m_tCommitmentState.size() - 1] = (UInt8)((m_tOptions[i-1].quality / 576) * 255);
-                }else if(i==2){  // equal good option
-                    m_tMessages[GetKilobotId(c_kilobot_entity)].data[i - 1 + m_tCommitmentState.size() - 1] = (UInt8)((m_tOptions[i-1].quality / 576) * 255);
-                }
+        // TODO: here is a hack that we only send 2 qualities ... bc we assume that 1 bad and else equal good qualities exist
+        m_tMessages[GetKilobotId(c_kilobot_entity)].type = 23;
+        for (int i = 1; i < m_tCommitmentState.size(); i++){
+            m_tMessages[GetKilobotId(c_kilobot_entity)].data[i - 1] = m_tCommitmentState[i];
+            if(i==1){ // crappy option
+                m_tMessages[GetKilobotId(c_kilobot_entity)].data[i - 1 + m_tCommitmentState.size() - 1] = (UInt8)((m_tOptions[i-1].quality / 576) * 255);
+            }else if(i==2){  // equal good option
+                m_tMessages[GetKilobotId(c_kilobot_entity)].data[i - 1 + m_tCommitmentState.size() - 1] = (UInt8)((m_tOptions[i-1].quality / 576) * 255);
             }
-            GetSimulator().GetMedium<CKilobotCommunicationMedium>("kilocomm").SendOHCMessageTo(c_kilobot_entity,&m_tMessages[GetKilobotId(c_kilobot_entity)]);
-        }else{
-            GetSimulator().GetMedium<CKilobotCommunicationMedium>("kilocomm").SendOHCMessageTo(c_kilobot_entity,NULL);
         }
+        GetSimulator().GetMedium<CKilobotCommunicationMedium>("kilocomm").SendOHCMessageTo(c_kilobot_entity,&m_tMessages[GetKilobotId(c_kilobot_entity)]);
     }
+//    else{
+//        GetSimulator().GetMedium<CKilobotCommunicationMedium>("kilocomm").SendOHCMessageTo(c_kilobot_entity,NULL);
+//    }
 }
 
 
 /*-----------------------------------------------------------------------------------------------*/
 /* NOT NEEDED AT THE MOMENT                                                                      */
 /*-----------------------------------------------------------------------------------------------*/
-void CArk::UpdateVirtualEnvironments(){
+void CKilogrid::UpdateVirtualEnvironments(){
     /* Updates the virtual environments  based on the kilobots' states */
     //    for(UInt16 it=0;it< m_tKilobotsEntities.size();it++){
     //        /* Let a kilobot modify the virtual environment  */
@@ -448,7 +470,7 @@ void CArk::UpdateVirtualEnvironments(){
 /*-----------------------------------------------------------------------------------------------*/
 /* Implementation of UpdateVirtualEnvironments.                                                  */
 /*-----------------------------------------------------------------------------------------------*/
-void CArk::UpdatesVirtualEnvironmentsBasedOnKilobotState(CKilobotEntity &c_kilobot_entity){
+void CKilogrid::UpdatesVirtualEnvironmentsBasedOnKilobotState(CKilobotEntity &c_kilobot_entity){
     /* Here the virtual environment are updated based on the kilobot "kilobot_entity" state */
 }
 
@@ -456,7 +478,7 @@ void CArk::UpdatesVirtualEnvironmentsBasedOnKilobotState(CKilobotEntity &c_kilob
 /*-----------------------------------------------------------------------------------------------*/
 /* Visualization of the floor color.                                                             */
 /*-----------------------------------------------------------------------------------------------*/
-CColor CArk::GetFloorColor(const CVector2 &vec_position_on_plane) {
+CColor CKilogrid::GetFloorColor(const CVector2 &vec_position_on_plane) {
     CColor cColor=CColor::WHITE;
     int id = PositionToOption(vec_position_on_plane);
     
@@ -479,7 +501,7 @@ CColor CArk::GetFloorColor(const CVector2 &vec_position_on_plane) {
 /*-----------------------------------------------------------------------------------------------*/
 /* Updates the environment. Only needed if we have dynamic environment.                          */
 /*-----------------------------------------------------------------------------------------------*/
-void CArk::PlotEnvironment(){
+void CKilogrid::PlotEnvironment(){
     if(m_bDynamicVirtualEnvironments){
         // Update the Floor visualization of the virtual environment every
         // m_unEnvironmentPlotUpdateFrequency ticks
@@ -494,7 +516,7 @@ void CArk::PlotEnvironment(){
 /*-----------------------------------------------------------------------------------------------*/
 /* Needed for creation - called for each option.                                                 */
 /*-----------------------------------------------------------------------------------------------*/
-void CArk::AddOption(TConfigurationNode& t_node){
+void CKilogrid::AddOption(TConfigurationNode& t_node){
     m_sOption sOption;
     
     GetNodeAttribute(t_node, "id", sOption.id);
@@ -511,6 +533,8 @@ void CArk::AddOption(TConfigurationNode& t_node){
     
     GetNodeAttribute(t_node, "qualityAfterChange", sOption.qualityAfterChange);
     
+    GetNodeAttribute(t_node, "initRobotPopulation", sOption.initRobotPopulation);
+    
     
     if(sOption.AppearanceTime!=0)
         interestingTimes.push_back(sOption.AppearanceTime);
@@ -525,7 +549,7 @@ void CArk::AddOption(TConfigurationNode& t_node){
 /*-----------------------------------------------------------------------------------------------*/
 /* Returns a gps position (deiscrete) to a given continious position.                            */
 /*-----------------------------------------------------------------------------------------------*/
-CVector2 CArk::PositionToGPS( CVector2 t_position ) {
+CVector2 CKilogrid::PositionToGPS( CVector2 t_position ) {
     return CVector2(Ceil(t_position.GetX()/m_fCellLength)-1,
                     Ceil(t_position.GetY()/m_fCellLength)-1);
 }
@@ -534,7 +558,7 @@ CVector2 CArk::PositionToGPS( CVector2 t_position ) {
 /*-----------------------------------------------------------------------------------------------*/
 /* Returns the Option of the cell.                                                               */
 /*-----------------------------------------------------------------------------------------------*/
-UInt16 CArk::PositionToOption(CVector2 t_position){
+UInt16 CKilogrid::PositionToOption(CVector2 t_position){
     float x = t_position.GetX()*20;
     float y = t_position.GetY()*20;
     
@@ -548,4 +572,4 @@ UInt16 CArk::PositionToOption(CVector2 t_position){
 
 
 // ??
-REGISTER_LOOP_FUNCTIONS(CArk, "grid_loop_functions")
+REGISTER_LOOP_FUNCTIONS(CKilogrid, "kilogrid_loop_functions")

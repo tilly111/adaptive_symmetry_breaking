@@ -67,8 +67,3 @@ include(${CMAKE_SOURCE_DIR}/cmake/ARGoSPackaging.cmake)
 #
 add_subdirectory(behaviours)
 add_subdirectory(loop_functions)
-
-#
-# add folders??
-#
-add_subdirectory(experiment)
