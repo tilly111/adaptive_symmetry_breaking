@@ -47,8 +47,7 @@ else
 
     DATA_FREQUENCY=1 # frequency of saving the experiment data
 
-    echo ${MODEL} model
-	BEHAVIOUR_FILE=/build/behaviours/agent_${MODEL} # full path to the compiled robot behaviour
+    BEHAVIOUR_FILE=/build/behaviours/agent_${MODEL} # full path to the compiled robot behaviour
     LOOPFUNCTION_FILE=/build/loop_functions/libkilogrid_${MODEL}
 
     # TODO: what does this one do?
@@ -75,13 +74,11 @@ else
         EXP_FOLDER=${HOME}/Programs/argos3-test
     else
         EXP_FOLDER=${HOME}/Desktop/ProjectsXCode.nosync/argos3-test
-        echo stimmt
     fi
 	
     # path to template - either with/out visualization
     if [[ ${VIZ} -eq 1 ]]; then
         EXP_TEMPLATE_SRC=ARGoS_simulation/experiment/${n}_op_template_viz.argos
-        echo stimmt auch
     else
         EXP_TEMPLATE_SRC=ARGoS_simulation/experiment/${n}_op_template.argos
     fi

@@ -339,3 +339,32 @@ Message types
 - 22 message from kilogrid - sends position and option the robot is on
 - 23 message from kilogrid - handles global communication
 - 21 message from other robot (local broadcasting...)
+
+## Work with the cluster 
+To coppy working directory to cluster do:
+
+```
+cd argos3-test 
+```
+
+Now we can differ for the whole code do:
+
+```
+scp -r ARGoS_simulation taust@majorana.ulb.ac.be:~/Programs/argos3-test/
+```
+
+If you only replaced some code you can just copy these folders 
+
+```
+scp -r ARGoS_simulation/behaviours taust@majorana.ulb.ac.be:~/Programs/argos3-test/ARGoS_simulation/behaviours/
+scp -r ARGoS_simulation/behaviours taust@majorana.ulb.ac.be:~/Programs/argos3-test/ARGoS_simulation/loop_functions
+```
+
+If you want to get back data
+
+```
+cd plotting 
+
+scp -r taust@majorana.ulb.ac.be:~/Programs/argos3-test/data_cluster from_cluster
+```
+

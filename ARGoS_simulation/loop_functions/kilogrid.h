@@ -175,8 +175,10 @@ private:
     // init flag for sending initial commitment and quality
     bool init_flag;
     
-    // Vector containing information of the virtual robot states
+    // message time gps msg
     std::vector<Real> tLastTimeMessaged;
+    // message time for global broadcasting 
+    std::vector<Real> tLastTimeMessagedGLOBAL;
     
     std::vector< SInt16 > tEncounteredOption;
 
@@ -222,6 +224,9 @@ private:
 
     // Vector containing the commitement state of a robot
     std::vector<unsigned int> m_tCommitmentState;
+    // Vector containing the commitement state of a robot with respect to its ability to broadcast
+    std::vector<unsigned int> broadcastCommitmentState;
+    
 
     // DEBUGGING INFORMATION
     //

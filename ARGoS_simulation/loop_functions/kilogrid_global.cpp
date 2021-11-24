@@ -32,9 +32,9 @@ void CKilogrid::Init(TConfigurationNode& t_node) {
     
     // set commitment state of the swarm -> needed here because used in initial robot states
     // initialized with zero
-    m_tCommitmentState.resize(m_tOptions.size()+1);
+    broadcastCommitmentState.resize(m_tOptions.size()+1);
     for(int i = 0; i < m_tOptions.size()+1; i++){
-        m_tCommitmentState[i] = 0;
+        broadcastCommitmentState[i] = 0;
     }
     
     // Get the initial kilobots' states
@@ -58,6 +58,7 @@ void CKilogrid::Init(TConfigurationNode& t_node) {
     
     // Intializing variables
     m_fQuorumRobots=m_fQuorum*m_tKilobotsEntities.size();
+    m_tCommitmentState.resize(m_tOptions.size()+1);
 }
 
 
@@ -97,6 +98,9 @@ void CKilogrid::PreStep(){
     // Update the time variable required for the experiment (in sec)
     m_fTimeInSeconds=GetSpace().GetSimulationClock()/CPhysicsEngine::GetInverseSimulationClockTick();
     
+    // update robot state - needed here in order to keep track of wether a robot can broadcast or not
+    UpdateKilobotsState();
+    
     // Update the virtual sensor of the kilobots
     UpdateVirtualSensors();
     
@@ -119,7 +123,7 @@ void CKilogrid::PostStep(){
     for(unsigned int i=0;i< m_tKilobotsEntities.size();i++){
         m_tCommitmentState[((unsigned int) m_tKBs[i]->commitement)]++;
         // not initial state (crappy option) and uncommitted and more than 0 robots and more than
-        // robots than needed for quorum
+        // robots than needed for quorum // TODO: ad in again (m_tKBs[i]->commitement!=1) &&
         if((m_tKBs[i]->commitement!=1) && (m_tKBs[i]->commitement!=0) && (m_fQuorumRobots>0)
            && (m_tCommitmentState[((unsigned int) m_tKBs[i]->commitement)]>=m_fQuorumRobots) ){
             m_bQuorumReached=true;
@@ -150,7 +154,7 @@ void CKilogrid::PostStep(){
     
     // quit simulation if quorum reached
     if(m_bQuorumReached==true){
-        printf("reached quorum");
+        printf("reached quorum \n");
         GetSimulator().Terminate();
     }
     
@@ -255,6 +259,7 @@ void CKilogrid::SetupInitialKilobotsStates(){
     
     // timer for the cell messaging
     tLastTimeMessaged.resize(m_tKilobotsEntities.size());
+    tLastTimeMessagedGLOBAL.resize(m_tKilobotsEntities.size());
     
     for(UInt16 it=0;it< m_tKilobotsEntities.size();it++){
         SetupInitialKilobotState(*m_tKilobotsEntities[it]);
@@ -268,6 +273,7 @@ void CKilogrid::SetupInitialKilobotsStates(){
 void CKilogrid::SetupInitialKilobotState(CKilobotEntity& c_kilobot_entity){
     // init msg timer
     tLastTimeMessaged[GetKilobotId(c_kilobot_entity)] = 5;  // wait a bit before sending in order to init
+    tLastTimeMessagedGLOBAL[GetKilobotId(c_kilobot_entity)] = 5;
 }
 
 
@@ -365,6 +371,39 @@ void CKilogrid::GetExperimentVariables(TConfigurationNode& t_tree){
 
 
 /*-----------------------------------------------------------------------------------------------*/
+/* Sets the robot state, e.g. wether the robot can broadcast or not.                             */
+/*-----------------------------------------------------------------------------------------------*/
+void CKilogrid::UpdateKilobotsState(){
+    // reset broadcast
+    for(int i = 0; i < m_tOptions.size()+1; i++){
+        broadcastCommitmentState[i] = 0;
+    }
+    
+    for(UInt16 it=0;it< m_tKilobotsEntities.size();it++){
+        // Update the virtual states and actuators of the kilobot
+        UpdateKilobotState(*m_tKilobotsEntities[it]);
+    }
+//    printf("SERVER VERTEILUNG %d %d %d \n", broadcastCommitmentState[1], broadcastCommitmentState[2],broadcastCommitmentState[3]);
+}
+
+
+/*-----------------------------------------------------------------------------------------------*/
+/* Implementation of UpdateKilobotState.                                                         */
+/*-----------------------------------------------------------------------------------------------*/
+void CKilogrid::UpdateKilobotState(CKilobotEntity &c_kilobot_entity){
+    // if the robot has a red led - it is committed and also willing to broadcast
+    // this is needed because otherwise the robot would imidetely start broadcasting!
+    
+    // therefore we copy the commitment counter
+    // the robot can broadcast
+    if(GetKilobotLedColor(c_kilobot_entity)==CColor::RED){
+        broadcastCommitmentState[((unsigned int) m_tKBs[GetKilobotId(c_kilobot_entity)]->commitement)]++;
+    }
+
+}
+
+
+/*-----------------------------------------------------------------------------------------------*/
 /* This function updates the virtual sensors of each robot after certain time (like the kilogird */
 /* only sends position - of the cell - and the cells opinion).                                   */
 /*-----------------------------------------------------------------------------------------------*/
@@ -399,7 +438,7 @@ void CKilogrid::UpdateVirtualSensor(CKilobotEntity &c_kilobot_entity){
         m_tMessages[GetKilobotId(c_kilobot_entity)].data[0] = initial_commitment;
         m_tMessages[GetKilobotId(c_kilobot_entity)].data[1] = initial_quality;
         m_tMessages[GetKilobotId(c_kilobot_entity)].data[2] = m_tOptions.size();
-        m_tMessages[GetKilobotId(c_kilobot_entity)].data[3] =PositionToOption(GetKilobotPosition(c_kilobot_entity))+1;
+        m_tMessages[GetKilobotId(c_kilobot_entity)].data[3] = initial_commitment; //PositionToOption(GetKilobotPosition(c_kilobot_entity))+1;
         
         // sends msg to the robot
         GetSimulator().GetMedium<CKilobotCommunicationMedium>("kilocomm").SendOHCMessageTo(c_kilobot_entity,&m_tMessages[GetKilobotId(c_kilobot_entity)]);
@@ -422,7 +461,8 @@ void CKilogrid::UpdateVirtualSensor(CKilobotEntity &c_kilobot_entity){
         GetSimulator().GetMedium<CKilobotCommunicationMedium>("kilocomm").SendOHCMessageTo(c_kilobot_entity,&m_tMessages[GetKilobotId(c_kilobot_entity)]);
         
         
-    }else{
+    }else{ //if (m_fTimeInSeconds - tLastTimeMessagedGLOBAL[GetKilobotId(c_kilobot_entity)] > MinTimeBetweenTwoMsg){
+        //tLastTimeMessagedGLOBAL[GetKilobotId(c_kilobot_entity)] = m_fTimeInSeconds;
         // TODO: here is a hack that we only send 2 qualities ... bc we assume that 1 bad and else equal good qualities exist
         m_tMessages[GetKilobotId(c_kilobot_entity)].type = 23;
         for (int i = 1; i < m_tCommitmentState.size(); i++){
