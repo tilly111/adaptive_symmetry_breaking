@@ -7,25 +7,22 @@ EXPECTED_ARGS=6
 if [ $# -lt ${EXPECTED_ARGS} ]; then
 echo "This script generates N experiment files (.argos files)."
 echo "Usage $0 <start> <end> <options_size> <model_type> <visualization> <number_of_options> <on_cluster>"
-echo $'\t'"[MENDATORY] <start> is the index of the first experiment"
-echo $'\t'"[MENDATORY] <end> is the index of the last experiment"
-echo $'\t'"[MENDATORY] <model_type> is the type of the model (local, global or adaptive)"
-echo $'\t'"[MENDATORY] <visualization> visualization flag (0 or 1)"
-echo $'\t'"[MENDATORY] <number_of_options> the number of possible options (3 or 5)"
-echo $'\t'"[MENDATORY] <on_cluster> flag if run on cluster (0 or 1)"
+echo $'\t'"[MANDATORY] <start> is the index of the first experiment"
+echo $'\t'"[MANDATORY] <end> is the index of the last experiment"
+echo $'\t'"[MANDATORY] <model_type> is the type of the model (local, global or adaptive)"
+echo $'\t'"[MANDATORY] <visualization> visualization flag (0 or 1)"
+echo $'\t'"[MANDATORY] <number_of_options> the number of possible options (3 or 5)"
+echo $'\t'"[MANDATORY] <on_cluster> flag if run on cluster (0 or 1)"
 exit
 
 else
-    
-    HPC="i"  #i-->iceberg s-->sharc ???
-
     #Varibales to change
     # Experiment name
-    rtype=test
+    rtype=test_vis
     EXP_NAME=${rtype}  # Do not forget to change the experiment name.
     
     #TODO: atm hard coded but make it dynamic -> uncommited state to be implemented maybe 0?
-    ROBPOP1=50
+    ROBPOP1=5
     ROBPOP2=0
     ROBPOP3=0
     ROBPOP4=0
@@ -33,15 +30,15 @@ else
     
     #constants
     #Visuaisation flag
-    MODEL=${3} # should be "compare" or "inhib"
+    MODEL=${3} # should be local, global or adaptive
     VIZ=${4}
     n=${5}
     CLUSTER=${6}
-    NUM_ROBOTS=50 # number of robots
+    NUM_ROBOTS=5 # number of robots
     GPS_CELLS_NO=20 # GPS resolution: 20 per meter aka every grid cell
 
-    QUORUM=0.9 # Quorum to stop experiment  TODO CHANGE BACK
-    COMMRANGE=0.1 # Robots' communication range - not needed ?
+    QUORUM=-0.9 # Quorum to stop experiment  TODO CHANGE BACK
+    COMMRANGE=0.0 # Robots' communication range - not needed ?
         
     EXP_LENGTH=2400 #length of the in secs
 
@@ -51,22 +48,22 @@ else
     LOOPFUNCTION_FILE=/build/loop_functions/libkilogrid_${MODEL}
 
     # TODO: what does this one do?
-	if [[ ${NUM_ROBOTS} -eq 50 ]]; then
-		HRS="01"
-		MIN="00"
-	else
-		HRS="02"
-		MIN="00"
-	fi
-
-	#Set job name to distanguish between jobs on the queu
-	JOB_NAME=${rtype}_${NUM_ROBOTS}_model${MODEL}
-	sed -e "s|start|${1}|"            \
-	    -e "s|end|${2}|"              \
-	    -e "s|jobname|${JOB_NAME}|"   \
-	    -e "s|min|${MIN}|"            \
-	    -e "s|hrs|${HRS}|"            \
-	    runjob_template.sh > runjob.sh
+#	if [[ ${NUM_ROBOTS} -eq 50 ]]; then
+#		HRS="01"
+#		MIN="00"
+#	else
+#		HRS="02"
+#		MIN="00"
+#	fi
+#
+#	#Set job name to distanguish between jobs on the queu
+#	JOB_NAME=${rtype}_${NUM_ROBOTS}_model${MODEL}
+#	sed -e "s|start|${1}|"            \
+#	    -e "s|end|${2}|"              \
+#	    -e "s|jobname|${JOB_NAME}|"   \
+#	    -e "s|min|${MIN}|"            \
+#	    -e "s|hrs|${HRS}|"            \
+#	    runjob_template.sh > runjob.sh
 	
 	#Path variables
     #path to main directory

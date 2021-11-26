@@ -9,7 +9,9 @@ make
 ```
 This should build it. TODO  
 
-## How to run experiments local
+## How to run experiments
+
+### local
 
 ```
 cd argos3-test
@@ -33,6 +35,17 @@ An example run, e.g., to test the behavior is:
 ```
 sh ARGoS_simulation/data_generation_scripts/runexps_kilogird.sh 0 0 local 1 3 0
 ```
+
+### global
+First you need to load modules/source everything.
+
+```
+module load cmake 
+source Programs/argos3/set_argos_env.sh
+```
+
+TODO: how to execute proper sbatch
+
 
 ## TODO 
 Installation instruction for 
@@ -331,16 +344,20 @@ make -j4
 make install
 ```
 
-This should install these to components on newmajorana. 
+This should install these two components on newmajorana. 
 
 ### Notes regarding the implementation
 Message types 
 - 10 initial message - send by kilogrid
+- 21 message from other robot (local broadcasting...)
 - 22 message from kilogrid - sends position and option the robot is on
 - 23 message from kilogrid - handles global communication
-- 21 message from other robot (local broadcasting...)
+- 24 message from kilogrid - handles inter robot communication in the adaptive case. 
 
 ## Work with the cluster 
+
+### Data transfer
+
 To coppy working directory to cluster do:
 
 ```
@@ -367,4 +384,3 @@ cd plotting
 
 scp -r taust@majorana.ulb.ac.be:~/Programs/argos3-test/data_cluster from_cluster
 ```
-

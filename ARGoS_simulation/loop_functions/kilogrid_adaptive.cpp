@@ -1,4 +1,4 @@
-// TODO: needs to be implemented
+// TODO: init tLastTimeMessagedGridCell
 
 #include "kilogrid.h"
 
@@ -26,18 +26,14 @@ CKilogrid::~CKilogrid(){}
 /* Init method runs before every experiment starts.                                              */
 /*-----------------------------------------------------------------------------------------------*/
 void CKilogrid::Init(TConfigurationNode& t_node) {
+    // create random number generator
+    m_pcRNG = CRandom::CreateRNG("argos");
+    
     // Get experiment variables from the .argos file
     GetExperimentVariables(t_node);
     
     // Get the virtual environment from the .argos file & set up the kilogrid
     SetupVirtualEnvironments(t_node);
-    
-    // set commitment state of the swarm -> needed here because used in initial robot states
-    // initialized with zero
-    m_tCommitmentState.resize(m_tOptions.size()+1);
-    for(int i = 0; i < m_tOptions.size()+1; i++){
-        m_tCommitmentState[i] = 0;
-    }
     
     // Get the initial kilobots' states
     SetupInitialKilobotsStates();
@@ -60,6 +56,15 @@ void CKilogrid::Init(TConfigurationNode& t_node) {
     
     // Intializing variables
     m_fQuorumRobots=m_fQuorum*m_tKilobotsEntities.size();
+    m_tCommitmentState.resize(m_tOptions.size()+1);
+    // for the adaptive case
+    robot_positions.resize(m_tKilobotsEntities.size());
+    for(int x=0;x<20;x++){
+        for(int y=0;y<40;y++){
+            tLastTimeMessagedGridCell[x][y] = 5; // let some initial time
+        }
+    }
+    
 }
 
 
@@ -98,6 +103,9 @@ void CKilogrid::Destroy() {
 void CKilogrid::PreStep(){
     // Update the time variable required for the experiment (in sec)
     m_fTimeInSeconds=GetSpace().GetSimulationClock()/CPhysicsEngine::GetInverseSimulationClockTick();
+    
+    // update robot states - handles communication of the robots
+    UpdateKilobotsState();
     
     // Update the virtual sensor of the kilobots
     UpdateVirtualSensors();
@@ -250,9 +258,6 @@ void CKilogrid::SetupInitialKilobotsStates(){
     // Create Kilobots individual messages
     m_tMessages=TKilobotsMessagesVector(m_tKilobotsEntities.size());
     
-    // timer for the cell messaging
-    tLastTimeMessaged.resize(m_tKilobotsEntities.size());
-    
     for(UInt16 it=0;it< m_tKilobotsEntities.size();it++){
         SetupInitialKilobotState(*m_tKilobotsEntities[it]);
     }
@@ -263,8 +268,6 @@ void CKilogrid::SetupInitialKilobotsStates(){
 /* Implementation of SetupInitialKilobotsStates                                                  */
 /*-----------------------------------------------------------------------------------------------*/
 void CKilogrid::SetupInitialKilobotState(CKilobotEntity& c_kilobot_entity){
-    // init msg timer
-    tLastTimeMessaged[GetKilobotId(c_kilobot_entity)]=-1000;
 }
 
 
@@ -362,66 +365,181 @@ void CKilogrid::GetExperimentVariables(TConfigurationNode& t_tree){
 
 
 /*-----------------------------------------------------------------------------------------------*/
-/* This function updates the virtual sensors of each robot after certain time (like the kilogird */
-/* only sends position - of the cell - and the cells opinion).                                   */
+/* Collects the information the robots send to the kilogrid (here we decided to not go via cell  */
+/* because than we would have to loop through ever cell and there every robot -> reality cell    */
+/* can on reception set variables)                                                               */
 /*-----------------------------------------------------------------------------------------------*/
-void CKilogrid::UpdateVirtualSensors(){
+void CKilogrid::receiveKilobotsMessages(){
+//    bool debug_print = false;
+    // loop through all robots
     for(UInt16 it=0;it< m_tKilobotsEntities.size();it++){
-        // Update the virtual sensor of a kilobot based on its current state
-        UpdateVirtualSensor(*m_tKilobotsEntities[it]);
+        // Update the virtual states and actuators of the kilobot
+        receiveKilobotMessage(*m_tKilobotsEntities[it]);
+//        if(m_tKBs[GetKilobotId(*m_tKilobotsEntities[it])]->broadcast_flag == 1){
+//            debug_print = true;
+//        }
     }
+    
+    // debug section
+    // - printing the grid to the terminal to see if it works
+//    if (debug_print){
+//        for(int x=0; x < 20; x++){
+//            for(int y=0; y < 40; y++){
+//                printf("%d", message_grid[x][y].size());
+//            }
+//            printf("\n");
+//        }
+//        printf("-------------------------------------------------------\n");
+//    }
+}
+
+
+/*-----------------------------------------------------------------------------------------------*/
+/* Implementation of UpdateKilobotState.                                                         */
+/*-----------------------------------------------------------------------------------------------*/
+void CKilogrid::receiveKilobotMessage(CKilobotEntity &c_kilobot_entity){
+    // update robots position TODO: check if entity starts at 1 or 0 -> startet bei 1
+    robot_positions[GetKilobotId(c_kilobot_entity)] = PositionToGPS(GetKilobotPosition(c_kilobot_entity));
+    
+    // check if robot wants to broadcast something -> add to msg grid
+    if (m_tKBs[GetKilobotId(c_kilobot_entity)]->broadcast_flag == 1){ //  == 1
+        int com_rng = m_tKBs[GetKilobotId(c_kilobot_entity)]->com_range;
+        int x_r = int(robot_positions[GetKilobotId(c_kilobot_entity)].GetX());
+        int y_r = int(robot_positions[GetKilobotId(c_kilobot_entity)].GetY());
+        for(int x = x_r - com_rng; x<= x_r + com_rng;x++){
+            for (int y = y_r - com_rng; y<= y_r + com_rng;y++){
+                // check borders
+                if(x >= 0 && x < 20 && y >= 0 && y < 40){
+                    // check distance -> use manhattan/L1 norm!
+                    if(sqrt(pow(fabs(x-x_r),2) + pow(fabs(y-y_r),2)) < com_rng){
+                        message_grid[x][y].push_back(m_tKBs[GetKilobotId(c_kilobot_entity)]->commitement);
+                    }
+                }
+            }
+        }
+    }
+    
+    // debug section
+//    printf("[%d] Position %d %d -- \n", GetKilobotId(c_kilobot_entity), (int)robot_positions[GetKilobotId(c_kilobot_entity)].GetX(), (int)robot_positions[GetKilobotId(c_kilobot_entity)].GetY());
+}
+
+
+/*-----------------------------------------------------------------------------------------------*/
+/* This function handles sending information for each cell.                                      */
+/*-----------------------------------------------------------------------------------------------*/
+void CKilogrid::sendKilobotsMessages(){
+    
+    // loop through all cells
+    for(int x = 0; x < 20; x++){
+        for(int y = 0; y < 40; y++){
+            sendKilobotMessage(x, y);
+        }
+    }
+    
+//    for(UInt16 it=0;it< m_tKilobotsEntities.size();it++){
+//        // Update the virtual sensor of a kilobot based on its current state
+//        UpdateVirtualSensor(*m_tKilobotsEntities[it]);
+//    }
     init_flag = false;
+    
+    // reset message grid bc we send all the msg
+    for(int x=0; x < 20; x++){
+        for(int y=0; y < 40; y++){
+            message_grid[x][y].clear();
+        }
+    }
 }
 
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Implementation of UpdateVirtualSensors.                                                       */
 /*-----------------------------------------------------------------------------------------------*/
-void CKilogrid::UpdateVirtualSensor(CKilobotEntity &c_kilobot_entity){
-    if(init_flag){
-        int tmp_sum = 0;
-        int initial_commitment = 0;
-        int initial_quality = 0;
-        for(int i=0; i < m_tOptions.size();i++){
-            tmp_sum += m_tOptions[i].initRobotPopulation;
-            if(GetKilobotId(c_kilobot_entity)<tmp_sum){
-                initial_commitment = i + 1;  // set inital commitment
-                initial_quality = (UInt8) ((m_tOptions[i].quality/576) * 255);  // TODO: implement some noise -> implemented on robot side ...
-                m_tCommitmentState[i+1]++;
-                break;
-            }
+void CKilogrid::sendKilobotMessage(int x, int y){
+    //CKilobotEntity &c_kilobot_entity
+    // first of all check if robot is above the cell -- this is only needed in simulation bc we need
+    // to know which robots we have to address, in reality we would just broadcast and if robot on
+    // top it would receive
+    TKilobotEntitiesVector currentRobots;
+    for(UInt16 it=0;it< m_tKilobotsEntities.size();it++){
+        if(robot_positions[GetKilobotId(*m_tKilobotsEntities[it])].GetX() == x and robot_positions[GetKilobotId(*m_tKilobotsEntities[it])].GetY() == y){
+            currentRobots.push_back(m_tKilobotsEntities[it]);
         }
-        
-        // send initial commitment + initial quality
-        m_tMessages[GetKilobotId(c_kilobot_entity)].type = 10;
-        m_tMessages[GetKilobotId(c_kilobot_entity)].data[0] = initial_commitment;
-        m_tMessages[GetKilobotId(c_kilobot_entity)].data[1] = initial_quality;
-        m_tMessages[GetKilobotId(c_kilobot_entity)].data[2] = m_tOptions.size();
-        
-        // sends msg to the robot
-        GetSimulator().GetMedium<CKilobotCommunicationMedium>("kilocomm").SendOHCMessageTo(c_kilobot_entity,&m_tMessages[GetKilobotId(c_kilobot_entity)]);
-        return;
     }
-    // send msg like it comes from a tile every MinTimeBetweenTwoMsg
-    if(m_fTimeInSeconds - tLastTimeMessaged[GetKilobotId(c_kilobot_entity)] > MinTimeBetweenTwoMsg){
-        // reset counter
-        tLastTimeMessaged[GetKilobotId(c_kilobot_entity)] = m_fTimeInSeconds;
-        // Set type of the message 22 means msg from the kilogrid
-        m_tMessages[GetKilobotId(c_kilobot_entity)].type = 22;
-        // send option of the robot
-        // +1 bc arrays start at 0 and options start at 1
-        m_tMessages[GetKilobotId(c_kilobot_entity)].data[0] =PositionToOption(GetKilobotPosition(c_kilobot_entity))+1;
-        // send x position
-        m_tMessages[GetKilobotId(c_kilobot_entity)].data[1] = (UInt8) PositionToGPS(GetKilobotPosition(c_kilobot_entity)).GetX();
-        // send y position
-        m_tMessages[GetKilobotId(c_kilobot_entity)].data[2] = (UInt8) PositionToGPS(GetKilobotPosition(c_kilobot_entity)).GetY();
-        
-        // sends msg to the robot
-        GetSimulator().GetMedium<CKilobotCommunicationMedium>("kilocomm").SendOHCMessageTo(c_kilobot_entity,&m_tMessages[GetKilobotId(c_kilobot_entity)]);
+    // now we calculate which message to send for every robot - this is also only necessary in sim
+    for(UInt16 it=0; it < currentRobots.size();it++){
+        // usage *currentRobots[it]
+        // send initial messages - this is also needed in reality
+        if(init_flag){
+            int tmp_sum = 0;
+            int initial_commitment = 0;
+            int initial_quality = 0;
+            for(int i=0; i < m_tOptions.size();i++){
+                tmp_sum += m_tOptions[i].initRobotPopulation;
+                if(GetKilobotId(*currentRobots[it])<tmp_sum){
+                    initial_commitment = i + 1;  // set inital commitment
+                    initial_quality = (UInt8) ((m_tOptions[i].quality/576) * 255);
+                    m_tCommitmentState[i+1]++;
+                    break;
+                }
+            }
+
+            // send initial commitment + initial quality
+            m_tMessages[GetKilobotId(*currentRobots[it])].type = 10;
+            m_tMessages[GetKilobotId(*currentRobots[it])].data[0] = initial_commitment;
+            m_tMessages[GetKilobotId(*currentRobots[it])].data[1] = initial_quality;
+            m_tMessages[GetKilobotId(*currentRobots[it])].data[2] = m_tOptions.size();
+
+            // sends msg to the robot
+            GetSimulator().GetMedium<CKilobotCommunicationMedium>("kilocomm").SendOHCMessageTo(*currentRobots[it],&m_tMessages[GetKilobotId(*currentRobots[it])]);
+            continue;
+        }
+        // boradcast message from other robot - virtualized
+        if(message_grid[x][y].size() > 0){
+            unsigned int commitement_to_send = message_grid[x][y][m_pcRNG->Uniform(CRange<UInt32>(0, message_grid[x][y].size()))];
+            
+            m_tMessages[GetKilobotId(*currentRobots[it])].type = 24;
+            m_tMessages[GetKilobotId(*currentRobots[it])].data[0] = commitement_to_send;
+            
+            GetSimulator().GetMedium<CKilobotCommunicationMedium>("kilocomm").SendOHCMessageTo(*currentRobots[it],&m_tMessages[GetKilobotId(*currentRobots[it])]);
+            continue;
+        }
+        // send position message aka GRID_MSG
+        if(m_fTimeInSeconds - tLastTimeMessagedGridCell[x][y] > MinTimeBetweenTwoMsg){
+            // Set type of the message 22 means msg from the kilogrid
+            m_tMessages[GetKilobotId(*currentRobots[it])].type = 22;
+            // send option of the robot
+            // +1 bc arrays start at 0 and options start at 1
+            m_tMessages[GetKilobotId(*currentRobots[it])].data[0] = PositionToOption(CVector2(x, y))+1;
+            // send x position
+            m_tMessages[GetKilobotId(*currentRobots[it])].data[1] = (UInt8) x;
+            // send y position
+            m_tMessages[GetKilobotId(*currentRobots[it])].data[2] = (UInt8) y;
+    
+            // sends msg to the robot
+            GetSimulator().GetMedium<CKilobotCommunicationMedium>("kilocomm").SendOHCMessageTo(*currentRobots[it],&m_tMessages[GetKilobotId(*currentRobots[it])]);
+            continue;
+        }
     }
-    //else{
-    //    GetSimulator().GetMedium<CKilobotCommunicationMedium>("kilocomm").SendOHCMessageTo(c_kilobot_entity,NULL);
-    //}
+    // timer need to be resetted even if there was no robot in order to have a cycle in the gridcells
+    if(m_fTimeInSeconds - tLastTimeMessagedGridCell[x][y] > MinTimeBetweenTwoMsg){
+        tLastTimeMessagedGridCell[x][y] = m_fTimeInSeconds;
+    }
+    
+//    }else if(message_grid[(int)(robot_positions[GetKilobotId(c_kilobot_entity)].GetX())][(int)(robot_positions[GetKilobotId(c_kilobot_entity)].GetY())].size() > 0){ // there is a broadcast msg for the robot
+//        // assuming there should be mostly only one msg we take the first element
+//        // TODO: maybe we need to take a random element
+//        unsigned int commitement_to_send =
+//        message_grid[(int)(robot_positions[GetKilobotId(c_kilobot_entity)].GetX())]
+//        [(int)(robot_positions[GetKilobotId(c_kilobot_entity)].GetY())]
+//        [m_pcRNG->Uniform(CRange<UInt32>(0,
+//                                         message_grid[(int)(robot_positions[GetKilobotId(c_kilobot_entity)].GetX())]
+//                                         [(int)(robot_positions[GetKilobotId(c_kilobot_entity)].GetY())].size()))];
+//
+//        m_tMessages[GetKilobotId(c_kilobot_entity)].type = 24;
+//        m_tMessages[GetKilobotId(c_kilobot_entity)].data[0] = commitement_to_send;
+//
+//        GetSimulator().GetMedium<CKilobotCommunicationMedium>("kilocomm").SendOHCMessageTo(c_kilobot_entity,&m_tMessages[GetKilobotId(c_kilobot_entity)]);
+//    }
 }
 
 

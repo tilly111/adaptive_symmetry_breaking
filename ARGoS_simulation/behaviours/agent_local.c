@@ -674,9 +674,9 @@ void message_rx( message_t *msg, distance_measurement_t *d ) {
     }else if(msg->type == AGENT_MSG && !init_flag){
         received_msg_robot_write = true; // flag for update the robot state
         received_commitment = data1;  // data 1 should store the option the other robot broadcasts
-        received_quality = data2;  // data1 should store the quality of the other robot broadcasting * 255
+        //received_quality = data2;  // data1 should store the quality of the other robot broadcasting * 255
     }else{
-        printf("error - should get triggered if msg from other robot is received!! \n");
+        printf("[%d] ERROR - unknown message type: %d \n", kilo_uid, msg->type);
     }
 }
 

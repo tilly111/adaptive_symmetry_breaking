@@ -396,7 +396,7 @@ void CKilogrid::UpdateKilobotState(CKilobotEntity &c_kilobot_entity){
     
     // therefore we copy the commitment counter
     // the robot can broadcast
-    if(GetKilobotLedColor(c_kilobot_entity)==CColor::RED){
+    if(m_tKBs[GetKilobotId(c_kilobot_entity)]->quality > 0){
         broadcastCommitmentState[((unsigned int) m_tKBs[GetKilobotId(c_kilobot_entity)]->commitement)]++;
     }
 
@@ -461,12 +461,12 @@ void CKilogrid::UpdateVirtualSensor(CKilobotEntity &c_kilobot_entity){
         GetSimulator().GetMedium<CKilobotCommunicationMedium>("kilocomm").SendOHCMessageTo(c_kilobot_entity,&m_tMessages[GetKilobotId(c_kilobot_entity)]);
         
         
-    }else{ //if (m_fTimeInSeconds - tLastTimeMessagedGLOBAL[GetKilobotId(c_kilobot_entity)] > MinTimeBetweenTwoMsg){
-        //tLastTimeMessagedGLOBAL[GetKilobotId(c_kilobot_entity)] = m_fTimeInSeconds;
+    }else if (m_fTimeInSeconds - tLastTimeMessagedGLOBAL[GetKilobotId(c_kilobot_entity)] > MinTimeBetweenTwoMsg){
+        tLastTimeMessagedGLOBAL[GetKilobotId(c_kilobot_entity)] = m_fTimeInSeconds;
         // TODO: here is a hack that we only send 2 qualities ... bc we assume that 1 bad and else equal good qualities exist
         m_tMessages[GetKilobotId(c_kilobot_entity)].type = 23;
         for (int i = 1; i < m_tCommitmentState.size(); i++){
-            m_tMessages[GetKilobotId(c_kilobot_entity)].data[i - 1] = m_tCommitmentState[i];
+            m_tMessages[GetKilobotId(c_kilobot_entity)].data[i - 1] = broadcastCommitmentState[i];
             if(i==1){ // crappy option
                 m_tMessages[GetKilobotId(c_kilobot_entity)].data[i - 1 + m_tCommitmentState.size() - 1] = (UInt8)((m_tOptions[i-1].quality / 576) * 255);
             }else if(i==2){  // equal good option

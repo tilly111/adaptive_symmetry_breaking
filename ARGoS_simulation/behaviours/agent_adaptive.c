@@ -19,6 +19,7 @@
 #define AGENT_MSG 21
 #define GRID_MSG 22
 #define GLOBAL_MSG 23  // msg mimicing the global communication
+#define VIRTUAL_LOCAL_MSG 24
 #define INIT_MSG 10
 
 #define size(x)  (sizeof(x) / sizeof((x)[0]))  // length of array bc c is fun
@@ -29,9 +30,6 @@
 #define NUMBER_OF_SAMPLES 30 // we sample each second
 #define BROADCAST_SEC 15  // try to broadcast every x seconds
 #define UPDARTE_COMMITMENT_SEC 5  // updates commitment every 10 sec
-
-#define NUMBER_OF_OPTIONS 3
-#define GLOBAL false
 
 
 
@@ -122,12 +120,7 @@ uint32_t last_broadcast_ticks = 0;
 
 message_t message;  // variable for outgoing msgs
 
-// global communication
-uint8_t robot_pop[NUMBER_OF_OPTIONS];
-uint8_t robot_popQ[NUMBER_OF_OPTIONS];
-//uint8_t robot_pop_2Q = 0;
-//uint8_t robot_pop_3Q = 0;
-
+uint8_t communication_range = 0;  // communication range in cells
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Communication variables for robot - kilogrid                                                  */
@@ -138,6 +131,12 @@ bool update_orientation = false;  // set if the orientation has been updated
 uint8_t received_x = 0;  // saves received x pos of robot
 uint8_t received_y = 0;  // saves received y pos of robot
 uint8_t received_option = 0;  // saves received opinion of the tile the robot is on
+// init TODO:...
+bool init_write = false;
+bool init_flag = true;
+uint8_t received_quality = 0;
+uint8_t received_number_of_options = 0;
+uint8_t NUMBER_OF_OPTIONS = 0;
 
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -342,6 +341,16 @@ void sample(){
 
 
 /*-----------------------------------------------------------------------------------------------*/
+/* Function for updating the communication range.                                                */
+/*-----------------------------------------------------------------------------------------------*/
+void update_communication_range() {
+    
+    //communication_range = ...
+}
+
+
+
+/*-----------------------------------------------------------------------------------------------*/
 /* Function for updating the commitment state (wrt to the received message)                      */
 /*-----------------------------------------------------------------------------------------------*/
 void update_commitment() {
@@ -379,7 +388,7 @@ void update_commitment() {
         }else{  // robot is committed
             // if current sampled option is better than current committed one switch
             // COMPARE
-            if(quality > my_commitment_quality + PARAM && random <= P_qualityInt){
+            if(quality > my_commitment_quality + PARAM && random <= P_qualityInt && my_commitment != discovered_option){
                 individual = true;
             }
             
@@ -424,7 +433,6 @@ void update_commitment() {
 /* Function to broadcast the commitment message                                                  */
 /*-----------------------------------------------------------------------------------------------*/
 void broadcast() {
-    if(GLOBAL) return; // global communication is simulated by the environment!!
     if(kilo_ticks > last_broadcast_ticks + BROADCAST_TICKS){
         last_broadcast_ticks = kilo_ticks;
         
@@ -435,18 +443,21 @@ void broadcast() {
         unsigned int P_ShareCommitementInt = (unsigned int)(my_commitment_quality * range_rnd) + 1;
         
         if (my_commitment != 0 && my_commitment_quality > 0 && random <= P_ShareCommitementInt){
-            message.data[0] = 0;  // do we need this as flag?!?!?!
-            message.data[1] = my_commitment;
-            message.data[2] = (uint8_t) (my_commitment_quality*255.0);
-            //message.data[3] = kilo_uid;
-            message.type = AGENT_MSG;
-            message.crc = message_crc(&message);
+        // here we have to insert a hack -> we communicate via the kilogrid which basically means we
+        // set our debug state
+            // ATTENTION: we do not need to set our commitment here, because it is always set at the
+            // end of the control loop (for data collecting reasons - but now also for logic)
+            // debug_info_set(commitement, my_commitment);
             
-            broadcast_flag = true;
-        }else{
-            broadcast_flag = false;
+            // we now just need to set our communication range and the flag that we indeed want to
+            // broadcast
+            debug_info_set(broadcast_flag, 1);
+            debug_info_set(com_range, communication_range);
+            return;
         }
     }
+    // if we do not broadcast reset the broadcast flag every cycle -> assuming we do one cycle per calculation
+    debug_info_set(broadcast_flag, 0);
 }
 
 
@@ -504,64 +515,12 @@ void update_robot_state(){
 /* Updates the robot state, needs to be called when new msg from other robot arrived             */
 /*-----------------------------------------------------------------------------------------------*/
 void update_received_msg(){
-    if(GLOBAL){  // global case
-        // remove myself from the robot count
-        for(int i = 0; i < size(robot_pop); i++){
-            if (i+1 == my_commitment && robot_pop[i] > 0){
-                robot_pop[i] = robot_pop[i] - 1;
-                break;
-            }
-        }
-        
-        // compute the number of robots signalling each option
-        // (i.e., number of robots by their broadcast probability)
-        double P[NUMBER_OF_OPTIONS];
-        double communicatingBots = 0.0;
-        for(int i = 0; i < size(robot_pop); i++){
-            P[i] = robot_pop[i];
-            communicatingBots += robot_pop[i];
-        }
-
-        // normalise each subpopulation by the signalling population size
-        if (communicatingBots > 0){
-            for(int i = 0; i < size(robot_pop); i++){
-                P[i] = P[i] * robot_popQ[i]/communicatingBots;
-            }
-        } else {
-            // no communication made by any robot
-            received_msg_robot = false;
-            return;
-        }
-
-        // draw random number
-        unsigned int range_rnd = 10000;
-        unsigned int random = GetRandomNumber(range_rnd);
-        
-        // convert probs
-        unsigned int P_Int[NUMBER_OF_OPTIONS];
-        for(int i = 0; i < size(robot_pop); i++){
-            P_Int[i] = P[i] * range_rnd;
-        }
-        
-        // select one
-        received_msg_robot = false;
-        unsigned int sum = 0;
-        for(int i = 0; i < size(robot_pop); i++){
-            sum += P_Int[i];
-            if(P[i] > 0 && random <= sum){
-                received_msg_robot = true;
-                neigh_commitment = i+1;
-                break;
-            }
-        }
-    }else{ // local communication
-        neigh_commitment = received_commitment;
-        // set msg received flag
-        received_msg_robot = true;
-    }
+    // set neighbour commitement
+    neigh_commitment = received_commitment;
+    // set msg received flag
+    received_msg_robot = true;
     // reset computation flag
     received_msg_robot_write = false;
-    
 }
 
 
@@ -598,7 +557,7 @@ void GoToGoalLocation() {
         }else if (Robot_GPS_Y < Goal_GPS_Y && Robot_GPS_X < Goal_GPS_X){  // right upper case
             if(Robot_orientation == 45){ right_direction = true;}
         }else{
-            printf("something wrong in drive cases!!!!! \n");
+            printf("[%d] ERROR - something wrong in drive cases \n", kilo_uid);
         }
         
         // if we are not in the right direction -> turn
@@ -676,7 +635,6 @@ void setup(){
     srand(seed);
 
     // Initialise motion variables
-    set_motion( FORWARD );
     last_motion_ticks = rand() % MAX_STRAIGHT_TICKS + 1;
 
     // Initialise broadcast variables
@@ -694,9 +652,6 @@ void setup(){
     Robot_GPS_X = GPS_MAX_CELL_X/2;
     Robot_GPS_Y = GPS_MAX_CELL_Y/2;
         
-    // initialize sampling - needed otherwise we have deadlock that only init option gets sampled
-    op_to_sample = rand() % NUMBER_OF_OPTIONS + 1; // options start at one
-    
     // TODO random sample counter init that not all robots at once switch their op
     sample_counter = rand() % SAMPLE_COUNTER_MAX;
     
@@ -704,10 +659,11 @@ void setup(){
     sample_counter_max_noise = SAMPLE_COUNTER_MAX + (int)(generateGaussianNoise(0, sample_counter_std_dev) * 10);
     update_ticks_noise = UPDATE_TICKS + (int)(generateGaussianNoise(0, sample_counter_std_dev) * 31);
     
+    // TODO: for testing purposes we set the communication range fixed
+    communication_range = 2;
+    
     // Intialize time to 0
     kilo_ticks = 0;
-    
-    random_walk_waypoint_model(SELECT_NEW_WAY_POINT);
 }
 
 
@@ -719,111 +675,123 @@ void message_rx( message_t *msg, distance_measurement_t *d ) {
     uint8_t data0 = msg->data[0];
     uint8_t data1 = msg->data[1];
     uint8_t data2 = msg->data[2];
-    if (msg->type == GRID_MSG){
+    
+    if(msg->type == INIT_MSG){
+        init_write = true;
+        received_commitment = data0;
+        received_quality = data1;
+        received_number_of_options = data2;
+        received_option = msg->data[3];
+    }else if(msg->type == GRID_MSG && !init_flag){
         received_msg_kilogrid = true;  // flag that we received msg from kilogrid
         received_option = data0;  // get falg and option
         received_x = data1;  // get x position of the robot
         received_y = data2;  // get y position of the robot
-    }else if(msg->type == AGENT_MSG && !GLOBAL){  // make sure that this only happens iff local com
-        received_msg_robot_write = true; // flag for update the robot state
-        received_commitment = data1;  // data 1 should store the option the other robot broadcasts
-        received_quality = data2;  // data1 should store the quality of the other robot broadcasting * 255
-    }else if(msg->type == GLOBAL_MSG && GLOBAL){
-        received_msg_robot_write = true; // flag for update the robot state
-        // take option quality: hack because we only have limited space
-        uint8_t bad_quality = msg->data[NUMBER_OF_OPTIONS];
-        uint8_t good_quality = msg->data[NUMBER_OF_OPTIONS + 1];
-        for (int i = 0; i < NUMBER_OF_OPTIONS; i++){
-            robot_pop[i] = msg->data[i];
-            if (i == 0) robot_popQ[i] = bad_quality;
-            else robot_popQ[i] = good_quality;
-        }
+    }else if(msg->type == VIRTUAL_LOCAL_MSG && !init_flag){  // msg from other robot via kilogrid
+        received_msg_robot_write = true;  // flag for update the robot state
+        received_commitment = data0;  // data 1 should store the option the other robot broadcasts
     }else{
-        printf("error - should get triggered if msg from other robot is received!! \n");
+        printf("[%d] ERROR - unknown message type: %d \n", kilo_uid, msg->type);
     }
 }
 
 /*-----------------------------------------------------------------------------------------------*/
-/* Callback function for message transmission                                                    */
+/* Callback function for message transmission - this methods do not need to be implemented for   */
+/* the simulation bc inter robot communication is handled by the kilogrid                        */
 /*-----------------------------------------------------------------------------------------------*/
 message_t *message_tx() {
-    if(broadcast_flag) {
-        return &message;
-    }
     return 0;
 }
 
 /*-----------------------------------------------------------------------------------------------*/
-/* Callback function for successful transmission                                                 */
+/* Callback function for successful transmission  - this methods do not need to be implemented   */
+/* for the simulation bc inter robot communication is handled by the kilogrid                    */
 /*-----------------------------------------------------------------------------------------------*/
 void tx_message_success() {
-    broadcast_flag = false;
+    return;
 }
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Main loop                                                                                     */
 /*-----------------------------------------------------------------------------------------------*/
 void loop() {
-    // update robot state and select waypoint if update msg from kilogrid
-    if (received_msg_kilogrid) {
-        update_robot_state();  // updates internal state variables and sensor readings
-        check_if_against_a_wall();  // checks if the robot is on wall
-        random_walk_waypoint_model(UPDATE_WAY_POINT); // update the waypoints
-    }
+    if (init_flag){  // initialize robot state + other stuff
+        if (init_write){  // received the msg
+            NUMBER_OF_OPTIONS = received_number_of_options;
+            op_to_sample = rand() % NUMBER_OF_OPTIONS + 1;
+            my_commitment = received_commitment;
+            my_commitment_quality = (float)(received_quality/255.0); //+ generateGaussianNoise(0, sample_counter_std_dev);
+            current_ground = received_option;
+            // reset init flags
+            init_write = false;
+            init_flag = false;
+            
+            random_walk_waypoint_model(SELECT_NEW_WAY_POINT);
+            set_motion( FORWARD );
+        }
+    }else{  // normal control loop case
+        // update robot state and select waypoint if update msg from kilogrid
+        if (received_msg_kilogrid) {
+            update_robot_state();  // updates internal state variables and sensor readings
+            check_if_against_a_wall();  // checks if the robot is on wall
+            random_walk_waypoint_model(UPDATE_WAY_POINT); // update the waypoints
+        }
     
-    if(received_msg_robot_write){
-        update_received_msg();
-    }
+        // received msg from other robot
+        if(received_msg_robot_write){
+            update_received_msg();
+        }
     
-    // sample - every cycle
-    sample();
+        // sample - every cycle
+        sample();
+        
+        // move towards random location
+        GoToGoalLocation();
+        
+        // update commitment every 15 sec ?
+        update_commitment();
+        
+        // try to broadcast
+        broadcast();
     
-    // move towards random location
-    GoToGoalLocation();
-    
-    // update commitment every 15 sec ?
-    update_commitment();
-    
-    // try to broadcast
-    broadcast();
-    
-    // my commitment - atm current ground...
-    if (hit_wall || stuck){
-        if (stuck){
-            set_color(RGB(1,1,1));
+        // visulizes the commitment of the robot
+        if (hit_wall || stuck){
+            if (stuck){
+                set_color(RGB(1,1,1));
+            }else{
+                set_color(RGB(0,0,0));
+            }
         }else{
-            set_color(RGB(0,0,0));
-        }
-    }else{
-        switch(my_commitment) {
-        case 5:
-            set_color(RGB(0,3,3));
-            break;
-        case 4:
-            set_color(RGB(3,1,0));
-            break;
-        case 3:
-            set_color(RGB(1,0,3));
-            break;
-        case 2:
-            set_color(RGB(0,3,0));
-            break;
-        case 1:
-            set_color(RGB(3,0,1));
-            break;
-        case 0:
-            set_color(RGB(0,0,0));
-            break;
-        case 42:
-            set_color(RGB(3,3,3));
-            break;
-        default:
-            printf("SHOULDNT HAPPEN SOMETHINGS WRONG STATE %d \n", current_ground);
-            set_color(RGB(3,3,3));
-            break;
+            switch(my_commitment) {
+            case 5:
+                set_color(RGB(0,3,3));
+                break;
+            case 4:
+                set_color(RGB(3,1,0));
+                break;
+            case 3:
+                set_color(RGB(1,0,3));
+                break;
+            case 2:
+                set_color(RGB(0,3,0));
+                break;
+            case 1:
+                set_color(RGB(3,0,1));
+                break;
+            case 0:
+                set_color(RGB(0,0,0));
+                break;
+            case 42:
+                set_color(RGB(3,3,3));
+                break;
+            default:
+                printf("[%d] ERROR - wrong state %d \n", kilo_uid, my_commitment);
+                set_color(RGB(3,3,3));
+                break;
+            }
         }
     }
-    
+    // debug info - is now also important for the inter robot communication, so do not delete
     debug_info_set(commitement, my_commitment);
     
     // debug prints

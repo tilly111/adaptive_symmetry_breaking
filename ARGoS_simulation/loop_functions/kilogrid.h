@@ -129,8 +129,22 @@ public:
     // returns the corresponding option to the grid
     UInt16 PositionToOption(CVector2 t_position);
     
+    // some functions for the adaptive case - to mimic the real kilogrid
+    // this method mimics the reception of the messages from the robots (to the kilogrid)
+    void receiveKilobotsMessages();
+    // its implementation
+    void receiveKilobotMessage(CKilobotEntity& c_kilobot_entity);
+    
+    // this method implements the messages send to the robots from the kilogrid
+    void sendKilobotsMessages();
+    // its implementation
+    void sendKilobotMessage(int x, int y);
+    
+    
 private:
     // basic attribures of the loop function
+    // random number stuff
+    CRandom::CRNG* m_pcRNG;
     // List of the Kilobots in the space
     typedef std::vector<CKilobotEntity*> TKilobotEntitiesVector;
     TKilobotEntitiesVector m_tKilobotsEntities;
@@ -138,14 +152,6 @@ private:
     // List of the messages sent by communication entities
     typedef std::vector<message_t> TKilobotsMessagesVector;
     TKilobotsMessagesVector m_tMessages;
-
-    // kilobot message  TODO: check if this fits !
-//    typedef struct {
-//        UInt8 Type;
-//        UInt8 ID;
-//        UInt8 Data[7];
-//    } KilobotMessage;
-
    
     // virtual environment variables
     // virtual environment struct
@@ -179,9 +185,8 @@ private:
     std::vector<Real> tLastTimeMessaged;
     // message time for global broadcasting 
     std::vector<Real> tLastTimeMessagedGLOBAL;
-    
-    std::vector< SInt16 > tEncounteredOption;
-
+    // message time for adaptive case for grid cells
+    Real tLastTimeMessagedGridCell[20][40];
     
     // Time for one kilobot message to be sent
     Real MinTimeBetweenTwoMsg;
@@ -226,6 +231,12 @@ private:
     std::vector<unsigned int> m_tCommitmentState;
     // Vector containing the commitement state of a robot with respect to its ability to broadcast
     std::vector<unsigned int> broadcastCommitmentState;
+    
+    // Vector which keeps track of the position of each robot
+    std::vector<CVector2> robot_positions;
+    
+    // grid of lists which contain the messages which need to be send to every grid cell respectively
+    std::vector<unsigned int> message_grid[20][40];
     
 
     // DEBUGGING INFORMATION
