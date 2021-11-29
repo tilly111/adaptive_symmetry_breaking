@@ -50,7 +50,7 @@ else
 	#Path variables
     #path to main directory
     if [[ ${CLUSTER} -eq 1 ]]; then
-        EXP_FOLDER=${HOME}/Programs/argos3-test
+        EXP_FOLDER=${HOME}/Programs/adaptive_symmetry_breaking
     else
         EXP_FOLDER=${HOME}/Desktop/ProjectsXCode.nosync/argos3-test
     fi
