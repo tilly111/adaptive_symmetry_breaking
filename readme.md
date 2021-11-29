@@ -384,3 +384,11 @@ cd plotting
 
 scp -r taust@majorana.ulb.ac.be:~/Programs/argos3-test/data_cluster from_cluster
 ```
+
+## Testing the cluster 
+some useful comments:
+starting an experiment:
+
+```
+sh ARGoS_simulation/data_generation_scripts/cluster_test.sh 0 0 local 0 3 1
+```
