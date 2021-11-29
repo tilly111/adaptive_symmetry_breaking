@@ -659,9 +659,6 @@ void setup(){
     sample_counter_max_noise = SAMPLE_COUNTER_MAX + (int)(generateGaussianNoise(0, sample_counter_std_dev) * 10);
     update_ticks_noise = UPDATE_TICKS + (int)(generateGaussianNoise(0, sample_counter_std_dev) * 31);
     
-    // TODO: for testing purposes we set the communication range fixed
-    communication_range = 2;
-    
     // Intialize time to 0
     kilo_ticks = 0;
 }
@@ -682,6 +679,8 @@ void message_rx( message_t *msg, distance_measurement_t *d ) {
         received_quality = data1;
         received_number_of_options = data2;
         received_option = msg->data[3];
+        communication_range = msg->data[4];
+        
     }else if(msg->type == GRID_MSG && !init_flag){
         received_msg_kilogrid = true;  // flag that we received msg from kilogrid
         received_option = data0;  // get falg and option

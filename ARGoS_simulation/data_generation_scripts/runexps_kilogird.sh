@@ -18,11 +18,11 @@ exit
 else
     #Varibales to change
     # Experiment name
-    rtype=test_vis
+    rtype=test_adaptive_local
     EXP_NAME=${rtype}  # Do not forget to change the experiment name.
     
     #TODO: atm hard coded but make it dynamic -> uncommited state to be implemented maybe 0?
-    ROBPOP1=5
+    ROBPOP1=50
     ROBPOP2=0
     ROBPOP3=0
     ROBPOP4=0
@@ -34,11 +34,12 @@ else
     VIZ=${4}
     n=${5}
     CLUSTER=${6}
-    NUM_ROBOTS=5 # number of robots
+    NUM_ROBOTS=50 # number of robots
     GPS_CELLS_NO=20 # GPS resolution: 20 per meter aka every grid cell
 
     QUORUM=-0.9 # Quorum to stop experiment  TODO CHANGE BACK
-    COMMRANGE=0.0 # Robots' communication range - not needed ?
+    COMMRANGE=2 # Robots' communication range in kilogrid cells (radius) - init range goes from 0 to 45 this would be global then!
+    COMMRANGE_OLD=0.0  # this is for direct robot communication, which we plan to omit!!!
         
     EXP_LENGTH=2400 #length of the in secs
 
@@ -46,24 +47,6 @@ else
 
     BEHAVIOUR_FILE=/build/behaviours/agent_${MODEL} # full path to the compiled robot behaviour
     LOOPFUNCTION_FILE=/build/loop_functions/libkilogrid_${MODEL}
-
-    # TODO: what does this one do?
-#	if [[ ${NUM_ROBOTS} -eq 50 ]]; then
-#		HRS="01"
-#		MIN="00"
-#	else
-#		HRS="02"
-#		MIN="00"
-#	fi
-#
-#	#Set job name to distanguish between jobs on the queu
-#	JOB_NAME=${rtype}_${NUM_ROBOTS}_model${MODEL}
-#	sed -e "s|start|${1}|"            \
-#	    -e "s|end|${2}|"              \
-#	    -e "s|jobname|${JOB_NAME}|"   \
-#	    -e "s|min|${MIN}|"            \
-#	    -e "s|hrs|${HRS}|"            \
-#	    runjob_template.sh > runjob.sh
 	
 	#Path variables
     #path to main directory
@@ -89,7 +72,7 @@ else
 	BEHAVIOUR_PATH=${EXP_FOLDER}${BEHAVIOUR_FILE}
     LOOPFUNCTION_PATH=${EXP_FOLDER}${LOOPFUNCTION_FILE}
 	
-	for i in `seq ${1} ${2}`; #Creating experiments folder
+	for i in `seq ${1} ${2}`;
 	do
 
     	NAME_VARIABLE=${MODEL}_
@@ -108,13 +91,14 @@ else
 		-e "s|datafrequency|${DATA_FREQUENCY}|"        \
 		-e "s|num_robots|${NUM_ROBOTS}|"               \
 		-e "s|quorumvalue|${QUORUM}|"                  \
-        -e "s|commrng|${COMMRANGE}|"                   \
+        -e "s|commrng|${COMMRANGE_OLD}|"               \
         -e "s|numberofgpscells|${GPS_CELLS_NO}|"       \
         -e "s|robpop1|${ROBPOP1}|"                     \
         -e "s|robpop2|${ROBPOP2}|"                     \
         -e "s|robpop3|${ROBPOP3}|"                     \
         -e "s|robpop4|${ROBPOP4}|"                     \
         -e "s|robpop5|${ROBPOP5}|"                     \
+        -e "s|initcomrng|${COMMRANGE}|"                \
 		        ${EXP_TEMPLATE_SRC} > ${EXP_FILE}
 
         # TODO: when we know ho to schedule on cluster move this outside the loop

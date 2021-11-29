@@ -49,6 +49,7 @@
         frequency="datafrequency"
         quorum="quorumvalue"
         gps_cellsX="numberofgpscells"
+        initComRange="initcomrng"
         Trobot="T_ROBOT">
     </variables>
 

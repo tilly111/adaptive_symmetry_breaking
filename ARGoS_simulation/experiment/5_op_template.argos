@@ -50,6 +50,7 @@
         quorum="quorumvalue"
         initial_opinion="initial_opinion_var"
         gps_cellsX="numberofgpscells"
+        initComRange="initcomrng"
         Trobot="T_ROBOT">
     </variables>
 

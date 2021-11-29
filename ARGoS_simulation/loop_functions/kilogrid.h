@@ -128,12 +128,14 @@ public:
     
     // returns the corresponding option to the grid
     UInt16 PositionToOption(CVector2 t_position);
+    UInt16 GridCellToOption(CVector2 t_position);
     
     // some functions for the adaptive case - to mimic the real kilogrid
     // this method mimics the reception of the messages from the robots (to the kilogrid)
     void receiveKilobotsMessages();
     // its implementation
     void receiveKilobotMessage(CKilobotEntity& c_kilobot_entity);
+    void receiveKilobotMessage(int x, int y);
     
     // this method implements the messages send to the robots from the kilogrid
     void sendKilobotsMessages();
@@ -180,6 +182,9 @@ private:
     bool shuffle;
     // init flag for sending initial commitment and quality
     bool init_flag;
+    
+    // init communication range of one robot
+    int INIITALCOMRANGE;
     
     // message time gps msg
     std::vector<Real> tLastTimeMessaged;
