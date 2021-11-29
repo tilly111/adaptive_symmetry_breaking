@@ -16,7 +16,7 @@ include(ARGoSCheckQTOpenGL)
 #
 # Find Lua
 #
-find_package(Lua53 REQUIRED)
+#find_package(Lua53 REQUIRED)
 
 #
 # Set ARGoS include dir
