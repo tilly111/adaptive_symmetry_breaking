@@ -21,7 +21,8 @@ include(ARGoSCheckQTOpenGL)
 #
 # Set ARGoS include dir
 #
-include_directories(${CMAKE_SOURCE_DIR} ${ARGOS_INCLUDE_DIRS} ${GSL_INCLUDE_DIR} ${LUA_INCLUDE_DIR} /Users/a/argos3-kilobot-master/build/plugins/robots/kilobot)
+include_directories(${CMAKE_SOURCE_DIR} ${ARGOS_INCLUDE_DIRS} ${GSL_INCLUDE_DIR})
+#/Users/a/argos3-kilobot-master/build/plugins/robots/kilobot
 
 #
 # Set ARGoS link dir
