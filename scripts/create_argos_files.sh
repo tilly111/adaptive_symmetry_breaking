@@ -30,9 +30,7 @@ else
     #constants
     #Visuaisation flag
     MODEL=${3} # should be local, global or adaptive
-    VIZ=${4}
-    n=${5}
-    CLUSTER=${6}
+    n=${4}
     GPS_CELLS_NO=20 # GPS resolution: 20 per meter aka every grid cell
 
     QUORUM=-0.9 # Quorum to stop experiment  TODO CHANGE BACK
