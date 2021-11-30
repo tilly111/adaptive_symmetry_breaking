@@ -65,7 +65,7 @@ else
     do
 
         EXP_FILE=${EXP_DES}/${EXP_NAME}_${MODEL}${i}.argos # full path to the experiment configuration file
-        JOB_FILE=${JOB_DIR}/${rtype}_${NUM_ROBOTS}_${OPTIONSIZE}_model${MODEL}_${i}.sh
+        JOB_FILE=${JOB_DIR}/${rtype}_${NUM_ROBOTS}_${n}_model_${MODEL}_${i}.sh
         
         DATA_FILE=${DATA_DES}/${EXP_NAME}_${n}options_${MODEL}${i}.txt # Full path to the data file
     
