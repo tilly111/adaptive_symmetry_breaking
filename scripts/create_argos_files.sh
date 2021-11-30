@@ -64,6 +64,9 @@ else
     
     JOB_DIR=${EXP_FOLDER}/job_cluster
     mkdir -p ${JOB_DIR}
+    
+    OUTPUT=${EXP_FOLDER}/output
+    mkdir -p ${OUTPUT}
 
     for i in `seq ${1} ${2}`; #Creating experiments folder
     do
@@ -82,7 +85,7 @@ else
         -e "s|datafrequency|${DATA_FREQUENCY}|"        \
         -e "s|num_robots|${NUM_ROBOTS}|"               \
         -e "s|quorumvalue|${QUORUM}|"                  \
-        -e "s|commrng|${COMMRANGE_OLD}|"                   \
+        -e "s|commrng|${COMMRANGE_OLD}|"               \
         -e "s|numberofgpscells|${GPS_CELLS_NO}|"       \
         -e "s|robpop1|${ROBPOP1}|"                     \
         -e "s|robpop2|${ROBPOP2}|"                     \
@@ -98,6 +101,7 @@ else
         -e "s|argosfile|${EXP_FILE}|"   \
         -e "s|savefile|${DATA_FILE}|"   \
         -e "s|wheresave|${DATA_DES}/|"  \
+        -e "s|output|${OUTPUT}/|"       \
                 ${JOB_TEMPLATE_SRC} > ${JOB_FILE}
     done
 fi

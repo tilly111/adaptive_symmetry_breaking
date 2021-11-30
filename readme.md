@@ -36,7 +36,7 @@ An example run, e.g., to test the behavior is:
 sh ARGoS_simulation/data_generation_scripts/runexps_kilogird.sh 0 0 local 1 3 0
 ```
 
-### global
+### Run experiments on the cluster 
 First you need to load modules/source everything.
 
 ```
@@ -44,8 +44,46 @@ module load cmake
 source Programs/argos3/set_argos_env.sh
 ```
 
-TODO: how to execute proper sbatch
+Next you can pull the current version of this repo
 
+```
+git pull
+```
+
+Then you need to renew the link of argos3-kilobot plugin 
+
+```
+ln -s ~/Programs/argos3-kilobot/src/ ARGoS_simulation/argos3
+```
+
+now you can go build the project
+
+```
+cd build
+cmake ../ARGoS_simulation
+make
+cd ..
+```
+
+Now you can go into the scripts folder
+
+```
+cd scripts/
+```
+
+There first you have to run the create argos file in order to generate the experiments 
+
+```
+sh create_argos_files.sh 0 99 local 3
+```
+
+Afterwards you can submit the jobs.
+
+```
+sh runjobs.sh
+```
+
+The results can be found in the data cluster folder.
 
 ## TODO 
 Installation instruction for 

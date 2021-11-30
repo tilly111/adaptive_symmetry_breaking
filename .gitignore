@@ -2,6 +2,7 @@ build/*
 data_cluster/
 experiments_cluster/
 job_cluster/
+output/
 .DS_Store
 
 # the link is system dependend and needs to be done manual new
