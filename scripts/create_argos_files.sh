@@ -16,16 +16,16 @@ exit
 else
     #Varibales to change
     # Experiment name
-    rtype=cluster_test
+    rtype=cluster_local_adaptive
     EXP_NAME=${rtype}  # Do not forget to change the experiment name.
     
     #TODO: atm hard coded but make it dynamic -> uncommited state to be implemented maybe 0?
-    ROBPOP1=5
+    ROBPOP1=50
     ROBPOP2=0
     ROBPOP3=0
     ROBPOP4=0
     ROBPOP5=0
-    NUM_ROBOTS=5 # number of robots
+    NUM_ROBOTS=50 # number of robots
     
     #constants
     #Visuaisation flag
@@ -36,7 +36,7 @@ else
     QUORUM=-0.9 # Quorum to stop experiment  TODO CHANGE BACK
     COMMRANGE=0.0 # Robots' communication range - not needed ?
         
-    EXP_LENGTH=5 #length of the in secs
+    EXP_LENGTH=2400 #length of the in secs
 
     DATA_FREQUENCY=1 # frequency of saving the experiment data
     
