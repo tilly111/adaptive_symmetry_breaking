@@ -40,6 +40,9 @@ else
 
     DATA_FREQUENCY=1 # frequency of saving the experiment data
     
+    HRS=01  # hours the script takes
+    MIN=00  # min the script takes 
+    
     #path to main directory
     EXP_FOLDER=${HOME}/Programs/adaptive_symmetry_breaking
     
@@ -89,8 +92,8 @@ else
         sed -e "s|jobname|${JOB_NAME}|" \
         -e "s|min|${MIN}|"              \
         -e "s|hrs|${HRS}|"              \
-        -e "s|argosfile|${EXP_FILE}|"   \  # full path to the .argos file to execute
-        -e "s|savefile|${DATA_FILE}|"   \   # the file we save to
+        -e "s|argosfile|${EXP_FILE}|"   \
+        -e "s|savefile|${DATA_FILE}|"   \
                 ${JOB_TEMPLATE_SRC} > ${JOB_FILE}
     done
 fi
