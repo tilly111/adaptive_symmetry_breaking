@@ -50,9 +50,10 @@ Next you can pull the current version of this repo
 git pull
 ```
 
-Then you need to renew the link of argos3-kilobot plugin 
+Then you need to renew the link of argos3-kilobot plugin (first remove it)
 
 ```
+rm argos3
 ln -s ~/Programs/argos3-kilobot/src/ ARGoS_simulation/argos3
 ```
 
