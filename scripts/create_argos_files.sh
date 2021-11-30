@@ -102,7 +102,6 @@ else
         -e "s|argosfile|${EXP_FILE}|"   \
         -e "s|savefile|${DATA_FILE}|"   \
         -e "s|wheresave|${DATA_DES}/|"  \
-        -e "s|output|${OUTPUT}/|"       \
                 ${JOB_TEMPLATE_SRC} > ${JOB_FILE}
     done
 fi
@@ -115,3 +114,4 @@ fi
 #        -e "s|savefile|${savefile}" \   # the file we save to
 #        runjob_template.sh > runjob.sh
 #
+# -e "s|output|${OUTPUT}/|"       \
