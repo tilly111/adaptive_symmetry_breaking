@@ -34,7 +34,8 @@ else
     GPS_CELLS_NO=20 # GPS resolution: 20 per meter aka every grid cell
 
     QUORUM=-0.9 # Quorum to stop experiment  TODO CHANGE BACK
-    COMMRANGE=0.0 # Robots' communication range - not needed ?
+    COMMRANGE=2 # Robots' communication range in kilogrid cells (radius) - init range goes from 0 to 45 this would be global then!
+    COMMRANGE_OLD=0.0  # this is for direct robot communication, which we plan to omit!!!
         
     EXP_LENGTH=2400 #length of the in secs
 
@@ -81,13 +82,14 @@ else
         -e "s|datafrequency|${DATA_FREQUENCY}|"        \
         -e "s|num_robots|${NUM_ROBOTS}|"               \
         -e "s|quorumvalue|${QUORUM}|"                  \
-        -e "s|commrng|${COMMRANGE}|"                   \
+        -e "s|commrng|${COMMRANGE_OLD}|"                   \
         -e "s|numberofgpscells|${GPS_CELLS_NO}|"       \
         -e "s|robpop1|${ROBPOP1}|"                     \
         -e "s|robpop2|${ROBPOP2}|"                     \
         -e "s|robpop3|${ROBPOP3}|"                     \
         -e "s|robpop4|${ROBPOP4}|"                     \
         -e "s|robpop5|${ROBPOP5}|"                     \
+        -e "s|initcomrng|${COMMRANGE}|"                \
                 ${EXP_TEMPLATE_SRC} > ${EXP_FILE}
         
         sed -e "s|jobname|${JOB_NAME}|" \
