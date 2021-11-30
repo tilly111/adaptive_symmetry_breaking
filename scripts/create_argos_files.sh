@@ -96,3 +96,12 @@ else
             ${JOB_TEMPLATE_SRC} > ${JOB_DIR}/${JOB_NAME}.sh
     done
 fi
+
+#JOB_NAME=${rtype}_${NUM_ROBOTS}_${OPTIONSIZE}_model${MODEL}
+#    sed -e "s|jobname|${JOB_NAME}|"   \
+#        -e "s|min|${MIN}|"   \
+#        -e "s|hrs|${HRS}|"   \
+#        -e "s|argosfile|${execfile}" \  # full path to the .argos file to execute
+#        -e "s|savefile|${savefile}" \   # the file we save to
+#        runjob_template.sh > runjob.sh
+#
