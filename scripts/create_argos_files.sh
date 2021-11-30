@@ -88,12 +88,12 @@ else
                 ${EXP_TEMPLATE_SRC} > ${EXP_FILE}
         
         JOB_NAME=${rtype}_${NUM_ROBOTS}_${OPTIONSIZE}_model${MODEL}_${i}
-        sed -e "s|jobname|${JOB_NAME}|"   \
-            -e "s|min|${MIN}|"   \
-            -e "s|hrs|${HRS}|"   \
-            -e "s|argosfile|${EXP_FILE}" \  # full path to the .argos file to execute
-            -e "s|savefile|${DATA_FILE}" \   # the file we save to
-            ${JOB_TEMPLATE_SRC} > ${JOB_DIR}/${JOB_NAME}.sh
+        sed -e "s|jobname|${JOB_NAME}|" \
+        -e "s|min|${MIN}|"              \
+        -e "s|hrs|${HRS}|"              \
+        -e "s|argosfile|${EXP_FILE}|"   \  # full path to the .argos file to execute
+        -e "s|savefile|${DATA_FILE}|"   \   # the file we save to
+                ${JOB_TEMPLATE_SRC} > ${JOB_DIR}/${JOB_NAME}.sh
     done
 fi
 
