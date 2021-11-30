@@ -4,7 +4,6 @@
 #SBATCH --mem=1gb                     # Job memory request
 #SBATCH --time=hrs:min:00             # Time limit
 #SBATCH -q short
-#SBATCH -o ./Report/output.%a.out # STDOUT
 argos3 -c argosfile
 
 mv savefile wheresave
