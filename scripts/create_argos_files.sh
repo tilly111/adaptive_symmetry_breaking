@@ -65,8 +65,7 @@ else
     do
 
         EXP_FILE=${EXP_DES}/${EXP_NAME}_${MODEL}${i}.argos # full path to the experiment configuration file
-
-        EXP_FILE_BIS=${EXP_DES}/${EXP_NAME}_${MODEL}
+        JOB_FILE=${JOB_DIR}/${rtype}_${NUM_ROBOTS}_${OPTIONSIZE}_model${MODEL}_${i}.sh
         
         DATA_FILE=${DATA_DES}/${EXP_NAME}_${n}options_${MODEL}${i}.txt # Full path to the data file
     
@@ -87,13 +86,12 @@ else
         -e "s|robpop5|${ROBPOP5}|"                     \
                 ${EXP_TEMPLATE_SRC} > ${EXP_FILE}
         
-        JOB_NAME=${rtype}_${NUM_ROBOTS}_${OPTIONSIZE}_model${MODEL}_${i}
         sed -e "s|jobname|${JOB_NAME}|" \
         -e "s|min|${MIN}|"              \
         -e "s|hrs|${HRS}|"              \
         -e "s|argosfile|${EXP_FILE}|"   \  # full path to the .argos file to execute
         -e "s|savefile|${DATA_FILE}|"   \   # the file we save to
-                ${JOB_TEMPLATE_SRC} > ${JOB_DIR}/${JOB_NAME}.sh
+                ${JOB_TEMPLATE_SRC} > ${JOB_FILE}
     done
 fi
 
