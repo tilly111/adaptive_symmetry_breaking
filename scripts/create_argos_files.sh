@@ -95,7 +95,7 @@ else
         -e "s|hrs|${HRS}|"              \
         -e "s|argosfile|${EXP_FILE}|"   \
         -e "s|savefile|${DATA_FILE}|"   \
-        -e "s|wheresave|${DATA_DES}/|"
+        -e "s|wheresave|${DATA_DES}/|"  \
                 ${JOB_TEMPLATE_SRC} > ${JOB_FILE}
     done
 fi
