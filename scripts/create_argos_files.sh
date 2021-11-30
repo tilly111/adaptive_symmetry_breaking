@@ -41,7 +41,7 @@ else
     DATA_FREQUENCY=1 # frequency of saving the experiment data
     
     HRS=01  # hours the script takes
-    MIN=00  # min the script takes 
+    MIN=00  # min the script takes
     
     #path to main directory
     EXP_FOLDER=${HOME}/Programs/adaptive_symmetry_breaking
@@ -68,9 +68,10 @@ else
     do
 
         EXP_FILE=${EXP_DES}/${EXP_NAME}_${MODEL}${i}.argos # full path to the experiment configuration file
-        JOB_FILE=${JOB_DIR}/${rtype}_${NUM_ROBOTS}_${n}_model_${MODEL}_${i}.sh
+        JOB_FILE=${JOB_DIR}/${EXP_NAME}_${NUM_ROBOTS}_${n}_model_${MODEL}_${i}.sh
         
-        DATA_FILE=${DATA_DES}/${EXP_NAME}_${n}options_${MODEL}${i}.txt # Full path to the data file
+        DATA_FILE=${EXP_NAME}_${n}options_${MODEL}${i}.txt # Full path to the data file
+        
     
         sed -e "s|exp_length|${EXP_LENGTH}|"           \
         -e "s|randomseed|$(($i*124))|"                 \
@@ -94,6 +95,7 @@ else
         -e "s|hrs|${HRS}|"              \
         -e "s|argosfile|${EXP_FILE}|"   \
         -e "s|savefile|${DATA_FILE}|"   \
+        -e "s|wheresave|${DATA_DES}/|"
                 ${JOB_TEMPLATE_SRC} > ${JOB_FILE}
     done
 fi

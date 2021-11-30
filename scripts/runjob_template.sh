@@ -6,4 +6,4 @@
 #SBATCH -q short
 argos3 -c argosfile
 
-mv savefile /home/taust/experiments
+mv savefile wheresave
