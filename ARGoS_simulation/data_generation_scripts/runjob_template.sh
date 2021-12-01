@@ -6,6 +6,6 @@
 #SBATCH -q short
 #SBATCH --output=/home/taust/log/logfile.txt
 
-argos3 -c argosfile > /home/taust/log/
+argos3 -c argosfile
 
 mv savefile wheresave
