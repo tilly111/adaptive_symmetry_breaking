@@ -100,7 +100,7 @@ else
         -e "s|min|${MIN}|"              \
         -e "s|hrs|${HRS}|"              \
         -e "s|argosfile|${EXP_FILE}|"   \
-        -e "s|logfile|${${JOB_NAME}}|"  \
+        -e "s|logfile|${JOB_NAME}|"     \
         -e "s|savefile|${DATA_FILE}|"   \
         -e "s|wheresave|${DATA_DES}/|"  \
                 ${JOB_TEMPLATE_SRC} > ${JOB_FILE}
