@@ -16,7 +16,7 @@ exit
 else
     #Varibales to change
     # Experiment name
-    rtype=cluster_local_adaptive
+    rtype=cluster_global_adaptive
     EXP_NAME=${rtype}  # Do not forget to change the experiment name.
     
     #TODO: atm hard coded but make it dynamic -> uncommited state to be implemented maybe 0?
@@ -34,7 +34,7 @@ else
     GPS_CELLS_NO=20 # GPS resolution: 20 per meter aka every grid cell
 
     QUORUM=-0.9 # Quorum to stop experiment  TODO CHANGE BACK
-    COMMRANGE=2 # Robots' communication range in kilogrid cells (radius) - init range goes from 0 to 45 this would be global then!
+    COMMRANGE=45 # Robots' communication range in kilogrid cells (radius) - init range goes from 0 to 45 this would be global then!
     COMMRANGE_OLD=0.0  # this is for direct robot communication, which we plan to omit!!!
         
     EXP_LENGTH=2400 #length of the in secs
@@ -54,7 +54,7 @@ else
     
     # path to template
     EXP_TEMPLATE_SRC=${EXP_FOLDER}/ARGoS_simulation/experiment/${n}_op_template.argos
-    JOB_TEMPLATE_SRC=${EXP_FOLDER}/scripts/runjob_template.sh
+    JOB_TEMPLATE_SRC=${EXP_FOLDER}/ARGoS_simulation/data_generation_scripts/runjob_template.sh
     
     EXP_DES=${EXP_FOLDER}/experiments_cluster/${n}options_N${NUM_ROBOTS}_model${MODEL}
     mkdir -p ${EXP_DES}
