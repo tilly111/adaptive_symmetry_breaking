@@ -52,9 +52,9 @@ else
     
     # path to template - either with/out visualization
     if [[ ${VIZ} -eq 1 ]]; then
-        EXP_TEMPLATE_SRC=ARGoS_simulation/experiment/${n}_op_template_viz.argos
+        EXP_TEMPLATE_SRC=../experiment/${n}_op_template_viz.argos
     else
-        EXP_TEMPLATE_SRC=ARGoS_simulation/experiment/${n}_op_template.argos
+        EXP_TEMPLATE_SRC=../experiment/${n}_op_template.argos
     fi
     
 	EXP_DES=${EXP_FOLDER}/experiments_cluster/${n}options_N${NUM_ROBOTS}_model${MODEL}
@@ -69,13 +69,11 @@ else
 	for i in `seq ${1} ${2}`;
 	do
 
-    	NAME_VARIABLE=${MODEL}_
+    	NAME_VARIABLE=${MODEL}
 
-	    EXP_FILE=${EXP_DES}/${EXP_NAME}_${NAME_VARIABLE}${i}.argos # full path to the experiment configuration file
+	    EXP_FILE=${EXP_DES}/${EXP_NAME}_${NAME_VARIABLE}_${i}.argos # full path to the experiment configuration file
 
-        EXP_FILE_BIS=${EXP_DES}/${EXP_NAME}_${NAME_VARIABLE}                      	
-	    
-	    DATA_FILE=${DATA_DES}/${EXP_NAME}_${n}options_${NAME_VARIABLE}${i}.txt # Full path to the data file
+        DATA_FILE=${DATA_DES}/${EXP_NAME}_${n}options_${NAME_VARIABLE}${i}.txt # Full path to the data file
 	
 	    sed -e "s|exp_length|${EXP_LENGTH}|"           \
 		-e "s|randomseed|$(($i*124))|"                 \

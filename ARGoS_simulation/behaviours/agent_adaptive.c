@@ -433,7 +433,7 @@ void update_commitment() {
 /* Function to broadcast the commitment message                                                  */
 /*-----------------------------------------------------------------------------------------------*/
 void broadcast() {
-    if(kilo_ticks > last_broadcast_ticks + BROADCAST_TICKS){
+    if(kilo_ticks > last_broadcast_ticks + BROADCAST_TICKS && !init_flag){
         last_broadcast_ticks = kilo_ticks;
         
         // share commitment with certain probability if the robot is committed
@@ -750,13 +750,16 @@ void loop() {
         // update commitment every 15 sec ?
         update_commitment();
         
+        // update communication range
+        update_communication_range();
+        
         // try to broadcast
         broadcast();
     
         // visulizes the commitment of the robot
         if (hit_wall || stuck){
             if (stuck){
-                set_color(RGB(1,1,1));
+                set_color(RGB(3,0,0));
             }else{
                 set_color(RGB(0,0,0));
             }

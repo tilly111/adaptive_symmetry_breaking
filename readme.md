@@ -1,63 +1,41 @@
 # Adaptive Symmetry Breaking 
 
 ## How to build the code
+### local
+
 ```
 mkdir build
 cd build
 cmake ../ARGoS_simulation
 make 
-```
-This should build it. TODO  
+``` 
 
-## How to run experiments
-
-### local
-
-```
-cd argos3-test
-sh ARGoS_simulation/data_generation_scripts/<experiment-to-run>.sh <start> <end> <model_type> <visualization> <number_of_options> <on_cluster>
-```
-
-A list of parameters to configure your experiment:  
-
-|Name               |Values |Description|
-|---                |---    |---        |
-|`start`            |int number|Start-index of first experiment.|
-|`end`              |int number|End-index of last experiment.|
-|`model_type`       |local, global, adaptive|Communication type.|
-|`visualization`    |0,1|Visualization flag (Visualization=1)|
-|`number_of_options`|3,5|Number of different options.|
-|`on_cluster`       |0,1|Flag for running on the cluster (Cluster=1)|
-
-This runs the experiments local. (You have to proper build it first!)
-An example run, e.g., to test the behavior is:
-
-```
-sh ARGoS_simulation/data_generation_scripts/runexps_kilogird.sh 0 0 local 1 3 0
-```
-
-### Run experiments on the cluster 
-First you need to load modules/source everything.
+### on cluster
+Here you have to do some extra steps after.  
+First, load environemnt (at every login on the cluster).
 
 ```
 module load cmake 
 source Programs/argos3/set_argos_env.sh
 ```
 
-Next you can pull the current version of this repo
+Afterwards you can pull the repo. (The next steps you have to everytime after pulling.)
 
 ```
+cd Programs/adaptive_symmetry_breaking/
 git pull
-```
+``` 
 
 Then you need to renew the link of argos3-kilobot plugin (first remove it)
 
 ```
+cd ARGoS_simulation/
 rm argos3
+cd ..
 ln -s ~/Programs/argos3-kilobot/src/ ARGoS_simulation/argos3
 ```
 
-now you can go build the project
+Now you can go build the project
 
 ```
 cd build
@@ -66,8 +44,39 @@ make
 cd ..
 ```
 
-Now you can go into the scripts folder
+## How to run experiments
+### local
 
+```
+cd argos3-test/ARGoS_simulation/data_generation_scripts/
+sh local_create_argos_files_and_run.sh <start> <end> <model_type> <visualization> <number_of_options>
+```
+
+A list of parameters to configure your experiment:  
+
+|Name               |Values |Description|
+|---                |---    |---        |
+|`start`            |int number|Start-index of first experiment.|
+|`end`              |int number|End-index of last experiment.|
+|`model_type`       |local, global, adaptive|Communication type. (where adaptive should be the only one used the others are outdated!)|
+|`visualization`    |0,1|Visualization flag (Visualization=1)|
+|`number_of_options`|3,5|Number of different options.|
+
+This runs the experiments local. (You have to proper build it first!)
+
+The results are saved at data_cluster/<experiment>/... 
+
+### on cluster 
+First build the project as described in how to build on my cluster. 
+I recommand to delete all temporary folder so their are no side effects (also delete the log folder - if the names their are equal to the experiments you schedule you will not run experiments) 
+
+```
+rm -rf data_cluster/ experiment_cluster/ job_cluster/
+cd 
+rm log/*
+```
+
+Then you can start generate experiments
 ```
 cd ARGoS_simulation/data_generation_scripts/
 ```
@@ -84,13 +93,8 @@ Afterwards you can submit the jobs.
 sh runjobs.sh
 ```
 
-The results can be found in the data cluster folder.
+The results can be found in the data cluster folder. The logs are written to home/taust/log/
 
-## TODO 
-Installation instruction for 
-- installation on cluster ?
-- installation on new cluster ?
-- installation of sidepkg aka lua5.3 mein erzfeind
 
 ## Installation argos3 & Kilobot-plugin on Newmajorana
 ### argos3
@@ -100,7 +104,7 @@ Load required tools.
 module load cmake 
 ```
 
-gcc is already installed, we skip lua because I do not have the permission to install it ~ we have various problems with it.
+gcc is already installed, we skip lua because it is not needed.
 If not already done create Programs folder 
 
 ```
@@ -385,7 +389,7 @@ make install
 
 This should install these two components on newmajorana. 
 
-### Notes regarding the implementation
+## Notes regarding the implementation
 Message types 
 - 10 initial message - send by kilogrid
 - 21 message from other robot (local broadcasting...)
@@ -393,7 +397,7 @@ Message types
 - 23 message from kilogrid - handles global communication
 - 24 message from kilogrid - handles inter robot communication in the adaptive case. 
 
-## Work with the cluster 
+## Work with the cluster TODO update when newmajorana is directly reachable
 
 ### Data transfer
 
@@ -424,12 +428,8 @@ cd plotting
 scp -r taust@majorana.ulb.ac.be:~/Programs/argos3-test/data_cluster from_cluster
 ```
 
-## Testing the cluster 
-some useful comments:
-starting an experiment:
-
-```
-sh ARGoS_simulation/data_generation_scripts/cluster_test.sh 0 0 local 0 3 1
-```
-
-reiner test text 
+## TODO 
+Installation instruction for 
+- installation on cluster ?
+- installation on new cluster ?
+- installation of sidepkg aka lua5.3 mein erzfeind
