@@ -4,7 +4,8 @@
 #SBATCH --mem=1gb                     # Job memory request
 #SBATCH --time=hrs:min:00             # Time limit
 #SBATCH -q short
-#SBATCH --output=/home/taust/log/%j.out
-argos3 -c argosfile
+#SBATCH --output=/home/taust/log/logfile.txt
+
+argos3 -c argosfile > /home/taust/log/
 
 mv savefile wheresave
