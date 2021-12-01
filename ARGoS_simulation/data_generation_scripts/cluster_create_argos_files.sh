@@ -68,9 +68,9 @@ else
     for i in `seq ${1} ${2}`; #Creating experiments folder
     do
 
-        EXP_FILE=${EXP_DES}/${EXP_NAME}_${MODEL}${i}.argos # full path to the experiment configuration file
-        JOB_FILE=${JOB_DIR}/${EXP_NAME}_${NUM_ROBOTS}_${n}_model_${MODEL}_${i}.sh
-        JOB_NAME=${EXP_NAME}_${NUM_ROBOTS}_${n}_model_${MODEL}_${i}
+        EXP_FILE=${EXP_DES}/${EXP_NAME}_${MODEL}_${i}.argos # full path to the experiment configuration file
+        JOB_FILE=${JOB_DIR}/${EXP_NAME}_${NUM_ROBOTS}_${n}_${MODEL}_${i}.sh
+        JOB_NAME=${EXP_NAME}_${NUM_ROBOTS}_${n}_${MODEL}_${i}
         
         DATA_FILE=${EXP_NAME}_${n}options_${MODEL}${i}.txt # Full path to the data file
         

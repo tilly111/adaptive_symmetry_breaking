@@ -93,6 +93,12 @@ Afterwards you can submit the jobs.
 sh runjobs.sh
 ```
 
+You can observe the queue of jobs with 
+
+```
+watch squeue
+```
+
 The results can be found in the data cluster folder. The logs are written to home/taust/log/
 
 

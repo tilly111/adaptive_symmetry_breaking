@@ -27,9 +27,9 @@
 /*-----------------------------------------------------------------------------------------------*/
 /* Timer values to select                                                                        */
 /*-----------------------------------------------------------------------------------------------*/
-#define NUMBER_OF_SAMPLES 30 // we sample each second
+#define NUMBER_OF_SAMPLES 25 // we sample each second
 #define BROADCAST_SEC 15  // try to broadcast every x seconds
-#define UPDARTE_COMMITMENT_SEC 5  // updates commitment every 10 sec
+#define UPDARTE_COMMITMENT_SEC 1  // updates commitment every 10 sec
 
 
 
@@ -131,7 +131,7 @@ bool update_orientation = false;  // set if the orientation has been updated
 uint8_t received_x = 0;  // saves received x pos of robot
 uint8_t received_y = 0;  // saves received y pos of robot
 uint8_t received_option = 0;  // saves received opinion of the tile the robot is on
-// init TODO:...
+
 bool init_write = false;
 bool init_flag = true;
 uint8_t received_quality = 0;

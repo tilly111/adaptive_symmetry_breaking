@@ -6,7 +6,7 @@
 EXPECTED_ARGS=5
 if [ $# -lt ${EXPECTED_ARGS} ]; then
 echo "This script generates N experiment files (.argos files)."
-echo "Usage $0 <start> <end> <options_size> <model_type> <visualization> <number_of_options> <on_cluster>"
+echo "Usage $0 <start> <end> <options_size> <model_type> <visualization> <number_of_options>"
 echo $'\t'"[MANDATORY] <start> is the index of the first experiment"
 echo $'\t'"[MANDATORY] <end> is the index of the last experiment"
 echo $'\t'"[MANDATORY] <model_type> is the type of the model (local, global or adaptive)"
