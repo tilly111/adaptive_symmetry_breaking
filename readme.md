@@ -69,13 +69,13 @@ cd ..
 Now you can go into the scripts folder
 
 ```
-cd scripts/
+cd ARGoS_simulation/data_generation_scripts/
 ```
 
 There first you have to run the create argos file in order to generate the experiments 
 
 ```
-sh create_argos_files.sh 0 99 local 3
+sh cluster_create_argos_files.sh  0 99 adaptive 3
 ```
 
 Afterwards you can submit the jobs.
