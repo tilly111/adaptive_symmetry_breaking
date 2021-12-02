@@ -34,7 +34,7 @@ else
     GPS_CELLS_NO=20 # GPS resolution: 20 per meter aka every grid cell
 
     QUORUM=-0.9 # Quorum to stop experiment  TODO CHANGE BACK
-    COMMRANGE=45 # Robots' communication range in kilogrid cells (radius) - init range goes from 0 to 45 this would be global then!
+    COMMRANGE=2 # Robots' communication range in kilogrid cells (radius) - init range goes from 0 to 45 this would be global then!
     COMMRANGE_OLD=0.0  # this is for direct robot communication, which we plan to omit!!!
         
     EXP_LENGTH=2400 #length of the in secs

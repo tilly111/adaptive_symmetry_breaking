@@ -27,10 +27,14 @@
 /*-----------------------------------------------------------------------------------------------*/
 /* Timer values to select                                                                        */
 /*-----------------------------------------------------------------------------------------------*/
-#define NUMBER_OF_SAMPLES 30 // we sample each second
-#define BROADCAST_SEC 1  // try to broadcast every x seconds
-#define UPDARTE_COMMITMENT_SEC 1  // updates commitment every 10 sec - was 1
+#define NUMBER_OF_SAMPLES 25 // we sample each second
+#define SAMPLE_NOISE 10  // discrete sample noise equal distribution NUMBER_OF_SAMPLES + 0~10
 
+#define BROADCAST_SEC 0.1  // try to broadcast every x seconds
+
+
+#define UPDATE_COMMITMENT_SEC 2.5  // updates commitment every 10 sec - was 1
+#define UPDATE_NOISE 5*31 // first number is seconds of update rate
 
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -99,7 +103,7 @@ uint8_t my_commitment = 1;  // This is the initial commitment
 double my_commitment_quality = 0.13;  // needed for the case of global communication that the robots evetually communicate before sampling a better option
 
 const float PARAM = 0.01;  // parameter on how much the new option must be better than the old one
-const uint32_t UPDATE_TICKS = 20;//(UPDARTE_COMMITMENT_SEC*1000)/31;  // time between opinion updates
+const uint32_t UPDATE_TICKS = (UPDATE_COMMITMENT_SEC*1000)/31;  // time between opinion updates
 uint32_t update_ticks_noise;
 uint32_t last_update_ticks = 0;
 
@@ -334,7 +338,7 @@ void sample(){
             sample_op_counter = 0;
             sampling_done = false;
             // for shuffling up we set the max sample counter
-            sample_counter_max_noise = SAMPLE_COUNTER_MAX + (rand() % 10);
+            sample_counter_max_noise = SAMPLE_COUNTER_MAX + (rand() % SAMPLE_NOISE);
         }
     }
 }
@@ -345,12 +349,12 @@ void sample(){
 /*-----------------------------------------------------------------------------------------------*/
 void update_communication_range() {
     // calculate the minutes the robot is running one tick is 31 ms -> 10 min
-    int sim_sec = (int)(kilo_ticks/32);
-    if (sim_sec > 600){
-        communication_range = 45;
-    }else{
-        communication_range = 2;
-    }
+//    int sim_sec = (int)(kilo_ticks/32);
+//    if (sim_sec > 600){
+//        communication_range = 45;
+//    }else{
+//        communication_range = 2;
+//    }
 }
 
 
@@ -361,7 +365,7 @@ void update_communication_range() {
 void update_commitment() {
     if(kilo_ticks > last_update_ticks + update_ticks_noise){
         last_update_ticks = kilo_ticks;
-        update_ticks_noise = UPDATE_TICKS + (rand() % 30);
+        update_ticks_noise = UPDATE_TICKS + (rand() % UPDATE_NOISE);
         
         // drawing a random number
         unsigned int range_rnd = 10000;
@@ -654,8 +658,8 @@ void setup(){
     sample_counter = rand() % SAMPLE_COUNTER_MAX;
     
     // shuffle update and sample length
-    sample_counter_max_noise = SAMPLE_COUNTER_MAX + (rand() % 10);
-    update_ticks_noise = UPDATE_TICKS + (rand() % 30);
+    sample_counter_max_noise = SAMPLE_COUNTER_MAX + (rand() % SAMPLE_NOISE);
+    update_ticks_noise = UPDATE_TICKS + (rand() % UPDATE_NOISE);
     
     // Intialize time to 0
     kilo_ticks = 0;
