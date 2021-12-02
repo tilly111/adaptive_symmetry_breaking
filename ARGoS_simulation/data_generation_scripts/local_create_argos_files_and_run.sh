@@ -17,7 +17,7 @@ exit
 else
     #Varibales to change
     # Experiment name
-    rtype=test_adaptive_local
+    rtype=test_adaptive
     EXP_NAME=${rtype}  # Do not forget to change the experiment name.
     
     #TODO: atm hard coded but make it dynamic -> uncommited state to be implemented maybe 0?
@@ -39,7 +39,7 @@ else
     COMMRANGE=2 # Robots' communication range in kilogrid cells (radius) - init range goes from 0 to 45 this would be global then!
     COMMRANGE_OLD=0.0  # this is for direct robot communication, which we plan to omit!!!
         
-    EXP_LENGTH=2400 #length of the in secs
+    EXP_LENGTH=1200 #length of the in secs
 
     DATA_FREQUENCY=1 # frequency of saving the experiment data
 

@@ -27,9 +27,9 @@
 /*-----------------------------------------------------------------------------------------------*/
 /* Timer values to select                                                                        */
 /*-----------------------------------------------------------------------------------------------*/
-#define NUMBER_OF_SAMPLES 25 // we sample each second
-#define BROADCAST_SEC 15  // try to broadcast every x seconds
-#define UPDARTE_COMMITMENT_SEC 1  // updates commitment every 10 sec
+#define NUMBER_OF_SAMPLES 30 // we sample each second
+#define BROADCAST_SEC 1  // try to broadcast every x seconds
+#define UPDARTE_COMMITMENT_SEC 1  // updates commitment every 10 sec - was 1
 
 
 
@@ -99,7 +99,7 @@ uint8_t my_commitment = 1;  // This is the initial commitment
 double my_commitment_quality = 0.13;  // needed for the case of global communication that the robots evetually communicate before sampling a better option
 
 const float PARAM = 0.01;  // parameter on how much the new option must be better than the old one
-const uint32_t UPDATE_TICKS = (UPDARTE_COMMITMENT_SEC*1000)/31;  // time between opinion updates
+const uint32_t UPDATE_TICKS = 20;//(UPDARTE_COMMITMENT_SEC*1000)/31;  // time between opinion updates
 uint32_t update_ticks_noise;
 uint32_t last_update_ticks = 0;
 
@@ -114,7 +114,7 @@ uint8_t received_commitment;  // received commitment - buffer for callback
 uint8_t neigh_commitment;  // commitment of the neighbourning robot the robot received a msg from
 uint8_t received_quality;  // quality the other robot measured and send
 // outgoing msgs
-bool broadcast_flag = false;  // Flag for decision to broadcast a message
+bool broadcast_msg = false;  // Flag for decision to broadcast a message
 const uint32_t BROADCAST_TICKS = (BROADCAST_SEC*1000)/31;  // time between broadcasts
 uint32_t last_broadcast_ticks = 0;
 
@@ -334,7 +334,7 @@ void sample(){
             sample_op_counter = 0;
             sampling_done = false;
             // for shuffling up we set the max sample counter
-            sample_counter_max_noise = SAMPLE_COUNTER_MAX + (int)(generateGaussianNoise(0, sample_counter_std_dev) * 10);
+            sample_counter_max_noise = SAMPLE_COUNTER_MAX + (rand() % 10);
         }
     }
 }
@@ -344,8 +344,13 @@ void sample(){
 /* Function for updating the communication range.                                                */
 /*-----------------------------------------------------------------------------------------------*/
 void update_communication_range() {
-    
-    //communication_range = ...
+    // calculate the minutes the robot is running one tick is 31 ms -> 10 min
+    int sim_sec = (int)(kilo_ticks/32);
+    if (sim_sec > 600){
+        communication_range = 45;
+    }else{
+        communication_range = 2;
+    }
 }
 
 
@@ -356,7 +361,7 @@ void update_communication_range() {
 void update_commitment() {
     if(kilo_ticks > last_update_ticks + update_ticks_noise){
         last_update_ticks = kilo_ticks;
-        update_ticks_noise = UPDATE_TICKS + (int)(generateGaussianNoise(0, sample_counter_std_dev) * 31);
+        update_ticks_noise = UPDATE_TICKS + (rand() % 30);
         
         // drawing a random number
         unsigned int range_rnd = 10000;
@@ -414,6 +419,7 @@ void update_commitment() {
         if(individual){
             my_commitment = discovered_option;
             my_commitment_quality = discovered_quality;
+            random_walk_waypoint_model(SELECT_NEW_WAY_POINT);
         }else if(social){
             my_commitment = neigh_commitment;
             my_commitment_quality = 0; // thus we first sample and then broadcast
@@ -443,21 +449,13 @@ void broadcast() {
         unsigned int P_ShareCommitementInt = (unsigned int)(my_commitment_quality * range_rnd) + 1;
         
         if (my_commitment != 0 && my_commitment_quality > 0 && random <= P_ShareCommitementInt){
-        // here we have to insert a hack -> we communicate via the kilogrid which basically means we
-        // set our debug state
-            // ATTENTION: we do not need to set our commitment here, because it is always set at the
-            // end of the control loop (for data collecting reasons - but now also for logic)
-            // debug_info_set(commitement, my_commitment);
-            
-            // we now just need to set our communication range and the flag that we indeed want to
-            // broadcast
-            debug_info_set(broadcast_flag, 1);
-            debug_info_set(com_range, communication_range);
+            broadcast_msg = true;
             return;
         }
     }
     // if we do not broadcast reset the broadcast flag every cycle -> assuming we do one cycle per calculation
     debug_info_set(broadcast_flag, 0);
+    broadcast_msg = false;
 }
 
 
@@ -656,8 +654,8 @@ void setup(){
     sample_counter = rand() % SAMPLE_COUNTER_MAX;
     
     // shuffle update and sample length
-    sample_counter_max_noise = SAMPLE_COUNTER_MAX + (int)(generateGaussianNoise(0, sample_counter_std_dev) * 10);
-    update_ticks_noise = UPDATE_TICKS + (int)(generateGaussianNoise(0, sample_counter_std_dev) * 31);
+    sample_counter_max_noise = SAMPLE_COUNTER_MAX + (rand() % 10);
+    update_ticks_noise = UPDATE_TICKS + (rand() % 30);
     
     // Intialize time to 0
     kilo_ticks = 0;
@@ -680,7 +678,6 @@ void message_rx( message_t *msg, distance_measurement_t *d ) {
         received_number_of_options = data2;
         received_option = msg->data[3];
         communication_range = msg->data[4];
-        
     }else if(msg->type == GRID_MSG && !init_flag){
         received_msg_kilogrid = true;  // flag that we received msg from kilogrid
         received_option = data0;  // get falg and option
@@ -699,6 +696,21 @@ void message_rx( message_t *msg, distance_measurement_t *d ) {
 /* the simulation bc inter robot communication is handled by the kilogrid                        */
 /*-----------------------------------------------------------------------------------------------*/
 message_t *message_tx() {
+    if (broadcast_msg){
+        // here we have to insert a hack -> we communicate via the kilogrid which basically means we
+        // set our debug state
+            // ATTENTION: we do not need to set our commitment here, because it is always set at the
+            // end of the control loop (for data collecting reasons - but now also for logic)
+            // debug_info_set(commitement, my_commitment);
+            
+            // we now just need to set our communication range and the flag that we indeed want to
+            // broadcast
+            //debug_info_set(broadcast_flag, 1);
+            //debug_info_set(com_range, communication_range);
+        debug_info_set(broadcast_flag, 1);
+        debug_info_set(com_range, communication_range);
+        broadcast_msg = false;
+    }
     return 0;
 }
 
@@ -707,6 +719,8 @@ message_t *message_tx() {
 /* for the simulation bc inter robot communication is handled by the kilogrid                    */
 /*-----------------------------------------------------------------------------------------------*/
 void tx_message_success() {
+    //broadcast_msg = false;
+    //printf("[%d] resetting ... \n");
     return;
 }
 

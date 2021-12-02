@@ -120,7 +120,6 @@ void CKilogrid::PreStep(){
 /*-----------------------------------------------------------------------------------------------*/
 void CKilogrid::PostStep(){
     // Save experiment data to the specified log file
-    
     // check if quorum is reached
     std::fill(m_tCommitmentState.begin(), m_tCommitmentState.end(), 0);
     for(unsigned int i=0;i< m_tKilobotsEntities.size();i++){
