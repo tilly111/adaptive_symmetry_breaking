@@ -394,6 +394,32 @@ void update_commitment() {
             if(received_msg_robot && neigh_commitment != UNCOMMITTED){
                 social = true;
             }
+            
+            // if both true do a flip
+            if(individual && social){
+                if(rand() % 2) {
+                    individual = true;
+                    social = false;
+                }else{
+                    individual = false;
+                    social = true;
+                }
+            }
+            
+            // do the switch
+            if(individual){
+                my_commitment = discovered_option;
+                my_commitment_quality = discovered_quality;
+                random_walk_waypoint_model(SELECT_NEW_WAY_POINT);
+            }else if(social){
+                my_commitment = neigh_commitment;
+                my_commitment_quality = 0; // thus we first sample and then broadcast
+                // reset sampling -> sample what you got told to
+                op_to_sample = neigh_commitment;
+                sample_op_counter = 0;
+                sample_counter = 0;
+                sampling_done = false;
+            }
         }else{  // robot is committed
             // if current sampled option is better than current committed one switch
             // COMPARE
@@ -406,32 +432,31 @@ void update_commitment() {
             if(received_msg_robot && my_commitment != neigh_commitment){
                 social = true;
             }
-        }
-        
-        // if both true do a flip
-        if(individual && social){
-            if(rand() % 2) {
-                individual = true;
-                social = false;
-            }else{
-                individual = false;
-                social = true;
+            // if both true do a flip
+            if(individual && social){
+                if(rand() % 2) {
+                    individual = true;
+                    social = false;
+                }else{
+                    individual = false;
+                    social = true;
+                }
             }
-        }
-        
-        // do the switch
-        if(individual){
-            my_commitment = discovered_option;
-            my_commitment_quality = discovered_quality;
-            random_walk_waypoint_model(SELECT_NEW_WAY_POINT);
-        }else if(social){
-            my_commitment = neigh_commitment;
-            my_commitment_quality = 0; // thus we first sample and then broadcast
-            // reset sampling -> sample what you got told to
-            op_to_sample = neigh_commitment;
-            sample_op_counter = 0;
-            sample_counter = 0;
-            sampling_done = false;
+            
+            // do the switch
+            if(individual){
+                my_commitment = discovered_option;
+                my_commitment_quality = discovered_quality;
+                random_walk_waypoint_model(SELECT_NEW_WAY_POINT);
+            }else if(social){
+                my_commitment = UNCOMMITTED;  // inhibition
+                my_commitment_quality = 0; // thus we first sample and then broadcast
+                // reset sampling -> sample what you got told to
+                op_to_sample = neigh_commitment;
+                sample_op_counter = 0;
+                sample_counter = 0;
+                sampling_done = false;
+            }
         }
         received_msg_robot = false;
         discovered = false;
@@ -452,7 +477,7 @@ void broadcast() {
         
         unsigned int P_ShareCommitementInt = (unsigned int)(my_commitment_quality * range_rnd) + 1;
         
-        if (my_commitment != 0 && my_commitment_quality > 0 && random <= P_ShareCommitementInt){
+        if (my_commitment != UNCOMMITTED && my_commitment_quality > 0 && random <= P_ShareCommitementInt){
             broadcast_msg = true;
             return;
         }

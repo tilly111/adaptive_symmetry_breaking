@@ -16,7 +16,7 @@ exit
 else
     #Varibales to change
     # Experiment name
-    rtype=cluster_global_adaptive
+    rtype=cluster_global_adaptive_inhib
     EXP_NAME=${rtype}  # Do not forget to change the experiment name.
     
     #TODO: atm hard coded but make it dynamic -> uncommited state to be implemented maybe 0?
@@ -34,7 +34,7 @@ else
     GPS_CELLS_NO=20 # GPS resolution: 20 per meter aka every grid cell
 
     QUORUM=-0.9 # Quorum to stop experiment  TODO CHANGE BACK
-    COMMRANGE=2 # Robots' communication range in kilogrid cells (radius) - init range goes from 0 to 45 this would be global then!
+    COMMRANGE=45 # Robots' communication range in kilogrid cells (radius) - init range goes from 0 to 45 this would be global then!
     COMMRANGE_OLD=0.0  # this is for direct robot communication, which we plan to omit!!!
         
     EXP_LENGTH=2400 #length of the in secs
