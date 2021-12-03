@@ -1,0 +1,130 @@
+<?xml version="1.0" ?>
+<argos-configuration>
+    
+<!-- ************************* -->
+<!-- * General configuration * -->
+<!-- ************************* -->
+<framework>
+<system threads="1" />
+<experiment length="exp_length"
+    ticks_per_second="10"
+    random_seed="randomseed" />
+</framework>
+        
+<!-- *************** -->
+<!-- * Controllers * -->
+<!-- *************** -->
+<controllers>
+
+    <kilobot_controller id="kbc">
+
+    <actuators>
+        <differential_steering implementation="default"
+            bias_avg="0.000015"
+            bias_stddev="0.00186"/>
+        <kilobot_communication implementation="default" />
+        <kilobot_led implementation="default" />
+    </actuators>
+
+    <sensors>
+        <kilobot_communication implementation="default" medium="kilocomm" show_rays="false" />
+    </sensors>
+
+    <params behavior="behaviourpath" />
+
+    </kilobot_controller>
+
+</controllers>
+
+<!-- ****************** -->
+<!-- * Loop functions * -->
+<!-- ****************** -->
+<loop_functions
+    library="loopfunctionpath"
+    label="kilogrid_loop_functions">
+        
+    <variables
+        datafilename="data_file"
+        dynamic_virtual_environment="false"
+        frequency="datafrequency"
+        quorum="quorumvalue"
+        gps_cellsX="numberofgpscells"
+        initComRange="initcomrng"
+        Trobot="T_ROBOT">
+    </variables>
+
+    <environments type="manual">
+        <option id="1" quality="126" position="0.1,0.1" radius="0.1" color="255,0,127,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop1">
+        </option>
+        <option id="2" quality="225" position="1.0,0.0" radius="0.1" color="0,255,0,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop2">
+        </option>
+        <option id="3" quality="225" position="0.0,1.0" radius="0.1" color="127,0,255,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop3">
+        </option>
+    </environments>
+
+</loop_functions>
+
+
+<!-- *********************** -->
+<!-- * Arena configuration * -->
+<!-- *********************** -->
+<arena size="1, 2, 1" center="0.5,1,0.5">
+    
+    <box id="wall_north" size="1,0.01,0.03" movable="false" >
+      <body position="0.5,2,0" orientation="0,0,0" />
+    </box>
+    
+    <box id="wall_south" size="1,0.01,0.03" movable="false">
+        <body position="0.5,0,0" orientation="0,0,0" />
+    </box>
+    
+    <box id="wall_east" size="0.01,2,0.03"  movable="false">
+        <body position="1,1,0" orientation="0,0,0" />
+    </box>
+
+    <box id="wall_west" size="0.01,2,0.03"  movable="false">
+        <body position="0,1,0" orientation="0,0,0" />
+    </box>
+
+    <distribute>
+        <position method="uniform" min="0.12,0.12,0" max="0.88,1.88,0" />
+        <orientation method="uniform" min="0,0,0" max="360,0,0" />
+        <entity quantity="num_robots" max_trials="100">
+            <kilobot id="kb" communication_range="commrng">
+                <controller config="kbc"/>
+                <dynamics2d friction="0.7" />
+            </kilobot>
+        </entity>
+    </distribute>
+
+<floor id="floor"
+    source="loop_functions"
+    pixels_per_meter="1000"
+    />
+
+            
+</arena>
+        
+<!-- ******************* -->
+<!-- * Physics engines * -->
+<!-- ******************* -->
+<physics_engines>
+    <dynamics2d id="dyn2d" />
+</physics_engines>
+
+<!-- ********* -->
+<!-- * Media * -->
+<!-- ********* -->
+
+<media>
+    <kilobot_communication id="kilocomm" />
+</media>
+
+<!-- ****************** -->
+<!-- * Visualization  * -->
+<!-- ****************** -->
+
+<visualization>
+</visualization>
+
+</argos-configuration>
