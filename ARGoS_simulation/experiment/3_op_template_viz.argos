@@ -54,11 +54,11 @@
     </variables>
 
     <environments type="manual">
-        <option id="1" quality="76" color="255,0,127,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop1">
+        <option id="1" quality="156" color="255,0,127,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop1">
         </option>
-        <option id="2" quality="250" color="0,255,0,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop2">
+        <option id="2" quality="210" color="0,255,0,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop2">
         </option>
-        <option id="3" quality="250" color="127,0,255,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop3">
+        <option id="3" quality="210" color="127,0,255,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop3">
         </option>
     </environments>
 

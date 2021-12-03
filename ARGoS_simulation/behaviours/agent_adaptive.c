@@ -27,7 +27,7 @@
 /*-----------------------------------------------------------------------------------------------*/
 /* Timer values to select                                                                        */
 /*-----------------------------------------------------------------------------------------------*/
-#define NUMBER_OF_SAMPLES 25 // we sample each second
+#define NUMBER_OF_SAMPLES 125 // we sample each second
 #define SAMPLE_NOISE 10  // discrete sample noise equal distribution NUMBER_OF_SAMPLES + 0~10
 
 #define BROADCAST_SEC 0.5  // try to broadcast every x seconds
@@ -449,7 +449,7 @@ void update_commitment() {
                 my_commitment_quality = discovered_quality;
                 random_walk_waypoint_model(SELECT_NEW_WAY_POINT);
             }else if(social){
-                my_commitment = UNCOMMITTED;  // inhibition
+                my_commitment = neigh_commitment;  // inhibition change back to UNCOMMITTED
                 my_commitment_quality = 0; // thus we first sample and then broadcast
                 // reset sampling -> sample what you got told to
                 op_to_sample = neigh_commitment;
