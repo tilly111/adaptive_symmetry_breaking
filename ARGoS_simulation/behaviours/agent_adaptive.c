@@ -30,7 +30,7 @@
 #define NUMBER_OF_SAMPLES 25 // we sample each second
 #define SAMPLE_NOISE 10  // discrete sample noise equal distribution NUMBER_OF_SAMPLES + 0~10
 
-#define BROADCAST_SEC 0.1  // try to broadcast every x seconds
+#define BROADCAST_SEC 0.5  // try to broadcast every x seconds
 
 
 #define UPDATE_COMMITMENT_SEC 2.5  // updates commitment every 10 sec - was 1

@@ -55,15 +55,15 @@
     </variables>
 
     <environments type="manual">
-        <option id="1" quality="16" position="0.1,0.1" radius="0.1" color="255,0,127,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop1">
+        <option id="1" quality="16" color="255,0,127,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop1">
         </option>
-        <option id="2" quality="140" position="1.0,0.0" radius="0.1" color="0,255,0,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop2">
+        <option id="2" quality="140" color="0,255,0,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop2">
         </option>
-        <option id="3" quality="140" position="0.0,1.0" radius="0.1" color="127,0,255,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop3">
+        <option id="3" quality="140" color="127,0,255,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop3">
         </option>
-        <option id="4" quality="140" position="1.0,1.0" radius="0.1" color="255,127,0,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop4">
+        <option id="4" quality="140" color="255,127,0,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop4">
         </option>
-        <option id="5" quality="140" position="0.5,0.5" radius="0.1" color="0,255,255,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop5">
+        <option id="5" quality="140" color="0,255,255,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop5">
         </option>
     </environments>
 
