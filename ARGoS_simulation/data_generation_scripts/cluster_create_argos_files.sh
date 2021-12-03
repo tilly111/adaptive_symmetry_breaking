@@ -20,12 +20,12 @@ else
     EXP_NAME=${rtype}  # Do not forget to change the experiment name.
     
     #TODO: atm hard coded but make it dynamic -> uncommited state to be implemented maybe 0?
-    ROBPOP1=50
+    ROBPOP1=100
     ROBPOP2=0
     ROBPOP3=0
     ROBPOP4=0
     ROBPOP5=0
-    NUM_ROBOTS=50 # number of robots
+    NUM_ROBOTS=100 # number of robots
     
     #constants
     #Visuaisation flag
