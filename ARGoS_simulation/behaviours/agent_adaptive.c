@@ -27,7 +27,7 @@
 /*-----------------------------------------------------------------------------------------------*/
 /* Timer values to select                                                                        */
 /*-----------------------------------------------------------------------------------------------*/
-#define NUMBER_OF_SAMPLES 125 // we sample each second
+#define NUMBER_OF_SAMPLES 45 // we sample each second
 #define SAMPLE_NOISE 10  // discrete sample noise equal distribution NUMBER_OF_SAMPLES + 0~10
 
 #define BROADCAST_SEC 0.5  // try to broadcast every x seconds
