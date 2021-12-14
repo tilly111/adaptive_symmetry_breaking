@@ -4,6 +4,8 @@ experiments_cluster/
 job_cluster/
 output/
 .DS_Store
+.metadata/
+.idea/
 
 # the link is system dependend and needs to be done manual new
 ARGoS_simulation/argos3

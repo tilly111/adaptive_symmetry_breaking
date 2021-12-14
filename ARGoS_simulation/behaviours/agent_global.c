@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
-#include "agentCDCIlocal.h"
+#include "agent.h"
 #include <debug.h>
 
 #define PI 3.14159265358979323846

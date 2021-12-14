@@ -11,7 +11,7 @@ class CSimulator;
 #include <math.h>
 #include <random>
 
-#include <behaviours/agentCDCIlocal.h>
+#include <behaviours/agent.h>
 
 #include <argos3/core/simulator/loop_functions.h>
 #include <argos3/core/simulator/simulator.h>
