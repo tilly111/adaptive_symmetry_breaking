@@ -77,13 +77,24 @@ uint8_t communication_range = 0;  // communication range in cells
 #define MSG_SEND_TRIES 10
 #endif
 // Kilobot -> Kilogrid
-uint32_t msg_counter_sent = 0;  // counts the messages sent
+uint32_t msg_counter_sent = MSG_SEND_TRIES + 1;  // counts the messages sent
 uint32_t msg_number_send = 0;  // change if you want to send a msg
 uint32_t msg_number_current_send = 0;  // var for checking against the last
 // Kilogrid -> Kilobot
 bool init_flag = false;
 bool received_grid_msg_flag = false;
 bool received_virtual_agent_msg_flag = false;
+// message content
+#ifdef SIMULATION
+bool broadcast_msg = false;
+uint8_t communication_range_msg = 0;
+uint8_t x_pos_msg = 0;
+uint8_t y_pos_msg = 0;
+uint32_t msg_counter = 0;
+
+#else
+IR_message_t* message;
+#endif
 
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -137,6 +148,7 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         communication_range = msg->data[4];
         */
         init_flag = true;
+        printf("[%d] received init_msg \n", kilo_uid);
     }else if(msg->type == GRID_MSG && init_flag){
     // TODO add logic ...
         received_grid_msg_flag = true;
@@ -160,16 +172,23 @@ void message_tx(){
     // understand
     // in reality we send infrared msg - we send more than one to make sure that the messages arrive!
     if (msg_number_current_send != msg_number_send){
+        printf("[%d] set msg \n", kilo_uid);
         msg_number_current_send = msg_number_send;
         msg_counter_sent = 0;
     }
+#ifdef SIMULATION
+    // TODO find a better solution currently needed to reset the broadcast flag
+    // check if counter reached ... reset send flag so kilogrid knows that message stoped
+    if(msg_counter_sent == MSG_SEND_TRIES){
+        debug_info_set(broadcast_flag, 0);
+        printf("[%d] message send successfully \n", kilo_uid);
+        msg_counter_sent += 1;
+    }
+#endif
     // send msg if not sended enough yet
     if (msg_counter_sent < MSG_SEND_TRIES){
 #ifdef SIMULATION
-        /*
-        debug_info_set(broadcast_flag, true);
-        debug_info_set(com_range, communication_range);
-        */
+        // count messages
         msg_counter_sent += 1;
 #else
         if((message = kilob_message_send()) != NULL) {
@@ -188,6 +207,35 @@ void message_tx(){
     }
 }
 
+
+/*-----------------------------------------------------------------------------------------------*/
+/* Setting values of the message                                                                 */
+/* TODO this needs to be adjusted on what kind of messages you want to send                      */
+/*-----------------------------------------------------------------------------------------------*/
+void set_message(){
+#ifdef SIMULATION
+    msg_number_send += 1;
+    debug_info_set(broadcast_flag, 1);
+    debug_info_set(type, MSG_T_VIRTUAL_ROBOT_MSG);
+    debug_info_set(data0, 1);
+    debug_info_set(data1, 2);
+    debug_info_set(data2, 3);
+    debug_info_set(data3, 4);
+    debug_info_set(data4, msg_number_send);
+    debug_info_set(data5, 6);
+    debug_info_set(data6, 7);
+    debug_info_set(data7, 8);
+#else
+    /*
+            message->type = TO_KILOGRID_MSG;
+            message->data[0] = my_commitment;
+            message->data[1] = communication_range;
+            message->data[2] = robot_gps_x;
+            message->data[3] = robot_gps_y;
+            message->data[4] = msg_number_current_send;
+            */
+#endif
+}
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Init function                                                                                 */
@@ -228,6 +276,13 @@ void loop() {
         }
 
         // TODO add logic here ...
+        msg_counter += 1;
+        if(msg_counter > 30){
+            msg_counter = 0;
+            printf("[%d] sending a msg !!! \n", kilo_uid);
+            set_message();
+
+        }
 
         // for sending messages
         // if you want to send a msg you have to change msg_number_send, e.g., msg_number_send += 1;

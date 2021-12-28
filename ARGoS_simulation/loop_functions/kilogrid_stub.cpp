@@ -1,6 +1,9 @@
 //
 // Created by Till Konrad Aust on 17.12.21.
 //
+// in case of simulation set flag
+#define SIMULATION
+
 
 #include "kilogrid_stub.h"
 
@@ -21,7 +24,13 @@ CKilogrid::~CKilogrid() {}
 // as you would with the real kilogrid
 // what else ?!?
 void CKilogrid::Init(TConfigurationNode &t_tree) {
+    m_pcRNG = CRandom::CreateRNG("argos");
+
     // get all kilobots
+    get_kilobots_entities();
+
+    // get the debug info structs aka communication with the kilogrid
+    GetDebugInfo();
 
     // init map
     read_configuration(t_tree);
@@ -30,6 +39,9 @@ void CKilogrid::Init(TConfigurationNode &t_tree) {
             setup(x_it, y_it);
         }
     }
+    // initialize some helpers to track the kilobots - only needed in sim
+    robot_positions.resize(kilobot_entities.size());
+    // start logging ??!
 
 }
 
@@ -37,14 +49,15 @@ void CKilogrid::Init(TConfigurationNode &t_tree) {
 /* Gets called when the experiment is resetted.                                                  */
 /*-----------------------------------------------------------------------------------------------*/
 void CKilogrid::Reset() {
-    // TODO implement
+    // TODO implement logging stuff
 }
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Gets called when the experiment ended.                                                        */
 /*-----------------------------------------------------------------------------------------------*/
 void CKilogrid::Destroy() {
-    // TODO implement
+    // TODO implement end logging stuff
+
 }
 
 
@@ -52,9 +65,44 @@ void CKilogrid::Destroy() {
 /* Gets called before every simulation step.                                                     */
 /*-----------------------------------------------------------------------------------------------*/
 void CKilogrid::PreStep(){
-    // TODO implement
+    // collect all the data from the robots - and virtualize them
+    virtual_message_reception();
 
-    // implement callback - collect all the data
+    // simulate IR message reception for each cell
+    for(int x_it = 0; x_it < 10; x_it++){
+        for(int y_it = 0; y_it < 20; y_it++){
+            if(module_memory[x_it][y_it].robot_messages.size() > 0){
+                // IMPORTANT: cellid, distance and crc error are not used in simulation: here they are
+                // dummy values
+                IR_rx(x_it, y_it, module_memory[x_it][y_it].robot_messages[m_pcRNG->Uniform(CRange<UInt32>(0,module_memory[x_it][y_it].robot_messages.size()))], cell_id[0], d, 0);
+                module_memory[x_it][y_it].robot_messages.clear();
+            }
+
+//            IR_rx(x_it, y_it, module_memory[x_it][y_it].robot_message, cell_id[0], d, 0);
+//            if (module_memory[x_it][y_it].robot_message != nullptr){
+//                // TODO here is probably a memory leak! - do we need to proper delete the data array?
+//                printf("enters in delete robot msg %d %d \n", x_it, y_it);
+//                //ree(module_memory[x_it][y_it].robot_message->data);
+//                delete module_memory[x_it][y_it].robot_message;
+//                module_memory[x_it][y_it].robot_message = nullptr;
+//
+//            }
+
+        }
+    }
+
+    // simulate reception of can messages
+    for(int x_it = 0; x_it < 10; x_it++){
+        for(int y_it = 0; y_it < 20; y_it++){
+            // if we have multiple messages at the same time select a random one
+            if(module_memory[x_it][y_it].received_cell_messages.size() > 0){
+                // shuffle and take first element (this way because we also consider case == 1)
+                CAN_rx(x_it, y_it, module_memory[x_it][y_it].received_cell_messages[m_pcRNG->Uniform(CRange<UInt32>(0,module_memory[x_it][y_it].received_cell_messages.size()))]);
+                // clear list afterwards
+                module_memory[x_it][y_it].received_cell_messages.clear();
+            }
+        }
+    }
 
     // run the loop
     for(int x_it = 0; x_it < 10; x_it++){
@@ -62,9 +110,6 @@ void CKilogrid::PreStep(){
             loop(x_it, y_it);
         }
     }
-
-    // forward all messages
-
 }
 
 
@@ -125,59 +170,8 @@ void CKilogrid::read_configuration(TConfigurationNode& t_node){
 }
 
 
-// TODO here we implement the logic for what should run aka this methods should
-// be implemented such as on the real kilogrid
-
-// is called before the experiment - draws the environment for example
-// for the real kilogrid you need to remove the x and y
-// for example configuration[0] instead of configuration[x][y][0]
-// also you have to remove the module memory!!
-void CKilogrid::setup(int x, int y){
-    // the real line is
-    // cell_x[0] = (configuration[0] * 2);
-    module_memory[x][y].cell_x[0] = (configuration[x][y][0] * 2);
-    module_memory[x][y].cell_x[1] = (configuration[x][y][0] * 2 + 1);
-    module_memory[x][y].cell_x[2] = (configuration[x][y][0] * 2);
-    module_memory[x][y].cell_x[3] = (configuration[x][y][0] * 2 + 1);
-
-    module_memory[x][y].cell_y[0] = (configuration[x][y][1] * 2 + 1);
-    module_memory[x][y].cell_y[1] = (configuration[x][y][1] * 2 + 1);
-    module_memory[x][y].cell_y[2] = (configuration[x][y][1] * 2);
-    module_memory[x][y].cell_y[3] = (configuration[x][y][1] * 2);
-
-    module_memory[x][y].cell_role[0] = (configuration[x][y][2]);
-    module_memory[x][y].cell_role[1] = (configuration[x][y][2]);
-    module_memory[x][y].cell_role[2] = (configuration[x][y][2]);
-    module_memory[x][y].cell_role[3] = (configuration[x][y][2]);
-
-    module_memory[x][y].cell_colour[0] = (configuration[x][y][3]);
-    module_memory[x][y].cell_colour[1] = (configuration[x][y][4]);
-    module_memory[x][y].cell_colour[2] = (configuration[x][y][5]);
-    module_memory[x][y].cell_colour[3] = (configuration[x][y][6]);
-
-    module_memory[x][y].test_counter = 0;
-
-    for(int i = 0; i < 4; i++){
-        set_LED_with_brightness(x, y, cell_id[i], (color_t)(module_memory[x][y].cell_colour[i]), HIGH);
-    }
-}
-
-
-// this method implements the loop function
-void CKilogrid::loop(int x, int y){
-    module_memory[x][y].test_counter += 1;
-
-    if(module_memory[x][y].test_counter > 20){
-        module_memory[x][y].test_counter = 0;
-        for (int c = 0; c < 4; c++){
-            int tmp_int = (module_memory[x][y].cell_colour[c]+1)%4;
-            set_LED_with_brightness(x, y, cell_id[c], (color_t)(tmp_int), HIGH);
-        }
-    }
-}
-
 void CKilogrid::set_LED_with_brightness(int x, int y, cell_num_t cn, color_t color, brightness_t brightness){
-    module_memory[x][y].cell_colour[cn] = int(color);
+    module_memory[x][y].cell_colour[cn] = color;
     GetSpace().GetFloorEntity().SetChanged();
 }
 
@@ -215,12 +209,7 @@ CColor CKilogrid::GetFloorColor(const CVector2 &vec_position_on_plane) {
 UInt16 CKilogrid::position2option(CVector2 t_position){
     int module_x = t_position.GetX()*10;
     int module_y = t_position.GetY()*10;
-    uint8_t cell = position2cell(t_position);
 
-    return module_memory[module_x][module_y].cell_colour[cell];
-}
-
-uint8_t CKilogrid::position2cell(CVector2 t_position){
     uint8_t cell = 0;
     int x = t_position.GetX()*20;
     int y = t_position.GetY()*20;
@@ -241,16 +230,348 @@ uint8_t CKilogrid::position2cell(CVector2 t_position){
         cell = 3;
     }
 
-    return cell;
+    return module_memory[module_x][module_y].cell_colour[cell];
+}
+
+CVector2 CKilogrid::position2cell(CVector2 t_position){
+    int x = t_position.GetX()*20;
+    int y = t_position.GetY()*20;
+
+    if (x >= 20) x = 19;
+    if (y >= 40) y = 39;
+    if (x < 0) x = 0;
+    if (y < 0) y = 0;
+
+    return CVector2(x,y);
+}
+
+
+CVector2 CKilogrid::position2module(CVector2 t_position) {
+    float x = t_position.GetX() * 10;
+    float y = t_position.GetY() * 10;
+
+    if (x >= 10) x = 9;
+    if (y >= 20) y = 19;
+    if (x < 0) x = 0;
+    if (y < 0) y = 0;
+
+    return CVector2(int(x),int(y));
+}
+
+CVector2 CKilogrid::module2cell(CVector2 module_pos, cell_num_t cn){
+    int cur_x = module_pos.GetX() * 2;
+    int cur_y = module_pos.GetY() * 2;
+
+    switch(cn){
+        case 0:
+            cur_y += 1;
+            break;
+        case 1:
+            cur_x += 1;
+            cur_y += 1;
+            break;
+        case 2:
+            break;
+        case 3:
+            cur_x += 1;
+    }
+
+    return CVector2(cur_x, cur_y);
+}
+
+void CKilogrid::get_kilobots_entities(){
+    // Get the map of all kilobots from the space
+    CSpace::TMapPerType& mapKilobots=GetSpace().GetEntitiesByType("kilobot");
+    // Go through them
+    for(CSpace::TMapPerType::iterator it = mapKilobots.begin();it != mapKilobots.end();++it) {
+        kilobot_entities.push_back(any_cast<CKilobotEntity*>(it->second));
+    }
+}
+
+
+/*-----------------------------------------------------------------------------------------------*/
+/* Returns the position of the kilobot.                                                          */
+/*-----------------------------------------------------------------------------------------------*/
+CVector2 CKilogrid::GetKilobotPosition(CKilobotEntity& c_kilobot_entity){
+    CVector2 vecKP(c_kilobot_entity.GetEmbodiedEntity().GetOriginAnchor().Position.GetX(),
+                   c_kilobot_entity.GetEmbodiedEntity().GetOriginAnchor().Position.GetY());
+    return vecKP;
+}
+
+
+/*-----------------------------------------------------------------------------------------------*/
+/* Returns the id of the kilobot.                                                                */
+/*-----------------------------------------------------------------------------------------------*/
+UInt16 CKilogrid::GetKilobotId(CKilobotEntity& c_kilobot_entity){
+    std::string strKilobotID((c_kilobot_entity).GetControllableEntity().GetController().GetId());
+    return std::stoul(strKilobotID.substr(2));
+}
+
+void CKilogrid::virtual_message_reception(){
+    for(UInt16 it = 0; it < kilobot_entities.size(); it++){
+        // get position information, later used for sending stuff!!
+        robot_positions[GetKilobotId(*kilobot_entities[it])] = position2cell(GetKilobotPosition(*kilobot_entities[it]));
+        int module_x = GetKilobotPosition(*kilobot_entities[it]).GetX() * 10;
+        int module_y = GetKilobotPosition(*kilobot_entities[it]).GetY() * 10;
+
+        // if robot send message set it here
+        if(debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->broadcast_flag == 1){
+            printf("got a msg \n");
+            IR_message_t* tmp_msg = new IR_message_t;
+            tmp_msg->type = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->type;
+            tmp_msg->data[0] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data0;
+            tmp_msg->data[1] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data1;
+            tmp_msg->data[2] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data2;
+            tmp_msg->data[3] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data3;
+            tmp_msg->data[4] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data4;
+            tmp_msg->data[5] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data5;
+            tmp_msg->data[6] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data6;
+            tmp_msg->data[7] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data7;
+            //module_memory[module_x][module_y].robot_message = tmp_msg;
+            module_memory[module_x][module_y].robot_messages.push_back(tmp_msg);
+        }
+    }
+}
+
+
+void CKilogrid::set_IR_message(int x, int y, IR_message_t &m, cell_num_t cn) {
+    // get correct cell
+    CVector2 cell_pos = module2cell(CVector2(x,y), cn);
+
+    // get kilobots on this cell
+    kilobot_entities_vector current_robots;
+
+    for(uint8_t it=0;it < kilobot_entities.size();it++){
+        if(robot_positions[GetKilobotId(*kilobot_entities[it])].GetX() == cell_pos.GetX()
+        and robot_positions[GetKilobotId(*kilobot_entities[it])].GetY() == cell_pos.GetY()){
+            current_robots.push_back(kilobot_entities[it]);
+        }
+    }
+
+    // send to all kilobots on this cell
+    for(UInt16 it=0; it < current_robots.size(); it++){
+        message_t message_to_send;
+        message_to_send.type = m.type;
+        message_to_send.data[0] = m.data[0];
+        message_to_send.data[1] = m.data[1];
+        message_to_send.data[2] = m.data[2];
+        message_to_send.data[3] = m.data[3];
+        message_to_send.data[4] = m.data[4];
+        message_to_send.data[5] = m.data[5];
+        message_to_send.data[6] = m.data[6];
+        message_to_send.data[7] = m.data[7];
+        GetSimulator().GetMedium<CKilobotCommunicationMedium>("kilocomm").SendOHCMessageTo(*current_robots[it], &message_to_send);
+        printf("sent message from kilogrid to robot \n");
+    }
+}
+
+/*-----------------------------------------------------------------------------------------------*/
+/* Set up the getting of debug information from the robot (e.g. the robots state).               */
+/*-----------------------------------------------------------------------------------------------*/
+void CKilogrid::GetDebugInfo(){
+    debug_info_kilobots.clear();
+    for(UInt16 it=0;it< kilobot_entities.size();it++){
+        // Check if there is a message to send to the kilobot "i" and get the message
+
+        /*
+         * When the 'reset' method is called on the kilobot controller, the
+         * kilobot state is destroyed and recreated. Thus, we need to
+         * recreate the list of controllers and debugging info from scratch
+         * as well.
+         */
+        // Create a pointer to the current kilobot
+        CCI_KilobotController* pcKBC = &dynamic_cast<CCI_KilobotController&>(kilobot_entities[it]->GetControllableEntity().GetController());
+        // Create debug info for controller
+        debug_info_t* ptDebugInfo = pcKBC->DebugInfoCreate<debug_info_t>();
+        // Append to list
+        debug_info_kilobots.push_back(ptDebugInfo);
+    }
+}
+
+void CKilogrid::init_CAN_message(CAN_message_t* cell_msg){
+    uint8_t d;
+
+    cell_msg->id = 0;
+    cell_msg->header.rtr = 0;
+    cell_msg->header.length = 8;
+
+    for(d = 0; d < 8; d++) cell_msg->data[d] = 0;
+}
+
+
+uint8_t CKilogrid::CAN_message_tx(CAN_message_t *m, kilogrid_address_t add) {
+    // this is a hack because we can only virtually set msgs
+    // TODO is this message coppied or just the pointer
+    // module_memory[add.x][add.y].received_cell_message = m;
+    module_memory[add.x][add.y].received_cell_messages.push_back(m);
+
+    return 1;
 }
 
 
 
-// this method implements the IR_rx method for all models
-//void virtual_IR_rx(){
-//    // TODO adjust
-//    // module_memory
-//}
+
+/*-----------------------------------------------------------------------------------------------*/
+/*  HERE STARTS THE METHODS TO IMPLEMENT!!!!!                                                    */
+/*                                                                                               */
+/*-----------------------------------------------------------------------------------------------*/
+
+// TODO here we implement the logic for what should run aka this methods should
+// be implemented such as on the real kilogrid
+
+// is called before the experiment - draws the environment for example
+// for the real kilogrid you need to remove the x and y
+// for example configuration[0] instead of configuration[x][y][0]
+// also you have to remove the module memory!!
+void CKilogrid::setup(int x, int y){
+    // the real line is
+    // cell_x[0] = (configuration[0] * 2);
+    module_memory[x][y].cell_x[0] = (configuration[x][y][0] * 2);
+    module_memory[x][y].cell_x[1] = (configuration[x][y][0] * 2 + 1);
+    module_memory[x][y].cell_x[2] = (configuration[x][y][0] * 2);
+    module_memory[x][y].cell_x[3] = (configuration[x][y][0] * 2 + 1);
+
+    module_memory[x][y].cell_y[0] = (configuration[x][y][1] * 2 + 1);
+    module_memory[x][y].cell_y[1] = (configuration[x][y][1] * 2 + 1);
+    module_memory[x][y].cell_y[2] = (configuration[x][y][1] * 2);
+    module_memory[x][y].cell_y[3] = (configuration[x][y][1] * 2);
+
+    module_memory[x][y].cell_role[0] = (configuration[x][y][2]);
+    module_memory[x][y].cell_role[1] = (configuration[x][y][2]);
+    module_memory[x][y].cell_role[2] = (configuration[x][y][2]);
+    module_memory[x][y].cell_role[3] = (configuration[x][y][2]);
+
+    module_memory[x][y].cell_colour[0] = color_t (configuration[x][y][3]);
+    module_memory[x][y].cell_colour[1] = color_t (configuration[x][y][4]);
+    module_memory[x][y].cell_colour[2] = color_t (configuration[x][y][5]);
+    module_memory[x][y].cell_colour[3] = color_t (configuration[x][y][6]);
+
+    module_memory[x][y].test_counter = 0;
+
+    // set id of received can message to 0 in order to initialize it -> maybe only needed in sim because
+    // in reality we do not have the issue bc its a callback
+    // module_memory[x][y].received_cell_message->id = 0;
+
+    for(int i = 0; i < 4; i++){
+        set_LED_with_brightness(x, y, cell_id[i], module_memory[x][y].cell_colour[i], HIGH);
+    }
+}
+
+
+// this method implements the loop function
+void CKilogrid::loop(int x, int y){
+    // the real line is
+    // test_counter += 1;
+    module_memory[x][y].test_counter += 1;
+
+    // send initial message
+    if(!module_memory[x][y].init_flag){
+        module_memory[x][y].init_flag = true;
+        for (int f = 0; f < 4; f++){
+            module_memory[x][y].ir_message_tx->type = 10;  // TODO check if free
+            module_memory[x][y].ir_message_tx->crc = 0;
+            module_memory[x][y].ir_message_tx->data[0] = module_memory[x][y].cell_x[f];
+            module_memory[x][y].ir_message_tx->data[1] = module_memory[x][y].cell_y[f];
+            module_memory[x][y].ir_message_tx->data[2] = module_memory[x][y].cell_role[f];
+            set_IR_message(x, y, *module_memory[x][y].ir_message_tx, cell_id[f]);
+        }
+    }
+    if(module_memory[x][y].test_counter > 20){
+        module_memory[x][y].test_counter = 0;
+        for (int c = 0; c < 4; c++){
+            // HOW TO CHANGE COLOR OF ONE CELL
+            // int tmp_int = (module_memory[x][y].cell_colour[c]+1)%4;
+            // set_LED_with_brightness(x, y, cell_id[c], (color_t)(tmp_int), HIGH);
+
+            // HOW TO SET MESSAGES
+            // set_IR_message(x_it, y_it, *module_memory[x_it][y_it].ir_message_tx, cell_id[c]);
+
+            // HOW TO SEND CAN MESSAGES
+//             init_CAN_message(&module_memory[x][y].cell_message);
+//             module_memory[x][y].cell_address.type = ADDR_INDIVIDUAL;
+//             module_memory[x][y].cell_address.x = x_of_module_to_send_to;
+//             module_memory[x][y].cell_address.y = y_of_module_to_send_to;
+//             CAN_message_tx(&module_memory[x][y].cell_message, module_memory[x][y].cell_address);
+
+            if ((module_memory[x][y].cell_x[c] == 10 && module_memory[x][y].cell_y[c] == 10) || (module_memory[x][y].cell_x[c] == 14 && module_memory[x][y].cell_y[c] == 14)){
+                printf("sending can msg! at %d %d \n", x, y);
+                init_CAN_message(&module_memory[x][y].cell_message);
+                module_memory[x][y].cell_address.type = ADDR_INDIVIDUAL;
+                module_memory[x][y].cell_address.x = 2;
+                module_memory[x][y].cell_address.y = 2;
+                // some payload
+                module_memory[x][y].cell_message.id = 55;
+                module_memory[x][y].cell_message.data[0] = 55;
+                module_memory[x][y].cell_message.data[1] = 1;
+                module_memory[x][y].cell_message.data[2] = 1;
+                module_memory[x][y].cell_message.data[3] = 1;
+                module_memory[x][y].cell_message.data[4] = 1;
+                CAN_message_tx(&module_memory[x][y].cell_message, module_memory[x][y].cell_address);
+            }
+        }
+    }
+}
+
+
+void CKilogrid::IR_rx(int x, int y, IR_message_t *m, cell_num_t c, distance_measurement_t *d, uint8_t CRC_error) {
+    // used for debug tracking on the real kilogrid ...
+//    if(!CRC_error && m->type == TRACKING) {
+//        CAN_message_t *msg = next_CAN_message();
+//        if (msg != NULL) { // if the buffer is not full
+//            serialize_tracking_message(msg, c, m->data);
+//        }
+//    }else if(!CRC_error && m->type == VIRTUAL_ROBOT_MSG){
+    // check if msg is zero ... return no msg to send
+//    if (m == nullptr){
+//        return;
+//    }
+    //printf("%d %d got a non null msg \n", x,y);
+    if (!CRC_error && m->type == MSG_T_VIRTUAL_ROBOT_MSG) {
+//        module_memory[x][y].received_option = m->data[0];
+//        module_memory[x][y].received_com_range = m->data[1];
+//        module_memory[x][y].received_x = m->data[2];
+//        module_memory[x][y].received_y = m->data[3];
+        module_memory[x][y].msg_number_current = m->data[4];
+        printf("we got a message in the kilogrid \n");
+        if (module_memory[x][y].msg_number_current != module_memory[x][y].msg_number) {
+            // case new message
+            module_memory[x][y].msg_number = module_memory[x][y].msg_number_current;
+            // TODO implement logic
+            printf("received new message from kilobot at %d %d \n", x, y);
+        } else {
+            // message already seen -> discard
+            printf("message already seen ! \n");
+            return;
+        }
+    }
+}
+
+void CKilogrid::CAN_rx(int x, int y, CAN_message_t *m){
+    // we check if we have new message: id == 0 <-> no new message -> leave
+//    if(m == nullptr || m->id == 0){
+//        return;
+//    }
+    // TODO clear and hint how to use
+    if (m->data[0] == 55){  // set msg
+        printf("received can msg at %d %d \n", x, y);
+        module_memory[x][y].cell_received_op[0] = m->data[1];
+        module_memory[x][y].cell_received_op[1] = m->data[2];
+        module_memory[x][y].cell_received_op[2] = m->data[3];
+        module_memory[x][y].cell_received_op[3] = m->data[4];
+        // receive_timer = m->data[5];
+        for(uint8_t cell_it_cb = 0; cell_it_cb < 4; cell_it_cb++){
+            if(module_memory[x][y].cell_received_op[cell_it_cb] != 0){
+                module_memory[x][y].reset_timer[cell_it_cb] = 0;
+            }
+        }
+    }else {
+        module_memory[x][y].cell_received_op[0] = 3;
+        module_memory[x][y].cell_received_op[1] = 3;
+        module_memory[x][y].cell_received_op[2] = 3;
+        module_memory[x][y].cell_received_op[3] = 3;
+    }
+}
+
 
 // ??
 REGISTER_LOOP_FUNCTIONS(CKilogrid, "kilogrid_loop_functions")
