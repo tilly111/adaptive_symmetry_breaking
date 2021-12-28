@@ -216,7 +216,6 @@ void CKilogrid::GetKilobotsEntities(){
     for(CSpace::TMapPerType::iterator it = mapKilobots.begin();it != mapKilobots.end();++it) {
         m_tKilobotsEntities.push_back(any_cast<CKilobotEntity*>(it->second));
     }
-    
 }
 
 

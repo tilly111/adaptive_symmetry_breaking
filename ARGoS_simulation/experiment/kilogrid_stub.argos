@@ -1,16 +1,16 @@
 <?xml version="1.0" ?>
 <argos-configuration>
-    
+
 <!-- ************************* -->
 <!-- * General configuration * -->
 <!-- ************************* -->
 <framework>
 <system threads="1" />
-<experiment length="exp_length"
+<experiment length="5000"
     ticks_per_second="10"
-    random_seed="randomseed" />
+    random_seed="123" />
 </framework>
-        
+
 <!-- *************** -->
 <!-- * Controllers * -->
 <!-- *************** -->
@@ -30,7 +30,7 @@
         <kilobot_communication implementation="default" medium="kilocomm" show_rays="false" />
     </sensors>
 
-    <params behavior="behaviourpath" />
+    <params behavior="../../build/behaviours/agent_stub" />
 
     </kilobot_controller>
 
@@ -39,33 +39,11 @@
 <!-- ****************** -->
 <!-- * Loop functions * -->
 <!-- ****************** -->
-<loop_functions 
-    library="loopfunctionpath"
-    label="kilogrid_loop_functions">
-    
-    <variables
-        datafilename="data_file"
-        dynamic_virtual_environment="false"
-        frequency="datafrequency"
-        quorum="quorumvalue"
-        initial_opinion="initial_opinion_var"
-        gps_cellsX="numberofgpscells"
-        initComRange="initcomrng"
-        Trobot="T_ROBOT">
-    </variables>
+<loop_functions
+    library="../../build/loop_functions/libkilogrid_stub"
+    label="kilogrid_loop_functions" >
 
-    <environments type="manual">
-        <option id="1" quality="16" color="255,0,127,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop1">
-        </option>
-        <option id="2" quality="140" color="0,255,0,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop2">
-        </option>
-        <option id="3" quality="140" color="127,0,255,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop3">
-        </option>
-        <option id="4" quality="140" color="255,127,0,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop4">
-        </option>
-        <option id="5" quality="140" color="0,255,255,0" AppearanceTime="0" DisappearanceTime="0" QualityChangeTime="0" qualityAfterChange="1" initRobotPopulation="robpop5">
-        </option>
-    </environments>
+    <variables config_file="../loop_functions/ASB_experiment_1.kconf" />
 
 </loop_functions>
 
@@ -74,15 +52,15 @@
 <!-- * Arena configuration * -->
 <!-- *********************** -->
 <arena size="1, 2, 1" center="0.5,1,0.5">
-    
+
     <box id="wall_north" size="1,0.01,0.03" movable="false" >
       <body position="0.5,2,0" orientation="0,0,0" />
     </box>
-    
+
     <box id="wall_south" size="1,0.01,0.03" movable="false">
         <body position="0.5,0,0" orientation="0,0,0" />
     </box>
-    
+
     <box id="wall_east" size="0.01,2,0.03"  movable="false">
         <body position="1,1,0" orientation="0,0,0" />
     </box>
@@ -94,8 +72,8 @@
     <distribute>
         <position method="uniform" min="0.12,0.12,0" max="0.88,1.88,0" />
         <orientation method="uniform" min="0,0,0" max="360,0,0" />
-        <entity quantity="num_robots" max_trials="100">
-            <kilobot id="kb" communication_range="commrng">
+        <entity quantity="1" max_trials="100">
+            <kilobot id="kb" communication_range="0">
                 <controller config="kbc"/>
                 <dynamics2d friction="0.7" />
             </kilobot>
@@ -104,12 +82,12 @@
 
 <floor id="floor"
     source="loop_functions"
-    pixels_per_meter="1000" 
-    /> 
+    pixels_per_meter="1000"
+    />
 
-            
+
 </arena>
-        
+
 <!-- ******************* -->
 <!-- * Physics engines * -->
 <!-- ******************* -->
@@ -130,7 +108,7 @@
 <!-- ****************** -->
 
 <visualization>
-    <qt-opengl>
+<qt-opengl>
         <camera>
           <placements>
             <placement index="0" position="0.543348,-1.64842,1.67276" look_at="0.528236,-0.825479,1.10484" up="-0.0104278,0.56783,0.82308" lens_focal_length="53.75" />

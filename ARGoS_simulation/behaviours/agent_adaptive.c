@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
-#include "agentCDCIlocal.h"
+#include "agent.h"
 #include <debug.h>
 
 #define PI 3.14159265358979323846
@@ -27,14 +27,14 @@
 /*-----------------------------------------------------------------------------------------------*/
 /* Timer values to select                                                                        */
 /*-----------------------------------------------------------------------------------------------*/
-#define NUMBER_OF_SAMPLES 25 // we sample each second
+#define NUMBER_OF_SAMPLES 55 // we sample each second
 #define SAMPLE_NOISE 10  // discrete sample noise equal distribution NUMBER_OF_SAMPLES + 0~10
 
-#define BROADCAST_SEC 0.1  // try to broadcast every x seconds
+#define BROADCAST_SEC 0.5  // try to broadcast every x seconds
 
 
-#define UPDATE_COMMITMENT_SEC 2.5  // updates commitment every 10 sec - was 1
-#define UPDATE_NOISE 5*31 // first number is seconds of update rate
+#define UPDATE_COMMITMENT_SEC 7.5  // updates commitment every 10 sec - was 1
+#define UPDATE_NOISE 0*31 // first number is seconds of update rate
 
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -365,7 +365,7 @@ void update_communication_range() {
 void update_commitment() {
     if(kilo_ticks > last_update_ticks + update_ticks_noise){
         last_update_ticks = kilo_ticks;
-        update_ticks_noise = UPDATE_TICKS + (rand() % UPDATE_NOISE);
+        update_ticks_noise = UPDATE_TICKS ;//+ (rand() % UPDATE_NOISE);
         
         // drawing a random number
         unsigned int range_rnd = 10000;
@@ -449,7 +449,7 @@ void update_commitment() {
                 my_commitment_quality = discovered_quality;
                 random_walk_waypoint_model(SELECT_NEW_WAY_POINT);
             }else if(social){
-                my_commitment = UNCOMMITTED;  // inhibition
+                my_commitment = neigh_commitment;  // inhibition change back to UNCOMMITTED
                 my_commitment_quality = 0; // thus we first sample and then broadcast
                 // reset sampling -> sample what you got told to
                 op_to_sample = neigh_commitment;
@@ -684,7 +684,7 @@ void setup(){
     
     // shuffle update and sample length
     sample_counter_max_noise = SAMPLE_COUNTER_MAX + (rand() % SAMPLE_NOISE);
-    update_ticks_noise = UPDATE_TICKS + (rand() % UPDATE_NOISE);
+    update_ticks_noise = UPDATE_TICKS ;//+ (rand() % UPDATE_NOISE);
     
     // Intialize time to 0
     kilo_ticks = 0;
