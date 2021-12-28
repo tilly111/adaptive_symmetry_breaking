@@ -11,9 +11,7 @@
 /* Imports - depending on the platform one has different imports                                 */
 /*-----------------------------------------------------------------------------------------------*/
 
-#include <stdlib.h>
 #include "kilolib.h"
-#include <math.h>
 
 #ifdef SIMULATION
 
@@ -139,16 +137,15 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
     // in order to dont fuck up your calculations, because this function works like an interrupt!!
     if(msg->type == INIT_MSG && !init_flag){
         // TODO add logic ...
-        /*
-        my_commitment = msg->data[0];
-        my_commitment_quality = msg->data[1];
-        NUMBER_OF_OPTIONS = msg->data[2];
-        option_to_sample = rand() % NUMBER_OF_OPTIONS;
-        current_ground = msg->data[3];
-        communication_range = msg->data[4];
-        */
+        // example usage
+//        my_commitment = msg->data[0];
+//        my_commitment_quality = msg->data[1];
+//        NUMBER_OF_OPTIONS = msg->data[2];
+//        option_to_sample = rand() % NUMBER_OF_OPTIONS;
+//        current_ground = msg->data[3];
+//        communication_range = msg->data[4];
+
         init_flag = true;
-        printf("[%d] received init_msg \n", kilo_uid);
     }else if(msg->type == GRID_MSG && init_flag){
     // TODO add logic ...
         received_grid_msg_flag = true;
@@ -166,40 +163,28 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
 /* have to send it multiple times. The when and how often to send a message should be            */
 /* implemented here!                                                                             */
 /*-----------------------------------------------------------------------------------------------*/
-// TODO check if this name is free, but should be - want to keep it close to the og kilobot
 void message_tx(){
     // implementation differs because in simulation we use the debugstruct - faster and easier to
     // understand
     // in reality we send infrared msg - we send more than one to make sure that the messages arrive!
     if (msg_number_current_send != msg_number_send){
-        printf("[%d] set msg \n", kilo_uid);
         msg_number_current_send = msg_number_send;
         msg_counter_sent = 0;
     }
 #ifdef SIMULATION
-    // TODO find a better solution currently needed to reset the broadcast flag
-    // check if counter reached ... reset send flag so kilogrid knows that message stoped
+    // reset broadcast flag - needed in simulation to stop sending messages
     if(msg_counter_sent == MSG_SEND_TRIES){
         debug_info_set(broadcast_flag, 0);
-        printf("[%d] message send successfully \n", kilo_uid);
         msg_counter_sent += 1;
     }
 #endif
-    // send msg if not sended enough yet
+    // send msg if not sent enough yet
     if (msg_counter_sent < MSG_SEND_TRIES){
 #ifdef SIMULATION
         // count messages
         msg_counter_sent += 1;
 #else
         if((message = kilob_message_send()) != NULL) {
-            /*
-            message->type = TO_KILOGRID_MSG;
-            message->data[0] = my_commitment;
-            message->data[1] = communication_range;
-            message->data[2] = robot_gps_x;
-            message->data[3] = robot_gps_y;
-            message->data[4] = msg_number_current_send;
-            */
             msg_counter_sent += 1;
 
         }
@@ -210,9 +195,9 @@ void message_tx(){
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Setting values of the message                                                                 */
-/* TODO this needs to be adjusted on what kind of messages you want to send                      */
 /*-----------------------------------------------------------------------------------------------*/
 void set_message(){
+    // TODO this needs to be adjusted on what kind of messages you want to send: fill in data !
 #ifdef SIMULATION
     msg_number_send += 1;
     debug_info_set(broadcast_flag, 1);
@@ -226,16 +211,18 @@ void set_message(){
     debug_info_set(data6, 7);
     debug_info_set(data7, 8);
 #else
+    // sample usage
     /*
-            message->type = TO_KILOGRID_MSG;
-            message->data[0] = my_commitment;
-            message->data[1] = communication_range;
-            message->data[2] = robot_gps_x;
-            message->data[3] = robot_gps_y;
-            message->data[4] = msg_number_current_send;
-            */
+    message->type = TO_KILOGRID_MSG;
+    message->data[0] = my_commitment;
+    message->data[1] = communication_range;
+    message->data[2] = robot_gps_x;
+    message->data[3] = robot_gps_y;
+    message->data[4] = msg_number_current_send;
+    */
 #endif
 }
+
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Init function                                                                                 */
@@ -276,31 +263,23 @@ void loop() {
         }
 
         // TODO add logic here ...
+        // example robot sends empty message to the kilogrid
         msg_counter += 1;
         if(msg_counter > 30){
             msg_counter = 0;
-            printf("[%d] sending a msg !!! \n", kilo_uid);
             set_message();
-
         }
 
         // for sending messages
-        // if you want to send a msg you have to change msg_number_send, e.g., msg_number_send += 1;
         message_tx();
     }else{
         // not initialized yet ... can be omitted just for better understanding
         // also you can do some debugging here
     }
 
-    // DEBUG SECTION - FOR SIMULATION NEEDED SO DO NOT DELETE
 #ifdef SIMULATION
     // debug info - is now also important for the inter-robot communication, so do not delete
     debug_info_set(commitement, my_commitment);
-
-    // debug prints
-    //    if(kilo_uid == 1){
-    //        printf("[%d] Robot at %d %d sampling Option %d with progress %d / %d on ground %d - current option %d with qualtiy %f \n", kilo_uid, Robot_GPS_X, Robot_GPS_Y, op_to_sample, sample_op_counter, sample_counter, current_ground, my_commitment, my_commitment_quality);
-    //    }
 #else
     tracking_data.byte[1] = received_x;
     tracking_data.byte[2] = received_y;
@@ -322,7 +301,6 @@ int main(){
     // create debug struct - mimics the communication with the kilogrid
     debug_info_create();
 #else
-    // initalize utils - TODO check if needed ?
     utils_init();
 #endif
     // callback for received messages

@@ -1,3 +1,41 @@
+# ARGOS3 Kilogrid template 
+This is a short discription on how to use the kilogrid simulation environment based on argos3.
+Installation can procedure is described below.
+It is divided into robot controller, module controller and further notes. 
+
+
+## Robot Controller
+The robot controller can be found at `ARGoS_simulation/behaviours/agent_stub.c`. 
+This file is the same as `KiloMain.c`. 
+Only the robot to Kilogrid communication is implemented. 
+Implementation details can be found in the code. 
+But it is basically the normal Kilobot controller.
+
+
+## Module Controller
+The module controller can be found at `ARGoS_simulation/loopfunctions/kilogrid_stub.cpp`. 
+It simulates all the modules on the Kilogrid. 
+In the following I will point out where to modify the code
+- module variables need to be declared in `module_mem` (struct found at `kilogrid_stub.h`)
+- the methods you need to implement are indicated and can be found at `kilogrid_stub.cpp`. 
+They can be found in the bottom of the file (`setup()`, `loop()`, `CAN_rx()` and `IR_rx()`)
+
+## Furhter notes
+This environment is still under development and not yet finished. 
+Some features are missing.
+- Module-Module communication only via direct addressing (no row/column addressing)
+- init file has to have the structure of telling each cell what to do (also no row/line addressing)
+- ...
+
+If there are any questions/noticed bucks do not hesitate to contact me (till.aust[at]student.uni-luebeck.de).
+
+For running: 
+```
+cd adaptive_symmetry_breaking/ARGoS_simulation/data_generation_scripts
+sh stub_test.sh
+```
+(You should build it first - also it will build again if you run the script).
+
 # Adaptive Symmetry Breaking 
 
 ## How to build the code

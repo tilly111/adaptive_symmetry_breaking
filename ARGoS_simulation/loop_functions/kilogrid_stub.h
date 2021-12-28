@@ -48,7 +48,6 @@ namespace argos {
 
 using namespace argos;
 
-// for mimicing addressing cells
 typedef enum {
     CELL_00 = 0,
     CELL_01 = 1,
@@ -71,7 +70,6 @@ typedef enum {
 typedef enum {
     HIGH     = 1
 } brightness_t;
-
 
 typedef struct {
     uint8_t data[9]; ///< message payload
@@ -133,11 +131,12 @@ typedef struct __attribute__((__packed__)){
 
 } kilogrid_address_t;
 
+
 class CKilogrid : public CLoopFunctions
 {
 
 public:
-    // Basic argos Loopfunctions
+    /** Basic argos Loopfunctions **/
     CKilogrid();
     virtual ~CKilogrid();
     virtual void Init(TConfigurationNode& t_tree);
@@ -147,8 +146,8 @@ public:
     virtual void PostStep();
     virtual CColor GetFloorColor(const CVector2& vec_position_on_plane);
 
-    // utility functions for the simulation
-    // Get a Vector of all the Kilobots in the space
+    /** utility functions for the simulation **/
+    // Get a vector of all the Kilobots in the space
     void get_kilobots_entities();
 
     CVector2 GetKilobotPosition(CKilobotEntity& c_kilobot_entity);
@@ -159,56 +158,59 @@ public:
     // Get debug infromation of all kilobots
     void GetDebugInfo();
 
-
-    // this parser mimics the real kilogrid
+    // parser for reading the configuration
     void read_configuration(TConfigurationNode& t_tree);
-
-    // this is the setup method - which is simular to the setup method on the real kilogrid
-    // atleast from the logic point - it is called before each experiment
-    void setup(int x, int y);
-
-    // runs every cycle
-    void loop(int x, int y);
-
-    // receive message
-    void IR_rx(int x, int y, IR_message_t *m, cell_num_t c, distance_measurement_t *d, uint8_t CRC_error);
-
-
-    // this method draws stuff on the kilogrid
-    void set_LED_with_brightness(int x, int y, cell_num_t cn, color_t color, brightness_t brightness);
-
-    void set_IR_message(int x, int y, IR_message_t &m, cell_num_t cn);
-
-    // this methods are used for sending messages between cells of the kilogrid
-    void init_CAN_message(CAN_message_t* cell_msg);
-    uint8_t CAN_message_tx(CAN_message_t *, kilogrid_address_t);
-    void CAN_rx(int x, int y, CAN_message_t *m);
-
-        // returns the corresponding option to the grid
+    // returns the corresponding option to the grid
     UInt16 position2option(CVector2 t_position);
     UInt16 grid_cell2option(CVector2 t_position);
     CVector2 position2cell(CVector2 t_position);
     CVector2 module2cell(CVector2 module_pos, cell_num_t cn);
     CVector2 position2module(CVector2 t_position);
 
+    /** module functions **/
+    // setup method for one module
+    void setup(int x, int y);
+
+    // loop method of the module
+    void loop(int x, int y);
+
+    // callback from module for receiveing messages
+    void IR_rx(int x, int y, IR_message_t *m, cell_num_t c, distance_measurement_t *d, uint8_t CRC_error);
+
+    // module method for setting led at certain cell
+    void set_LED_with_brightness(int x, int y, cell_num_t cn, color_t color, brightness_t brightness);
+
+    // module method to send a IR message
+    void set_IR_message(int x, int y, IR_message_t &m, cell_num_t cn);
+
+    // this methods are used for sending messages between cells of the kilogrid
+    void init_CAN_message(CAN_message_t* cell_msg);
+    uint8_t CAN_message_tx(CAN_message_t *, kilogrid_address_t);
+    // for message reception
+    void CAN_rx(int x, int y, CAN_message_t *m);
+
+    /** TODO further functions have to be implemented here **/
+
+
+
 private:
+    /** utility initializations **/
+    // random struct
     CRandom::CRNG* m_pcRNG;
+    distance_measurement_t *d;
+
+    /** configuration set up **/
     // for reading the config file
     std::ifstream input;
     std::string config_file_name;
-    // this struct imitates the message structure of the messaging in the real kilogrid
-    // TODO this may need adjustment
-    distance_measurement_t *d;
-
 
     // this data structure is used to save the init data
     std::vector<uint8_t> configuration[10][20];
 
+    /** virtual module storage **/
     // struct of memory of one module
     struct module_mem{
         // tmp variables
-        uint8_t received_option;
-        uint8_t received_com_range;
         uint8_t received_x;
         uint8_t received_y;
 
@@ -224,17 +226,15 @@ private:
         color_t cell_colour[4] = {WHITE, WHITE, WHITE, WHITE};
 
         // ir message received from robots
-        IR_message_t *robot_message = nullptr;
         std::vector<IR_message_t*> robot_messages;
         // ir message to send
         IR_message_t *ir_message_tx = new IR_message_t;
 
-        // can message used for inter cell communication
+        // can message used for inter cell communication - receiving
+        std::vector<CAN_message_t*> received_cell_messages;
+        // can message to send
         CAN_message_t cell_message;
         kilogrid_address_t cell_address;  // TODO init as null?
-
-        // CAN_message_t *received_cell_message = new CAN_message_t;
-        std::vector<CAN_message_t*> received_cell_messages;
 
         // tmp mem for saving the data from can message callback
         uint8_t cell_received_op[4] = {0, 0, 0, 0};
@@ -243,13 +243,13 @@ private:
         // communication flags
         bool init_flag = false;
 
-
-
+        // TODO add local variables needed in modules here ...
     };
 
     // this array mimics the storage of each module
     module_mem module_memory[10][20];
 
+    /** communication modalities **/
     // for communication - kilobots
     typedef std::vector<CKilobotEntity*> kilobot_entities_vector;
     kilobot_entities_vector kilobot_entities;

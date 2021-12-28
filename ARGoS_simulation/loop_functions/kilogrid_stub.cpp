@@ -20,43 +20,46 @@ CKilogrid::~CKilogrid() {}
 /*-----------------------------------------------------------------------------------------------*/
 /* Init method runs before every experiment starts.                                              */
 /*-----------------------------------------------------------------------------------------------*/
-// This method should initalize all the robot enteties in order to work with them
-// as you would with the real kilogrid
-// what else ?!?
 void CKilogrid::Init(TConfigurationNode &t_tree) {
+    // random tool for selecting messages and more
     m_pcRNG = CRandom::CreateRNG("argos");
 
-    // get all kilobots
+    // get all Kilobots
     get_kilobots_entities();
 
-    // get the debug info structs aka communication with the kilogrid
+    // get the debug info structs aka communication with the Kilogrid
     GetDebugInfo();
 
-    // init map
+    // read configuration - map and parameters
     read_configuration(t_tree);
+    // run the setup message of the Kilogrid
     for(int x_it = 0; x_it < 10; x_it++){
         for(int y_it = 0; y_it < 20; y_it++){
             setup(x_it, y_it);
         }
     }
+
     // initialize some helpers to track the kilobots - only needed in sim
     robot_positions.resize(kilobot_entities.size());
-    // start logging ??!
+
+    // TODO setup logging
 
 }
+
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Gets called when the experiment is resetted.                                                  */
 /*-----------------------------------------------------------------------------------------------*/
 void CKilogrid::Reset() {
-    // TODO implement logging stuff
+    // TODO implement what should happen when the simulation gets reset
 }
+
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Gets called when the experiment ended.                                                        */
 /*-----------------------------------------------------------------------------------------------*/
 void CKilogrid::Destroy() {
-    // TODO implement end logging stuff
+    // TODO implement what should happen if simulation quits
 
 }
 
@@ -77,17 +80,6 @@ void CKilogrid::PreStep(){
                 IR_rx(x_it, y_it, module_memory[x_it][y_it].robot_messages[m_pcRNG->Uniform(CRange<UInt32>(0,module_memory[x_it][y_it].robot_messages.size()))], cell_id[0], d, 0);
                 module_memory[x_it][y_it].robot_messages.clear();
             }
-
-//            IR_rx(x_it, y_it, module_memory[x_it][y_it].robot_message, cell_id[0], d, 0);
-//            if (module_memory[x_it][y_it].robot_message != nullptr){
-//                // TODO here is probably a memory leak! - do we need to proper delete the data array?
-//                printf("enters in delete robot msg %d %d \n", x_it, y_it);
-//                //ree(module_memory[x_it][y_it].robot_message->data);
-//                delete module_memory[x_it][y_it].robot_message;
-//                module_memory[x_it][y_it].robot_message = nullptr;
-//
-//            }
-
         }
     }
 
@@ -117,11 +109,7 @@ void CKilogrid::PreStep(){
 /* Gets called after every simulation step.                                                      */
 /*-----------------------------------------------------------------------------------------------*/
 void CKilogrid::PostStep(){
-    // TODO implement
-
-    // send messages
-
-    // clear all
+    // TODO implement what happens after the robots moved
 }
 
 
@@ -233,6 +221,7 @@ UInt16 CKilogrid::position2option(CVector2 t_position){
     return module_memory[module_x][module_y].cell_colour[cell];
 }
 
+
 CVector2 CKilogrid::position2cell(CVector2 t_position){
     int x = t_position.GetX()*20;
     int y = t_position.GetY()*20;
@@ -258,6 +247,7 @@ CVector2 CKilogrid::position2module(CVector2 t_position) {
     return CVector2(int(x),int(y));
 }
 
+
 CVector2 CKilogrid::module2cell(CVector2 module_pos, cell_num_t cn){
     int cur_x = module_pos.GetX() * 2;
     int cur_y = module_pos.GetY() * 2;
@@ -278,6 +268,7 @@ CVector2 CKilogrid::module2cell(CVector2 module_pos, cell_num_t cn){
 
     return CVector2(cur_x, cur_y);
 }
+
 
 void CKilogrid::get_kilobots_entities(){
     // Get the map of all kilobots from the space
@@ -316,7 +307,6 @@ void CKilogrid::virtual_message_reception(){
 
         // if robot send message set it here
         if(debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->broadcast_flag == 1){
-            printf("got a msg \n");
             IR_message_t* tmp_msg = new IR_message_t;
             tmp_msg->type = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->type;
             tmp_msg->data[0] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data0;
@@ -361,9 +351,9 @@ void CKilogrid::set_IR_message(int x, int y, IR_message_t &m, cell_num_t cn) {
         message_to_send.data[6] = m.data[6];
         message_to_send.data[7] = m.data[7];
         GetSimulator().GetMedium<CKilobotCommunicationMedium>("kilocomm").SendOHCMessageTo(*current_robots[it], &message_to_send);
-        printf("sent message from kilogrid to robot \n");
     }
 }
+
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Set up the getting of debug information from the robot (e.g. the robots state).               */
@@ -387,6 +377,7 @@ void CKilogrid::GetDebugInfo(){
         debug_info_kilobots.push_back(ptDebugInfo);
     }
 }
+
 
 void CKilogrid::init_CAN_message(CAN_message_t* cell_msg){
     uint8_t d;
@@ -412,17 +403,9 @@ uint8_t CKilogrid::CAN_message_tx(CAN_message_t *m, kilogrid_address_t add) {
 
 
 /*-----------------------------------------------------------------------------------------------*/
-/*  HERE STARTS THE METHODS TO IMPLEMENT!!!!!                                                    */
-/*                                                                                               */
+/* The following methods need to be implemented by the user - they aim to be such as the         */
+/* methods used on the real Kilogrid.                                                            */
 /*-----------------------------------------------------------------------------------------------*/
-
-// TODO here we implement the logic for what should run aka this methods should
-// be implemented such as on the real kilogrid
-
-// is called before the experiment - draws the environment for example
-// for the real kilogrid you need to remove the x and y
-// for example configuration[0] instead of configuration[x][y][0]
-// also you have to remove the module memory!!
 void CKilogrid::setup(int x, int y){
     // the real line is
     // cell_x[0] = (configuration[0] * 2);
@@ -448,17 +431,12 @@ void CKilogrid::setup(int x, int y){
 
     module_memory[x][y].test_counter = 0;
 
-    // set id of received can message to 0 in order to initialize it -> maybe only needed in sim because
-    // in reality we do not have the issue bc its a callback
-    // module_memory[x][y].received_cell_message->id = 0;
-
     for(int i = 0; i < 4; i++){
         set_LED_with_brightness(x, y, cell_id[i], module_memory[x][y].cell_colour[i], HIGH);
     }
 }
 
 
-// this method implements the loop function
 void CKilogrid::loop(int x, int y){
     // the real line is
     // test_counter += 1;
@@ -493,8 +471,8 @@ void CKilogrid::loop(int x, int y){
 //             module_memory[x][y].cell_address.y = y_of_module_to_send_to;
 //             CAN_message_tx(&module_memory[x][y].cell_message, module_memory[x][y].cell_address);
 
+            // some example useage of sending messages between modules
             if ((module_memory[x][y].cell_x[c] == 10 && module_memory[x][y].cell_y[c] == 10) || (module_memory[x][y].cell_x[c] == 14 && module_memory[x][y].cell_y[c] == 14)){
-                printf("sending can msg! at %d %d \n", x, y);
                 init_CAN_message(&module_memory[x][y].cell_message);
                 module_memory[x][y].cell_address.type = ADDR_INDIVIDUAL;
                 module_memory[x][y].cell_address.x = 2;
@@ -525,35 +503,27 @@ void CKilogrid::IR_rx(int x, int y, IR_message_t *m, cell_num_t c, distance_meas
 //    if (m == nullptr){
 //        return;
 //    }
-    //printf("%d %d got a non null msg \n", x,y);
     if (!CRC_error && m->type == MSG_T_VIRTUAL_ROBOT_MSG) {
+          // some example usage
 //        module_memory[x][y].received_option = m->data[0];
 //        module_memory[x][y].received_com_range = m->data[1];
 //        module_memory[x][y].received_x = m->data[2];
 //        module_memory[x][y].received_y = m->data[3];
         module_memory[x][y].msg_number_current = m->data[4];
-        printf("we got a message in the kilogrid \n");
         if (module_memory[x][y].msg_number_current != module_memory[x][y].msg_number) {
             // case new message
             module_memory[x][y].msg_number = module_memory[x][y].msg_number_current;
-            // TODO implement logic
-            printf("received new message from kilobot at %d %d \n", x, y);
+            // TODO implement logic ...
         } else {
             // message already seen -> discard
-            printf("message already seen ! \n");
             return;
         }
     }
 }
 
 void CKilogrid::CAN_rx(int x, int y, CAN_message_t *m){
-    // we check if we have new message: id == 0 <-> no new message -> leave
-//    if(m == nullptr || m->id == 0){
-//        return;
-//    }
-    // TODO clear and hint how to use
+    // example usage of this method
     if (m->data[0] == 55){  // set msg
-        printf("received can msg at %d %d \n", x, y);
         module_memory[x][y].cell_received_op[0] = m->data[1];
         module_memory[x][y].cell_received_op[1] = m->data[2];
         module_memory[x][y].cell_received_op[2] = m->data[3];
@@ -573,5 +543,4 @@ void CKilogrid::CAN_rx(int x, int y, CAN_message_t *m){
 }
 
 
-// ??
 REGISTER_LOOP_FUNCTIONS(CKilogrid, "kilogrid_loop_functions")
