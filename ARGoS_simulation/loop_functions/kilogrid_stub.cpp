@@ -89,7 +89,7 @@ void CKilogrid::PreStep(){
             // if we have multiple messages at the same time select a random one
             if(module_memory[x_it][y_it].received_cell_messages.size() > 0){
                 // shuffle and take first element (this way because we also consider case == 1)
-                CAN_rx(x_it, y_it, module_memory[x_it][y_it].received_cell_messages[m_pcRNG->Uniform(CRange<UInt32>(0,module_memory[x_it][y_it].received_cell_messages.size()))]);
+                CAN_rx(x_it, y_it, &module_memory[x_it][y_it].received_cell_messages[m_pcRNG->Uniform(CRange<UInt32>(0,module_memory[x_it][y_it].received_cell_messages.size()))]);
                 // clear list afterwards
                 module_memory[x_it][y_it].received_cell_messages.clear();
             }
@@ -394,7 +394,7 @@ uint8_t CKilogrid::CAN_message_tx(CAN_message_t *m, kilogrid_address_t add) {
     // this is a hack because we can only virtually set msgs
     // TODO is this message coppied or just the pointer
     // module_memory[add.x][add.y].received_cell_message = m;
-    module_memory[add.x][add.y].received_cell_messages.push_back(m);
+    module_memory[add.x][add.y].received_cell_messages.push_back(*m);
 
     return 1;
 }

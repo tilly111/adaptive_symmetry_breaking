@@ -231,7 +231,7 @@ private:
         IR_message_t *ir_message_tx = new IR_message_t;
 
         // can message used for inter cell communication - receiving
-        std::vector<CAN_message_t*> received_cell_messages;
+        std::vector<CAN_message_t> received_cell_messages;
         // can message to send
         CAN_message_t cell_message;
         kilogrid_address_t cell_address;  // TODO init as null?
