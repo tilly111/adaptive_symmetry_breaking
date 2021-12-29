@@ -233,16 +233,31 @@ private:
         CAN_message_t cell_message;
         kilogrid_address_t cell_address;  // TODO init as null?
 
-        // CAN_message_t *received_cell_message = new CAN_message_t;
-        std::vector<CAN_message_t*> received_cell_messages;
+        std::vector<CAN_message_t> received_cell_messages;
 
         // tmp mem for saving the data from can message callback
         uint8_t cell_received_op[4] = {0, 0, 0, 0};
         uint32_t reset_timer[4] = {0, 0, 0, 0};
 
+        uint8_t received_IR_msg_cell = 10;
+
         // communication flags
         bool init_flag = false;
 
+        // variables for processing the broadcast of a robot
+        uint8_t com_range;
+        uint8_t option;
+        uint8_t my_x;
+        uint8_t my_y;
+
+        uint8_t sending_grid[10][20][4];
+
+        uint8_t com_range_module;
+        uint8_t send_success_sum;
+        uint8_t my_x_module;
+        uint8_t my_y_module;
+
+        uint8_t send_flag;
 
 
     };

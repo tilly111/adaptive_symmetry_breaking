@@ -14,7 +14,7 @@ typedef enum {
     MSG_T_NORMAL_IR = 0,
     MSG_T_GPS,
     MSG_T_TEST = 0x0A, // reserved for tests
-    MSG_T_VIRTUAL_ROBOT_MSG,
+    MSG_T_VIRTUAL_ROBOT_MSG = 0x0B,
     /**** Module to Kilobot range ****/
     MSG_T_TRACKING = 0x10,
 

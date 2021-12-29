@@ -41,7 +41,7 @@
 // message types
 #define INIT_MSG 10  // initial message from the kilogrid
 #define GRID_MSG 11  // info msg from the kilogrid with option and position
-#define VIRTUAL_AGENT_MSG 12  // msg forwarded from the kilogrid
+#define VIRTUAL_AGENT_MSG 11  // msg forwarded from the kilogrid
 #define TO_KILOGRID_MSG 62
 
 
@@ -139,16 +139,9 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
     // in order to dont fuck up your calculations, because this function works like an interrupt!!
     if(msg->type == INIT_MSG && !init_flag){
         // TODO add logic ...
-        /*
-        my_commitment = msg->data[0];
-        my_commitment_quality = msg->data[1];
-        NUMBER_OF_OPTIONS = msg->data[2];
-        option_to_sample = rand() % NUMBER_OF_OPTIONS;
-        current_ground = msg->data[3];
-        communication_range = msg->data[4];
-        */
+        robot_gps_x = msg->data[0];
+        robot_gps_y = msg->data[1];
         init_flag = true;
-        printf("[%d] received init_msg \n", kilo_uid);
     }else if(msg->type == GRID_MSG && init_flag){
     // TODO add logic ...
         received_grid_msg_flag = true;
@@ -172,7 +165,6 @@ void message_tx(){
     // understand
     // in reality we send infrared msg - we send more than one to make sure that the messages arrive!
     if (msg_number_current_send != msg_number_send){
-        printf("[%d] set msg \n", kilo_uid);
         msg_number_current_send = msg_number_send;
         msg_counter_sent = 0;
     }
@@ -181,7 +173,6 @@ void message_tx(){
     // check if counter reached ... reset send flag so kilogrid knows that message stoped
     if(msg_counter_sent == MSG_SEND_TRIES){
         debug_info_set(broadcast_flag, 0);
-        printf("[%d] message send successfully \n", kilo_uid);
         msg_counter_sent += 1;
     }
 #endif
@@ -217,10 +208,10 @@ void set_message(){
     msg_number_send += 1;
     debug_info_set(broadcast_flag, 1);
     debug_info_set(type, MSG_T_VIRTUAL_ROBOT_MSG);
-    debug_info_set(data0, 1);
-    debug_info_set(data1, 2);
-    debug_info_set(data2, 3);
-    debug_info_set(data3, 4);
+    debug_info_set(data0, robot_gps_x);
+    debug_info_set(data1, robot_gps_y);
+    debug_info_set(data2, 2);
+    debug_info_set(data3, communication_range);
     debug_info_set(data4, msg_number_send);
     debug_info_set(data5, 6);
     debug_info_set(data6, 7);
@@ -279,7 +270,8 @@ void loop() {
         msg_counter += 1;
         if(msg_counter > 30){
             msg_counter = 0;
-            printf("[%d] sending a msg !!! \n", kilo_uid);
+            communication_range = ((communication_range + 1) % 10);
+            printf("[%d] sending a msg from %d %d \n", kilo_uid, robot_gps_x, robot_gps_y);
             set_message();
 
         }
