@@ -1,16 +1,16 @@
 <?xml version="1.0" ?>
 <argos-configuration>
-
+    
 <!-- ************************* -->
 <!-- * General configuration * -->
 <!-- ************************* -->
 <framework>
 <system threads="1" />
-<experiment length="2400"
+<experiment length="exp_length"
     ticks_per_second="32"
-    random_seed="44" />
+    random_seed="randomseed" />
 </framework>
-
+        
 <!-- *************** -->
 <!-- * Controllers * -->
 <!-- *************** -->
@@ -30,7 +30,7 @@
         <kilobot_communication implementation="default" medium="kilocomm" show_rays="false" />
     </sensors>
 
-    <params behavior="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/build/behaviours/agent_stub" />
+    <params behavior="behaviourpath" />
 
     </kilobot_controller>
 
@@ -40,15 +40,15 @@
 <!-- * Loop functions * -->
 <!-- ****************** -->
 <loop_functions
-    library="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/build/loop_functions/libkilogrid_stub"
+    library="loopfunctionpath"
     label="kilogrid_loop_functions">
-
+        
     <variables
-        config_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/ASB_experiment_1.kconf"
-        data_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/3options_N50_experiment_adaptation_06_comrng_45/experiment_adaptation_06_comrng_45_4.txt"
-        initial_commitment="1"
-        number_of_options="3"
-        initial_communication_range="45"
+        config_file="configfilename"
+        data_file="datafilename"
+        initial_commitment="initialcommitment"
+        number_of_options="numberofoptions"
+        initial_communication_range="initialcommunicationrange"
     />
 
 </loop_functions>
@@ -58,15 +58,15 @@
 <!-- * Arena configuration * -->
 <!-- *********************** -->
 <arena size="1, 2, 1" center="0.5,1,0.5">
-
+    
     <box id="wall_north" size="1,0.01,0.03" movable="false" >
       <body position="0.5,2,0" orientation="0,0,0" />
     </box>
-
+    
     <box id="wall_south" size="1,0.01,0.03" movable="false">
         <body position="0.5,0,0" orientation="0,0,0" />
     </box>
-
+    
     <box id="wall_east" size="0.01,2,0.03"  movable="false">
         <body position="1,1,0" orientation="0,0,0" />
     </box>
@@ -78,7 +78,7 @@
     <distribute>
         <position method="uniform" min="0.15,0.15,0" max="0.85,1.85,0" />
         <orientation method="uniform" min="0,0,0" max="360,0,0" />
-        <entity quantity="11" max_trials="100">
+        <entity quantity="num_robots" max_trials="100">
             <kilobot id="kb" communication_range="0">
                 <controller config="kbc"/>
                 <dynamics2d friction="0.7" />
@@ -91,9 +91,9 @@
     pixels_per_meter="1000"
     />
 
-
+            
 </arena>
-
+        
 <!-- ******************* -->
 <!-- * Physics engines * -->
 <!-- ******************* -->
@@ -111,22 +111,9 @@
 
 <!-- ****************** -->
 <!-- * Visualization  * -->
-<!-- **************®**** -->
+<!-- ****************** -->
 
 <visualization>
-<qt-opengl>
-        <camera>
-          <placements>
-            <placement index="0" position="0.543348,-1.64842,1.67276" look_at="0.528236,-0.825479,1.10484" up="-0.0104278,0.56783,0.82308" lens_focal_length="53.75" />
-          </placements>
-        </camera>
-
-        <camera>
-          <placements>
-            <placement index="1" position="0.919574,3.81777,2.34657" look_at="0.881784,3.06057,1.69448" up="-0.0325027,-0.651275,0.758145" lens_focal_length="53.75" />
-          </placements>
-        </camera>
-    </qt-opengl>
 </visualization>
 
 </argos-configuration>

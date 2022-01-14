@@ -9,6 +9,12 @@
 extern "C" {
 #endif
 
+// defined here bc both need this information
+#define INIT_MSG 10  // initial message from the kilogrid
+#define GRID_MSG 12  // info msg from the kilogrid with option and position
+#define VIRTUAL_AGENT_MSG 11  // msg forwarded from the kilogrid
+#define TO_KILOGRID_MSG 62
+
 typedef enum {
     /**** Kilobot to Kilobot range ****/
     MSG_T_NORMAL_IR = 0,
@@ -47,6 +53,9 @@ typedef enum {
 typedef struct {
     // current commitement of the robot
     int commitement;
+    int x_pos;
+    int y_pos;
+
     // this is only needed for global communication, in order to check if robot is allowed to
     // broadcast
     double quality;

@@ -401,7 +401,13 @@ Message types
 - 21 message from other robot (local broadcasting...)
 - 22 message from kilogrid - sends position and option the robot is on
 - 23 message from kilogrid - handles global communication
-- 24 message from kilogrid - handles inter robot communication in the adaptive case. 
+- 24 message from kilogrid - handles inter robot communication in the adaptive case.
+
+| Message           | TYPE | Data0 | Data1 | Data2              | Data3           | Data4             | Data5          | Data6                       | Data7 | From to  |
+|:------------------|:----:|:------|:------|:-------------------|:----------------|-------------------|:---------------|-----------------------------|-------|----------|
+| Init msg          |  10  | x     | y     | initial commitment | initial quality | Number of options | current ground | initial communication range |       | KG -> KB |
+| Virtual robot msg |  11  |       |       |                    |                 |                   |                |                             |       |          |
+| Grid msg          |  12  | x     | y     | current ground     | cell role       |                   |                |                             |       |          |
 
 ## Work with the cluster TODO update when newmajorana is directly reachable
 

@@ -6,7 +6,8 @@
 
 #ifdef SIMULATION
 #define MSG_SEND_TRIES 1
-#define MAX_RESET_TIMER 5
+#define MAX_RESET_TIMER 1
+#define MIN_TIME_BETWEEN_MSG 1
 #else
 #define MSG_SEND_TRIES 10
 #define MAX_RESET_TIMER 5
@@ -36,6 +37,9 @@ void CKilogrid::Init(TConfigurationNode &t_tree) {
     // get all kilobots
     get_kilobots_entities();
 
+    // get experiment variables from the .argos file
+//    setup_virtual_environments(t_tree);
+
     // get the debug info structs aka communication with the kilogrid
     GetDebugInfo();
 
@@ -48,7 +52,19 @@ void CKilogrid::Init(TConfigurationNode &t_tree) {
     }
     // initialize some helpers to track the kilobots - only needed in sim
     robot_positions.resize(kilobot_entities.size());
-    // start logging ??!
+    logg_commitment_state.resize(4);  // TODO HARD CODED TO 3 OPTIONS CHANGE??
+
+
+    // init logging
+    output_logg.open(data_file_name, std::ios_base::trunc | std::ios_base::out);
+    output_logg << "time;";
+    for(unsigned int i=0;i<3;i++){
+        output_logg << i << ";";
+    }
+
+    if(3>0){
+        output_logg << 3 << std::endl;
+    }
 
 }
 
@@ -56,14 +72,26 @@ void CKilogrid::Init(TConfigurationNode &t_tree) {
 /* Gets called when the experiment is resetted.                                                  */
 /*-----------------------------------------------------------------------------------------------*/
 void CKilogrid::Reset() {
-    // TODO implement logging stuff
+    // Close data file
+    output_logg.close();
+
+    // Reopen the file, erasing its contents
+    output_logg.open(data_file_name, std::ios_base::trunc | std::ios_base::out);
+    // write the log file header (it is not mendatory)
+    output_logg << "time;";
+    for(unsigned int i=0;i<3;i++){
+        output_logg << i << ";";
+    }
+    if(3>0){
+        output_logg << 3<< std::endl;
+    }
 }
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Gets called when the experiment ended.                                                        */
 /*-----------------------------------------------------------------------------------------------*/
 void CKilogrid::Destroy() {
-    // TODO implement end logging stuff
+    output_logg.close();
 
 }
 
@@ -113,21 +141,57 @@ void CKilogrid::PreStep(){
 /* Gets called after every simulation step.                                                      */
 /*-----------------------------------------------------------------------------------------------*/
 void CKilogrid::PostStep(){
-    // TODO implement
+    // Save experiment data to the specified log file
+    // check if quorum is reached
+    std::fill(logg_commitment_state.begin(), logg_commitment_state.end(), 0);
+    for(unsigned int i=0;i< kilobot_entities.size();i++){
+        logg_commitment_state[((unsigned int) debug_info_kilobots[i]->commitement)]++;
+    }
 
-    // send messages
+    // if quroum reached, time to write something down, max time passed
+    if( (data_saving_counter%DATA_SAVING_FREQUENCY == 0) || (GetSpace().GetSimulationClock() >= GetSimulator().GetMaxSimulationClock()) ){
+        output_logg << GetSpace().GetSimulationClock();
+        for(unsigned int i=0;i< logg_commitment_state.size();i++){
+            output_logg << ";" << logg_commitment_state[i];
+        }
+        output_logg<< std::endl;
+    }
 
-    // clear all
+    // for viz -> that i can see the progression
+    if(GetSpace().GetSimulationClock() % 1000 == 0){
+        printf("[LOOPFUNCTION] Clock at %d ... \n", GetSpace().GetSimulationClock());
+    }
+
+    // quit simulation if quorum reached
+//    if(m_bQuorumReached==true){
+//        printf("[LOOPFUNCTION] reached quorum \n");
+//        GetSimulator().Terminate();
+//    }
+
+    data_saving_counter++;
+
+    // debug section
+    printf("Distribution ");
+    for(unsigned int i=0;i< logg_commitment_state.size();i++){
+        printf("%d ", logg_commitment_state[i]);
+    }
+    printf("\n------------------------------------------------------------------------------\n");
+
 }
 
 
 /*-----------------------------------------------------------------------------------------------*/
 /* This function reads the config file for the kilogrid and saves the content to configuration.  */
+/* Further it reads other configurations from the argos file such as datafilename...             */
 /*-----------------------------------------------------------------------------------------------*/
 void CKilogrid::read_configuration(TConfigurationNode& t_node){
     // getting config script name from .argos file
     TConfigurationNode& tExperimentVariablesNode = GetNode(t_node,"variables");
     GetNodeAttribute(tExperimentVariablesNode, "config_file", config_file_name);
+    GetNodeAttribute(tExperimentVariablesNode, "data_file", data_file_name);
+    GetNodeAttribute(tExperimentVariablesNode, "initial_commitment", initial_commitment);
+    GetNodeAttribute(tExperimentVariablesNode, "number_of_options", number_of_options);
+    GetNodeAttribute(tExperimentVariablesNode, "initial_communication_range", initial_communication_range);
 
     // variables used for reading
     int tmp_x_module;
@@ -163,6 +227,8 @@ void CKilogrid::read_configuration(TConfigurationNode& t_node){
             }
         }
     }
+
+
 }
 
 
@@ -304,14 +370,20 @@ UInt16 CKilogrid::GetKilobotId(CKilobotEntity& c_kilobot_entity){
 }
 
 void CKilogrid::virtual_message_reception(){
+    // for debug
+    int msg_op[3] = {0, 0, 0};
     for(UInt16 it = 0; it < kilobot_entities.size(); it++){
         // get position information, later used for sending stuff!!
         robot_positions[GetKilobotId(*kilobot_entities[it])] = position2cell(GetKilobotPosition(*kilobot_entities[it]));
-        int module_x = GetKilobotPosition(*kilobot_entities[it]).GetX() * 10;
-        int module_y = GetKilobotPosition(*kilobot_entities[it]).GetY() * 10;
-
+        printf("robot %d position(cell): %d %d \n", GetKilobotId(*kilobot_entities[it]), int(robot_positions[GetKilobotId(*kilobot_entities[it])].GetX()), int(robot_positions[GetKilobotId(*kilobot_entities[it])].GetY()));
+        int module_x = int(robot_positions[GetKilobotId(*kilobot_entities[it])].GetX())/2; //GetKilobotPosition(*kilobot_entities[it]).GetX() * 10;
+        int module_y = int(robot_positions[GetKilobotId(*kilobot_entities[it])].GetY())/2; //GetKilobotPosition(*kilobot_entities[it]).GetY() * 10;
+        printf("robot %d position(modu): %d %d \n", GetKilobotId(*kilobot_entities[it]), module_x, module_y);
         // if robot send message set it here
-        if(debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->broadcast_flag == 1){
+        if(debug_info_kilobots[it]->broadcast_flag == 1){
+        //if(debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->broadcast_flag == 1){
+            printf("robot position: %f %f \n", GetKilobotPosition(*kilobot_entities[it]).GetX(), GetKilobotPosition(*kilobot_entities[it]).GetY());
+            printf("received ir msg at module %d %d  from robot %d \n", module_x, module_y, debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data5);
             IR_message_t* tmp_msg = new IR_message_t;
             tmp_msg->type = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->type;
             tmp_msg->data[0] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data0;
@@ -324,8 +396,16 @@ void CKilogrid::virtual_message_reception(){
             tmp_msg->data[7] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data7;
             //module_memory[module_x][module_y].robot_message = tmp_msg;
             module_memory[module_x][module_y].robot_messages.push_back(tmp_msg);
+
+            // debug
+            msg_op[tmp_msg->data[2]-1]++;
         }
     }
+    printf("msg distribution ");
+    for(int debug_i = 0; debug_i < 3;debug_i++){
+        printf(" %d", msg_op[debug_i]);
+    }
+    printf("\n");
 }
 
 
@@ -440,14 +520,14 @@ void CKilogrid::setup(int x, int y){
     module_memory[x][y].cell_colour[2] = color_t (configuration[x][y][5]);
     module_memory[x][y].cell_colour[3] = color_t (configuration[x][y][6]);
 
-    module_memory[x][y].test_counter = 0;
+    module_memory[x][y].status_msg_counter = MIN_TIME_BETWEEN_MSG;
 
     // set id of received can message to 0 in order to initialize it -> maybe only needed in sim because
     // in reality we do not have the issue bc its a callback
     // module_memory[x][y].received_cell_message->id = 0;
 
     for(int i = 0; i < 4; i++){
-        set_LED_with_brightness(x, y, cell_id[i], WHITE, HIGH);
+        set_LED_with_brightness(x, y, cell_id[i], module_memory[x][y].cell_colour[i], HIGH);
     }
 }
 
@@ -462,64 +542,64 @@ void CKilogrid::loop(int x, int y){
     if(!module_memory[x][y].init_flag){
         module_memory[x][y].init_flag = true;
         for (int f = 0; f < 4; f++){
-            module_memory[x][y].ir_message_tx->type = 10;  // TODO check if free
+            module_memory[x][y].ir_message_tx->type = INIT_MSG;
             module_memory[x][y].ir_message_tx->crc = 0;
             module_memory[x][y].ir_message_tx->data[0] = module_memory[x][y].cell_x[f];
             module_memory[x][y].ir_message_tx->data[1] = module_memory[x][y].cell_y[f];
-            module_memory[x][y].ir_message_tx->data[2] = module_memory[x][y].cell_role[f];
+            module_memory[x][y].ir_message_tx->data[2] = initial_commitment; // TODO adjustable for each robot
+            module_memory[x][y].ir_message_tx->data[3] = 70; // TODO do dynamic: initial commitment quality
+            module_memory[x][y].ir_message_tx->data[4] = number_of_options;
+            module_memory[x][y].ir_message_tx->data[5] = module_memory[x][y].cell_colour[f];
+            module_memory[x][y].ir_message_tx->data[6] = initial_communication_range;
+
             set_IR_message(x, y, *module_memory[x][y].ir_message_tx, cell_id[f]);
         }
     } else {
         for (int c = 0; c < 4; c++) {
-            // TODO set color to cell_received_op only for debugging
-            set_LED_with_brightness(x, y, cell_id[c],
-                                    color_t(module_memory[x][y].cell_received_op[c]), HIGH);
+            module_memory[x][y].cell_op[c] = module_memory[x][y].received_cell_op[c];
+            module_memory[x][y].status_msg_counter += 1;
 
             // send messages - forward before sending status
-            if (module_memory[x][y].cell_received_op[c] > 0) {
-                module_memory[x][y].ir_message_tx->type = 11;
+            if (module_memory[x][y].cell_op[c] > 0) {
+                module_memory[x][y].can_kilo_uid = module_memory[x][y].received_can_kilo_uid;
+
+                module_memory[x][y].ir_message_tx->type = VIRTUAL_AGENT_MSG;
                 module_memory[x][y].ir_message_tx->crc = 0;
                 module_memory[x][y].ir_message_tx->data[0] = module_memory[x][y].cell_x[c];
                 module_memory[x][y].ir_message_tx->data[1] = module_memory[x][y].cell_y[c];
-                module_memory[x][y].ir_message_tx->data[2] = module_memory[x][y].cell_received_op[c];
+                module_memory[x][y].ir_message_tx->data[2] = module_memory[x][y].cell_op[c];
+                module_memory[x][y].ir_message_tx->data[3] = module_memory[x][y].can_kilo_uid;
                 set_IR_message(x, y, *module_memory[x][y].ir_message_tx, cell_id[c]);
+
                 // reset after certain time
                 module_memory[x][y].reset_timer[c] += 1;
                 if (module_memory[x][y].reset_timer[c] > MAX_RESET_TIMER) {
-                    module_memory[x][y].cell_received_op[c] = 0;
+                    module_memory[x][y].cell_op[c] = 0;
+                    module_memory[x][y].received_cell_op[c] = 0;
                 }
             } else {
                 // sending status
-                module_memory[x][y].ir_message_tx->type = 12;
-                module_memory[x][y].ir_message_tx->crc = 0;
-                module_memory[x][y].ir_message_tx->data[0] = module_memory[x][y].cell_x[c];
-                module_memory[x][y].ir_message_tx->data[1] = module_memory[x][y].cell_y[c];
-                module_memory[x][y].ir_message_tx->data[2] = module_memory[x][y].cell_role[c];
-                set_IR_message(x, y, *module_memory[x][y].ir_message_tx, cell_id[c]);
+                if(module_memory[x][y].status_msg_counter >= MIN_TIME_BETWEEN_MSG){
+                    module_memory[x][y].status_msg_counter = 0;
+                    module_memory[x][y].ir_message_tx->type = GRID_MSG;
+                    module_memory[x][y].ir_message_tx->crc = 0;
+                    module_memory[x][y].ir_message_tx->data[0] = module_memory[x][y].cell_x[c];
+                    module_memory[x][y].ir_message_tx->data[1] = module_memory[x][y].cell_y[c];
+                    module_memory[x][y].ir_message_tx->data[2] = module_memory[x][y].cell_colour[c];
+                    module_memory[x][y].ir_message_tx->data[3] = module_memory[x][y].cell_role[c];
+                    set_IR_message(x, y, *module_memory[x][y].ir_message_tx, cell_id[c]);
+                }
             }
-
-//            if ((module_memory[x][y].cell_x[c] == 10 && module_memory[x][y].cell_y[c] == 10) || (module_memory[x][y].cell_x[c] == 14 && module_memory[x][y].cell_y[c] == 14)){
-//                init_CAN_message(&module_memory[x][y].cell_message);
-//                module_memory[x][y].cell_address.type = ADDR_INDIVIDUAL;
-//                module_memory[x][y].cell_address.x = 2;
-//                module_memory[x][y].cell_address.y = 2;
-//                // some payload
-//                module_memory[x][y].cell_message.id = 55;
-//                module_memory[x][y].cell_message.data[0] = 55;
-//                module_memory[x][y].cell_message.data[1] = module_memory[x][y].cell_x[c];
-//                module_memory[x][y].cell_message.data[2] = 1;
-//                module_memory[x][y].cell_message.data[3] = 1;
-//                module_memory[x][y].cell_message.data[4] = 1;
-//                CAN_message_tx(&module_memory[x][y].cell_message, module_memory[x][y].cell_address);
-//            }
 
             // process the received IR messages
             if (module_memory[x][y].received_IR_msg_cell == c) {
+                printf("sending the received ir msg forward from robot %d ", module_memory[x][y].received_kilo_uid);
                 // fix parameters so they do not get overwritten while processing #callbackmagic
                 module_memory[x][y].com_range = module_memory[x][y].received_com_range;
                 module_memory[x][y].option = module_memory[x][y].received_option;
                 module_memory[x][y].my_x = module_memory[x][y].received_x;
                 module_memory[x][y].my_y = module_memory[x][y].received_y;
+                module_memory[x][y].kilo_uid = module_memory[x][y].received_kilo_uid;
 
                 // resetting the sending grid
                 for(uint8_t i_it = 0; i_it < 10; i_it++){
@@ -573,6 +653,7 @@ void CKilogrid::loop(int x, int y){
                                     module_memory[x][y].send_flag = 1;
                                 }
                             }
+                            tmp_can_msg.data[5] = module_memory[x][y].kilo_uid;
 
                             module_memory[x][y].cell_address.type = ADDR_INDIVIDUAL; // see communication/kilogrid.h for further information
                             module_memory[x][y].cell_address.x = x_it;  // is the position of a module imo??
@@ -589,10 +670,10 @@ void CKilogrid::loop(int x, int y){
                 }
 
                 // apperently the module cannot send itself a msg so we have to set the broad cast manualy
-                module_memory[x][y].cell_received_op[0] = module_memory[x][y].option;
-                module_memory[x][y].cell_received_op[1] = module_memory[x][y].option;
-                module_memory[x][y].cell_received_op[2] = module_memory[x][y].option;
-                module_memory[x][y].cell_received_op[3] = module_memory[x][y].option;
+                module_memory[x][y].cell_op[0] = module_memory[x][y].option;
+                module_memory[x][y].cell_op[1] = module_memory[x][y].option;
+                module_memory[x][y].cell_op[2] = module_memory[x][y].option;
+                module_memory[x][y].cell_op[3] = module_memory[x][y].option;
 
                 // also init reset timer
                 module_memory[x][y].reset_timer[0] = 0;
@@ -613,6 +694,7 @@ void CKilogrid::IR_rx(int x, int y, IR_message_t *m, cell_num_t c, distance_meas
         // message from robot to kilogrid: broadcast
         module_memory[x][y].msg_number_current = m->data[4];
         if (module_memory[x][y].msg_number_current != module_memory[x][y].msg_number) {
+            printf("new msg received at %d %d from %d with option %d \n", x, y, m->data[5], m->data[2]);
             // case new message
             module_memory[x][y].msg_number = module_memory[x][y].msg_number_current;
             // logic here
@@ -620,15 +702,18 @@ void CKilogrid::IR_rx(int x, int y, IR_message_t *m, cell_num_t c, distance_meas
             module_memory[x][y].received_y = m->data[1];
             module_memory[x][y].received_option = m->data[2];
             module_memory[x][y].received_com_range = m->data[3];
+            module_memory[x][y].received_kilo_uid = m->data[5];
 
             // check which cell was addressed
             for(int c = 0; c < 4; c++){
                 if(module_memory[x][y].received_x == module_memory[x][y].cell_x[c] && module_memory[x][y].received_y == module_memory[x][y].cell_y[c]){
+                    printf("im richtigen module  %d \n", c);
                     module_memory[x][y].received_IR_msg_cell = c;
                 }
             }
         } else {
             // message already seen -> discard
+            printf("msg received alrdy seen at %d %d from %d with option %d \n", x, y, m->data[5], m->data[2]);
             return;
         }
 #ifndef SIMULATION
@@ -645,13 +730,15 @@ void CKilogrid::IR_rx(int x, int y, IR_message_t *m, cell_num_t c, distance_meas
 
 void CKilogrid::CAN_rx(int x, int y, CAN_message_t *m){
     if (m->data[0] == 55){  // set msg
-        module_memory[x][y].cell_received_op[0] = m->data[1];
-        module_memory[x][y].cell_received_op[1] = m->data[2];
-        module_memory[x][y].cell_received_op[2] = m->data[3];
-        module_memory[x][y].cell_received_op[3] = m->data[4];
+        module_memory[x][y].received_cell_op[0] = m->data[1];
+        module_memory[x][y].received_cell_op[1] = m->data[2];
+        module_memory[x][y].received_cell_op[2] = m->data[3];
+        module_memory[x][y].received_cell_op[3] = m->data[4];
+        module_memory[x][y].received_can_kilo_uid = m->data[5];
+//        printf("received can msg at %d %d from robot %d with content %d %d %d %d \n", x, y, m->data[5], module_memory[x][y].received_cell_op[0], module_memory[x][y].received_cell_op[1], module_memory[x][y].received_cell_op[2], module_memory[x][y].received_cell_op[3]);
 
         for(uint8_t cell_it_cb = 0; cell_it_cb < 4; cell_it_cb++){
-            if(module_memory[x][y].cell_received_op[cell_it_cb] != 0){
+            if(module_memory[x][y].received_cell_op[cell_it_cb] != 0){
                 module_memory[x][y].reset_timer[cell_it_cb] = 0;
             }
         }

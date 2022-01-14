@@ -158,6 +158,8 @@ public:
     void virtual_message_reception();
     // Get debug infromation of all kilobots
     void GetDebugInfo();
+    // setup environemnt
+//    void setup_virtual_environments(TConfigurationNode& t_node);
 
 
     // this parser mimics the real kilogrid
@@ -200,7 +202,10 @@ private:
     // TODO this may need adjustment
     distance_measurement_t *d;
 
-
+    // init stuff
+    uint8_t initial_commitment = 1;
+    uint8_t number_of_options = 3;
+    uint8_t initial_communication_range;
     // this data structure is used to save the init data
     std::vector<uint8_t> configuration[10][20];
 
@@ -211,17 +216,21 @@ private:
         uint8_t received_com_range;
         uint8_t received_x;
         uint8_t received_y;
+        uint8_t received_kilo_uid;
+        uint8_t received_can_kilo_uid;
 
         // counters
         uint32_t msg_number_current;
         uint32_t msg_number;
-        uint32_t test_counter;
+        uint32_t status_msg_counter;
 
         // cell variables
         uint8_t cell_x[4] = {0, 0, 0, 0};
         uint8_t cell_y[4] = {0, 0, 0, 0};
         uint8_t cell_role[4] = {0, 0, 0, 0};
         color_t cell_colour[4] = {WHITE, WHITE, WHITE, WHITE};
+
+        uint8_t cell_op[4] = {0, 0, 0, 0};
 
         // ir message received from robots
         IR_message_t *robot_message = nullptr;
@@ -236,7 +245,7 @@ private:
         std::vector<CAN_message_t> received_cell_messages;
 
         // tmp mem for saving the data from can message callback
-        uint8_t cell_received_op[4] = {0, 0, 0, 0};
+        uint8_t received_cell_op[4] = {0, 0, 0, 0};
         uint32_t reset_timer[4] = {0, 0, 0, 0};
 
         uint8_t received_IR_msg_cell = 10;
@@ -249,6 +258,8 @@ private:
         uint8_t option;
         uint8_t my_x;
         uint8_t my_y;
+        uint8_t kilo_uid;
+        uint8_t can_kilo_uid;
 
         uint8_t sending_grid[10][20][4];
 
@@ -275,6 +286,12 @@ private:
     //
     // This is an efficient way to store both controllers and debug information.
     std::vector<debug_info_t*> debug_info_kilobots;
+    // for logging
+    std::ofstream output_logg;
+    std::string data_file_name;
+    std::vector<unsigned int> logg_commitment_state;
+    uint32_t data_saving_counter = 0;
+    const uint32_t DATA_SAVING_FREQUENCY = 1;
 };
 
 #endif

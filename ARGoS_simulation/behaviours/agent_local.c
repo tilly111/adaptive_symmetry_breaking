@@ -17,9 +17,9 @@
 #define PI 3.14159265358979323846
 #define UNCOMMITTED 0
 #define AGENT_MSG 21
-#define GRID_MSG 22
+//#define GRID_MSG 22
 #define GLOBAL_MSG 23  // NOT NEEDED HERE
-#define INIT_MSG 10
+//#define INIT_MSG 10
 
 #define size(x)  (sizeof(x) / sizeof((x)[0]))  // length of array bc c is fun
 
