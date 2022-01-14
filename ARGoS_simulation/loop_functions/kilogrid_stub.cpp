@@ -299,25 +299,26 @@ UInt16 CKilogrid::GetKilobotId(CKilobotEntity& c_kilobot_entity){
 }
 
 void CKilogrid::virtual_message_reception(){
-    for(UInt16 it = 0; it < kilobot_entities.size(); it++){
-        // get position information, later used for sending stuff!!
-        robot_positions[GetKilobotId(*kilobot_entities[it])] = position2cell(GetKilobotPosition(*kilobot_entities[it]));
-        int module_x = GetKilobotPosition(*kilobot_entities[it]).GetX() * 10;
-        int module_y = GetKilobotPosition(*kilobot_entities[it]).GetY() * 10;
+    // get position information, later used for sending stuff!!
+    for(UInt16 it = 0; it < kilobot_entities.size(); it++) {
+        robot_positions[GetKilobotId(*kilobot_entities[it])] = position2cell(
+                GetKilobotPosition(*kilobot_entities[it]));
+    }
 
-        // if robot send message set it here
-        if(debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->broadcast_flag == 1){
+    for(UInt16 it = 0; it < debug_info_kilobots.size(); it++) {
+        if (debug_info_kilobots[it]->broadcast_flag == 1) {
+            int module_x = int(robot_positions[GetKilobotId(*kilobot_entities[it])].GetX())/2;
+            int module_y = int(robot_positions[GetKilobotId(*kilobot_entities[it])].GetY())/2;
             IR_message_t* tmp_msg = new IR_message_t;
-            tmp_msg->type = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->type;
-            tmp_msg->data[0] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data0;
-            tmp_msg->data[1] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data1;
-            tmp_msg->data[2] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data2;
-            tmp_msg->data[3] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data3;
-            tmp_msg->data[4] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data4;
-            tmp_msg->data[5] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data5;
-            tmp_msg->data[6] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data6;
-            tmp_msg->data[7] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data7;
-            //module_memory[module_x][module_y].robot_message = tmp_msg;
+            tmp_msg->type = debug_info_kilobots[it]->type;
+            tmp_msg->data[0] = debug_info_kilobots[it]->data0;
+            tmp_msg->data[1] = debug_info_kilobots[it]->data1;
+            tmp_msg->data[2] = debug_info_kilobots[it]->data2;
+            tmp_msg->data[3] = debug_info_kilobots[it]->data3;
+            tmp_msg->data[4] = debug_info_kilobots[it]->data4;
+            tmp_msg->data[5] = debug_info_kilobots[it]->data5;
+            tmp_msg->data[6] = debug_info_kilobots[it]->data6;
+            tmp_msg->data[7] = debug_info_kilobots[it]->data7;
             module_memory[module_x][module_y].robot_messages.push_back(tmp_msg);
         }
     }
