@@ -372,28 +372,29 @@ UInt16 CKilogrid::GetKilobotId(CKilobotEntity& c_kilobot_entity){
 void CKilogrid::virtual_message_reception(){
     // for debug
     int msg_op[3] = {0, 0, 0};
-    for(UInt16 it = 0; it < kilobot_entities.size(); it++){
-        // get position information, later used for sending stuff!!
-        robot_positions[GetKilobotId(*kilobot_entities[it])] = position2cell(GetKilobotPosition(*kilobot_entities[it]));
-        printf("robot %d position(cell): %d %d \n", GetKilobotId(*kilobot_entities[it]), int(robot_positions[GetKilobotId(*kilobot_entities[it])].GetX()), int(robot_positions[GetKilobotId(*kilobot_entities[it])].GetY()));
-        int module_x = int(robot_positions[GetKilobotId(*kilobot_entities[it])].GetX())/2; //GetKilobotPosition(*kilobot_entities[it]).GetX() * 10;
-        int module_y = int(robot_positions[GetKilobotId(*kilobot_entities[it])].GetY())/2; //GetKilobotPosition(*kilobot_entities[it]).GetY() * 10;
-        printf("robot %d position(modu): %d %d \n", GetKilobotId(*kilobot_entities[it]), module_x, module_y);
-        // if robot send message set it here
-        if(debug_info_kilobots[it]->broadcast_flag == 1){
-        //if(debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->broadcast_flag == 1){
-            printf("robot position: %f %f \n", GetKilobotPosition(*kilobot_entities[it]).GetX(), GetKilobotPosition(*kilobot_entities[it]).GetY());
-            printf("received ir msg at module %d %d  from robot %d \n", module_x, module_y, debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data5);
+    // get position information, later used for sending stuff!!
+    for(UInt16 it = 0; it < kilobot_entities.size(); it++) {
+        robot_positions[GetKilobotId(*kilobot_entities[it])] = position2cell(
+                GetKilobotPosition(*kilobot_entities[it]));
+    }
+
+    for(UInt16 it = 0; it < debug_info_kilobots.size(); it++) {
+//        printf("broadcast flag %d from robot %d \n", debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->broadcast_flag, GetKilobotId(*kilobot_entities[it]));
+        if (debug_info_kilobots[it]->broadcast_flag == 1) {
+            int module_x = int(robot_positions[GetKilobotId(*kilobot_entities[it])].GetX())/2;
+            int module_y = int(robot_positions[GetKilobotId(*kilobot_entities[it])].GetY())/2;
+//            printf("robot position: %f %f \n", GetKilobotPosition(*kilobot_entities[it]).GetX(), GetKilobotPosition(*kilobot_entities[it]).GetY());
+            printf("received ir msg at module %d %d  from robot %d \n", module_x, module_y, debug_info_kilobots[it]->data5);
             IR_message_t* tmp_msg = new IR_message_t;
-            tmp_msg->type = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->type;
-            tmp_msg->data[0] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data0;
-            tmp_msg->data[1] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data1;
-            tmp_msg->data[2] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data2;
-            tmp_msg->data[3] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data3;
-            tmp_msg->data[4] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data4;
-            tmp_msg->data[5] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data5;
-            tmp_msg->data[6] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data6;
-            tmp_msg->data[7] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data7;
+            tmp_msg->type = debug_info_kilobots[it]->type;
+            tmp_msg->data[0] = debug_info_kilobots[it]->data0;
+            tmp_msg->data[1] = debug_info_kilobots[it]->data1;
+            tmp_msg->data[2] = debug_info_kilobots[it]->data2;
+            tmp_msg->data[3] = debug_info_kilobots[it]->data3;
+            tmp_msg->data[4] = debug_info_kilobots[it]->data4;
+            tmp_msg->data[5] = debug_info_kilobots[it]->data5;
+            tmp_msg->data[6] = debug_info_kilobots[it]->data6;
+            tmp_msg->data[7] = debug_info_kilobots[it]->data7;
             //module_memory[module_x][module_y].robot_message = tmp_msg;
             module_memory[module_x][module_y].robot_messages.push_back(tmp_msg);
 
@@ -401,6 +402,29 @@ void CKilogrid::virtual_message_reception(){
             msg_op[tmp_msg->data[2]-1]++;
         }
     }
+
+
+//        // if robot send message set it here
+//        //if(debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->broadcast_flag == 1){
+//            printf("robot position: %f %f \n", GetKilobotPosition(*kilobot_entities[it]).GetX(), GetKilobotPosition(*kilobot_entities[it]).GetY());
+//            printf("received ir msg at module %d %d  from robot %d \n", module_x, module_y, debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data5);
+//            IR_message_t* tmp_msg = new IR_message_t;
+//            tmp_msg->type = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->type;
+//            tmp_msg->data[0] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data0;
+//            tmp_msg->data[1] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data1;
+//            tmp_msg->data[2] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data2;
+//            tmp_msg->data[3] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data3;
+//            tmp_msg->data[4] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data4;
+//            tmp_msg->data[5] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data5;
+//            tmp_msg->data[6] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data6;
+//            tmp_msg->data[7] = debug_info_kilobots[GetKilobotId(*kilobot_entities[it])]->data7;
+//            //module_memory[module_x][module_y].robot_message = tmp_msg;
+//            module_memory[module_x][module_y].robot_messages.push_back(tmp_msg);
+//
+//            // debug
+//            msg_op[tmp_msg->data[2]-1]++;
+//        }
+//    }
     printf("msg distribution ");
     for(int debug_i = 0; debug_i < 3;debug_i++){
         printf(" %d", msg_op[debug_i]);
