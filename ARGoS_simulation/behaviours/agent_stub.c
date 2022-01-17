@@ -52,7 +52,7 @@
 #define ROTATION_SPEED 38
 
 #define SAMPLE_COUNTER_MAX 30
-#define UPDATE_TICKS 60
+#define UPDATE_TICKS 1000
 #define BROADCAST_TICKS 15
 #define PARAM 0.0
 
@@ -219,6 +219,7 @@ void sample(){
         if(sample_counter < sample_counter_max_noise){
             sample_counter++;
             if (current_ground == op_to_sample){
+//                if (kilo_uid == 5) printf("[%d] cur ground %d %d/%d \n", kilo_uid, current_ground, sample_op_counter, sample_counter);
                 sample_op_counter++;
             }
         }else{
@@ -227,6 +228,7 @@ void sample(){
             // robot measured last
             discovered_option = op_to_sample;
             discovered_quality = (float)sample_op_counter/(float)sample_counter;
+//            printf("[%d] sample %d with quality %f \n", kilo_uid, discovered_option, discovered_quality);
 
             // set my quality to the measured quality iff its our commitment
             discovered = true;
@@ -236,7 +238,7 @@ void sample(){
             sample_counter = 0;
             sample_op_counter = 0;
             // for shuffling up we set the max sample counter
-            sample_counter_max_noise = SAMPLE_COUNTER_MAX + rand() % 5;
+            sample_counter_max_noise = SAMPLE_COUNTER_MAX + GetRandomNumber(10000) % 5;
         }
     }
 }
@@ -247,7 +249,7 @@ void sample(){
 void update_commitment() {
     if(kilo_ticks > last_update_ticks + update_ticks_noise){
         last_update_ticks = kilo_ticks;
-        update_ticks_noise = UPDATE_TICKS + rand() % 5;//+ (rand() % UPDATE_NOISE);
+        update_ticks_noise = UPDATE_TICKS + GetRandomNumber(10000) % 50;
 
         // drawing a random number
         unsigned int range_rnd = 10000;
@@ -284,12 +286,13 @@ void update_commitment() {
             }
             // DIRECT-SWITCH
             if(new_robot_msg && robot_commitment != received_option && received_option != UNCOMMITTED){
+                // only switch when you are also allowed to speak otherwise you would be just listen
                 social = true;
             }
         }
         // if both true do a flip
         if(individual && social) {
-            if (rand() % 2) {
+            if (GetRandomNumber(10000) % 2) {
                 individual = true;
                 social = false;
             } else {
@@ -301,9 +304,11 @@ void update_commitment() {
         if(individual){
             robot_commitment = discovered_option;
             robot_commitment_quality = discovered_quality;
+//            printf("[%d] ind: %d %f \n ", kilo_uid, robot_commitment, robot_commitment_quality);
         }else if(social){
             robot_commitment = received_option;  // inhibition change back to UNCOMMITTED
             robot_commitment_quality = 0; // thus we first sample and then broadcast
+//            printf("[%d] soc: %d %f \n ", kilo_uid, robot_commitment, robot_commitment_quality);
             // reset sampling -> sample what you got told to
             op_to_sample = received_option;
             sample_op_counter = 0;
@@ -366,7 +371,7 @@ void broadcast() {
 
         if (robot_commitment != UNCOMMITTED && robot_commitment_quality > 0 && random <= P_ShareCommitementInt){
             set_message();
-            printf("[%d] sending a msg with option %d at %d %d\n", kilo_uid, robot_commitment, robot_gps_x, robot_gps_y);
+//            printf("[%d] sending a msg with option %d with prob %d \n", kilo_uid, robot_commitment, P_ShareCommitementInt);
         }
     }
 }
@@ -398,12 +403,12 @@ void set_motion(){
                 else set_motors(0, 70);
                 break;
             case AVOIDANCE_TURN_LEFT:
-                if (CALIBRATED) set_motors(kilo_turn_left + rand() % 30, 0);
-                else set_motors(70 + rand() % 30, 0);
+                if (CALIBRATED) set_motors(kilo_turn_left + GetRandomNumber(10000) % 30, 0);
+                else set_motors(70 + GetRandomNumber(10000) % 30, 0);
                 break;
             case AVOIDANCE_TURN_RIGHT:
-                if (CALIBRATED) set_motors(0, kilo_turn_right + rand() % 30);
-                else set_motors(0, 70 + rand() % 30);
+                if (CALIBRATED) set_motors(0, kilo_turn_right + GetRandomNumber(10000) % 30);
+                else set_motors(0, 70 + GetRandomNumber(10000) % 30);
                 break;
 
             case STOP:
@@ -420,8 +425,8 @@ void set_motion(){
 void random_walk_waypoint_model(){
     do {
         // getting a random number in the range [1,GPS_maxcell-1] to avoid the border cells (upper bound is -2 because index is from 0)
-        goal_gps_x = rand()%( CELLS_X - 4 ) + 2;
-        goal_gps_y = rand()%( CELLS_Y - 4 ) + 2;
+        goal_gps_x = GetRandomNumber(10000)%( CELLS_X - 4 ) + 2;
+        goal_gps_y = GetRandomNumber(10000)%( CELLS_Y - 4 ) + 2;
         if(abs(robot_gps_x - goal_gps_x) >= 4 || abs(robot_gps_y - goal_gps_y) >= 4){
             // if the selected cell is enough distant from the current location, it's good
             break;
@@ -452,14 +457,14 @@ void move(){
         } else {
             printf("[%d] ERROR: turning calculation is fraud \n", kilo_uid);
         }
-        state_counter =(uint32_t) ( fabs(angletogoal)/ROTATION_SPEED*32.0 );
+        state_counter =(uint32_t) ( abs(angletogoal)/ROTATION_SPEED*32.0 );
 
     }else if(current_state == AVOIDANCE_TURN_LEFT || current_state == AVOIDANCE_TURN_RIGHT){
         // avoidance turn -> avoidance straight
         state_counter -= 1;
         if(state_counter == 0){
             current_state = AVOIDANCE_STRAIGHT;
-            state_counter = rand() % AVOIDANCE_STRAIGHT_COUNTER_MAX + AVOIDANCE_STRAIGHT_COUNTER_MAX/2;
+            state_counter = GetRandomNumber(10000) % AVOIDANCE_STRAIGHT_COUNTER_MAX + AVOIDANCE_STRAIGHT_COUNTER_MAX/2;
         }
     }else if(current_state == AVOIDANCE_STRAIGHT){
         // avoidance straight -> move straight
@@ -472,7 +477,7 @@ void move(){
         state_counter -= 1;
         if(state_counter == 0){
             current_state = MOVE_STRAIGHT;
-            state_counter = STRAIGHT_COUNTER_MAX + rand() % (STRAIGHT_COUNTER_MAX/2);
+            state_counter = STRAIGHT_COUNTER_MAX + GetRandomNumber(10000) % (STRAIGHT_COUNTER_MAX/2);
         }
     }else if(current_state == MOVE_STRAIGHT){
         if(!(state_counter == 0)){
@@ -524,7 +529,7 @@ void move(){
                     } else {
                         printf("[%d] ERROR: turning calculation is fraud \n", kilo_uid);
                     }
-                    state_counter = (uint32_t) ( (fabs(angletogoal)/ROTATION_SPEED)*32.0 );
+                    state_counter = (uint32_t) ( (abs(angletogoal)/ROTATION_SPEED)*32.0 );
                 }
             }else{
                 current_state = MOVE_STRAIGHT;  // TODO this is probably not needed !?!?!?
@@ -615,6 +620,9 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         received_option_msg = msg->data[2];
         received_kilo_uid = msg->data[3];
         received_virtual_agent_msg_flag = true;
+//        if(kilo_uid == 0){
+//            printf("[%d] received a msg from %d with value %d \n", kilo_uid, received_kilo_uid, received_option_msg);
+//        }
 //        printf("[%d] received a msg from %d with value %d \n", kilo_uid, received_kilo_uid, received_option_msg);
     }
 }
@@ -688,10 +696,10 @@ void setup(){
     received_kilo_uid = kilo_uid;
 
     // init some counters
-    sample_counter_max_noise = rand() % SAMPLE_COUNTER_MAX + 1;
-    update_ticks_noise = rand() % UPDATE_TICKS + 1;
+    sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);
+    update_ticks_noise = UPDATE_TICKS + (GetRandomNumber(10000) % UPDATE_TICKS);
 
-    last_broadcast_ticks = rand() % BROADCAST_TICKS + 1;
+    last_broadcast_ticks = GetRandomNumber(10000) % BROADCAST_TICKS + 1;
 
     // Intialize time to 0
     kilo_ticks = 0;
@@ -728,27 +736,24 @@ void loop() {
 
         // set broadcast if needed
         broadcast();
-        if(kilo_uid == 13 || kilo_uid == 12){
-            set_color(RGB(3,3,3));
-        }else{
-            switch(robot_commitment) {
-                case 0:
-                    set_color(RGB(0,0,0));
-                    break;
-                case 1:
-                    set_color(RGB(3,0,0));
-                    break;
-                case 2:
-                    set_color(RGB(0,3,0));
-                    break;
-                case 3:
-                    set_color(RGB(0,0,3));
-                    break;
-                default:
-                    printf("[%d] ERROR - wrong state %d \n", kilo_uid, robot_commitment);
-                    set_color(RGB(3,3,3));
-                    break;
-            }
+
+        switch(robot_commitment) {
+            case 0:
+                set_color(RGB(0,0,0));
+                break;
+            case 1:
+                set_color(RGB(3,0,0));
+                break;
+            case 2:
+                set_color(RGB(0,3,0));
+                break;
+            case 3:
+                set_color(RGB(0,0,3));
+                break;
+            default:
+                printf("[%d] ERROR - wrong state %d \n", kilo_uid, robot_commitment);
+                set_color(RGB(3,3,3));
+                break;
         }
 
         // for sending messages
@@ -764,9 +769,13 @@ void loop() {
     debug_info_set(commitement, robot_commitment);
     debug_info_set(x_pos, robot_gps_x);
     debug_info_set(y_pos, robot_gps_y);
+    if (robot_commitment_quality == 0.0){
+        debug_info_set(inactive, 1);
+    }else{
+        debug_info_set(inactive, 0);
+    }
 
     // debug prints
-    printf("[%d] position %d %d \n", kilo_uid, robot_gps_x, robot_gps_y);
 //    if(kilo_uid == 0){
 //        printf("[%d] current ground: %d  op_to_sample %d  progress %d/%d  robot_commitment_quality(%d) %f \n", kilo_uid, current_ground, op_to_sample, sample_op_counter, sample_counter, robot_commitment, robot_commitment_quality);
 //    }

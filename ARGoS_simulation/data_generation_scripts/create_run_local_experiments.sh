@@ -22,7 +22,7 @@ else
     INITIAL_COMMITMENT=1
     INITIAL_COMMUNICATION_RANGE=45
 
-    EXP_NAME=experiment_adaptation_08_comrng_${INITIAL_COMMUNICATION_RANGE}
+    EXP_NAME=experiment_adaptation_11_comrng_${INITIAL_COMMUNICATION_RANGE}
     QUORUM=-1 # Quorum to stop experiment
 
     EXP_LENGTH=2400 #length of the in secs

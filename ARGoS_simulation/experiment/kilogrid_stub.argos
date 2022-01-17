@@ -78,7 +78,7 @@
     <distribute>
         <position method="uniform" min="0.15,0.15,0" max="0.85,1.85,0" />
         <orientation method="uniform" min="0,0,0" max="360,0,0" />
-        <entity quantity="11" max_trials="100">
+        <entity quantity="50" max_trials="100">
             <kilobot id="kb" communication_range="0">
                 <controller config="kbc"/>
                 <dynamics2d friction="0.7" />

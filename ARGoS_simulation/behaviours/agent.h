@@ -55,6 +55,7 @@ typedef struct {
     int commitement;
     int x_pos;
     int y_pos;
+    int inactive;
 
     // this is only needed for global communication, in order to check if robot is allowed to
     // broadcast
