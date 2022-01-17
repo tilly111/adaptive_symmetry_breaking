@@ -52,7 +52,7 @@
 #define ROTATION_SPEED 38
 
 #define SAMPLE_COUNTER_MAX 30
-#define UPDATE_TICKS 1000
+#define UPDATE_TICKS 60
 #define BROADCAST_TICKS 15
 #define PARAM 0.0
 
@@ -96,6 +96,9 @@ bool calculated_orientation = false;
 
 uint8_t robot_commitment = 0;  // This is the initial commitment
 float robot_commitment_quality = 0.0;
+
+uint8_t last_robot_commitment = 0;
+float last_robot_commitment_quality = 0.0;
 
 uint8_t communication_range = 0;  // communication range in cells
 
@@ -249,7 +252,7 @@ void sample(){
 void update_commitment() {
     if(kilo_ticks > last_update_ticks + update_ticks_noise){
         last_update_ticks = kilo_ticks;
-        update_ticks_noise = UPDATE_TICKS + GetRandomNumber(10000) % 50;
+        update_ticks_noise = UPDATE_TICKS + GetRandomNumber(10000) % 5;
 
         // drawing a random number
         unsigned int range_rnd = 10000;
@@ -302,14 +305,33 @@ void update_commitment() {
         }
         // do the switch
         if(individual){
+            // update last robot commitment
+            last_robot_commitment = robot_commitment;
+            last_robot_commitment_quality = robot_commitment_quality;
+            // set new commitment
             robot_commitment = discovered_option;
             robot_commitment_quality = discovered_quality;
 //            printf("[%d] ind: %d %f \n ", kilo_uid, robot_commitment, robot_commitment_quality);
         }else if(social){
-            robot_commitment = received_option;  // inhibition change back to UNCOMMITTED
-            robot_commitment_quality = 0; // thus we first sample and then broadcast
-//            printf("[%d] soc: %d %f \n ", kilo_uid, robot_commitment, robot_commitment_quality);
-            // reset sampling -> sample what you got told to
+            // case the robot got recruited back
+            if(last_robot_commitment == received_option){
+                // setting last robot commitment
+                last_robot_commitment = robot_commitment;
+                float tmp_quality = last_robot_commitment_quality;
+                last_robot_commitment_quality = robot_commitment_quality;
+                // setting current commitment
+                robot_commitment = received_option;
+                robot_commitment_quality = tmp_quality;  // can directly broadcast bc we have quality estimate
+            }else{  // robot got new commitment
+                //setting last robot commitment
+                last_robot_commitment = robot_commitment;
+                last_robot_commitment_quality = robot_commitment_quality;
+
+                // discovered a new option where we do not know the quality
+                robot_commitment = received_option;
+                robot_commitment_quality = 0; // thus we first sample and then broadcast
+            }
+            // reset sampling to make a new estiamte on current commitment
             op_to_sample = received_option;
             sample_op_counter = 0;
             sample_counter = 0;
@@ -457,7 +479,7 @@ void move(){
         } else {
             printf("[%d] ERROR: turning calculation is fraud \n", kilo_uid);
         }
-        state_counter =(uint32_t) ( abs(angletogoal)/ROTATION_SPEED*32.0 );
+        state_counter =(uint32_t) ( fabs(angletogoal)/ROTATION_SPEED*32.0 );  // it is important to keep this as fabs bc abs introduces error that the robtos only turn on the spot
 
     }else if(current_state == AVOIDANCE_TURN_LEFT || current_state == AVOIDANCE_TURN_RIGHT){
         // avoidance turn -> avoidance straight
@@ -529,7 +551,7 @@ void move(){
                     } else {
                         printf("[%d] ERROR: turning calculation is fraud \n", kilo_uid);
                     }
-                    state_counter = (uint32_t) ( (abs(angletogoal)/ROTATION_SPEED)*32.0 );
+                    state_counter = (uint32_t) ( (fabs(angletogoal)/ROTATION_SPEED)*32.0 ); // it is important to keep this as fabs bc abs introduces error that the robtos only turn on the spot
                 }
             }else{
                 current_state = MOVE_STRAIGHT;  // TODO this is probably not needed !?!?!?

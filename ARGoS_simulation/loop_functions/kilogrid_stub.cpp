@@ -143,13 +143,13 @@ void CKilogrid::PreStep(){
 void CKilogrid::PostStep(){
     // Save experiment data to the specified log file
     // check if quorum is reached
-    int inactive_robots = 0;
+//    int inactive_robots = 0;
     std::fill(logg_commitment_state.begin(), logg_commitment_state.end(), 0);
     for(unsigned int i=0;i< kilobot_entities.size();i++){
         logg_commitment_state[((unsigned int) debug_info_kilobots[i]->commitement)]++;
-        if (debug_info_kilobots[i]->inactive){
-            inactive_robots++;
-        }
+//        if (debug_info_kilobots[i]->inactive){
+//            inactive_robots++;
+//        }
     }
 
     // if quroum reached, time to write something down, max time passed
@@ -179,7 +179,7 @@ void CKilogrid::PostStep(){
 //    for(unsigned int i=0;i< logg_commitment_state.size();i++){
 //        printf("%d ", logg_commitment_state[i]);
 //    }
-//    printf("inactive robots %d", inactive_robots);
+//    printf("inactive robots %d \n", inactive_robots);
 //    printf("\n%d------------------------------------------------------------------------------\n", GetSpace().GetSimulationClock());
 }
 

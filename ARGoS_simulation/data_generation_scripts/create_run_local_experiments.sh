@@ -20,16 +20,15 @@ else
     n=3
     NUM_ROBOTS=50
     INITIAL_COMMITMENT=1
-    INITIAL_COMMUNICATION_RANGE=45
+    INITIAL_COMMUNICATION_RANGE=2
 
-    EXP_NAME=experiment_adaptation_11_comrng_${INITIAL_COMMUNICATION_RANGE}
+    EXP_NAME=experiment_adaptation_15_comrng_${INITIAL_COMMUNICATION_RANGE}
     QUORUM=-1 # Quorum to stop experiment
 
     EXP_LENGTH=2400 #length of the in secs
 
     DATA_FREQUENCY=1 # frequency of saving the experiment data
 
-    # TODO CHANGE BACK
     BEHAVIOUR_FILE=/build/behaviours/agent_stub # full path to the compiled robot behaviour
     LOOPFUNCTION_FILE=/build/loop_functions/libkilogrid_stub
 	
