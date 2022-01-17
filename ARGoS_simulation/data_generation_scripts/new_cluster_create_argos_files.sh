@@ -40,7 +40,7 @@ else
     JOB_TEMPLATE_SRC=${EXP_FOLDER}/ARGoS_simulation/data_generation_scripts/runjob_template.sh
     
     EXP_DIR=${EXP_FOLDER}/experiments_cluster/${EXP_NAME}
-    mkdir -p ${EXP_Dir}
+    mkdir -p ${EXP_DIR}
 
     DATA_DIR=${EXP_FOLDER}/data_cluster/${EXP_NAME}
     mkdir -p ${DATA_DIR}
