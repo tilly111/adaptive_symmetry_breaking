@@ -13,10 +13,16 @@ exit
 
 else
     # Parameters to change
+    conf=ASB_experiment_1.kconf
+    # init commit = 1: all start at option 1
+    # init commit = 2: 50/50 option 2,3
+    # init commit = 3: 33/33/33 option 2,3,4
+    # init commit = 4: 25/25/25 option 2,3,4,5
+    INITIAL_COMMITMENT=1 # initial commitment of the robots
+    n=3 # number of options
     INITIAL_COMMUNICATION_RANGE=2
     EXP_NAME=experiment_adaptation_15_comrng_${INITIAL_COMMUNICATION_RANGE}
 
-    n=3 # number of options
     NUM_ROBOTS=50 # number of robots
     INITIAL_COMMITMENT=1 # initial commitment of the robots
     QUORUM=-1 # Quorum to stop experiment NOT USED ATM
@@ -33,7 +39,7 @@ else
     BEHAVIOUR_FILE=${EXP_FOLDER}/build/behaviours/agent_stub
     LOOPFUNCTION_FILE=${EXP_FOLDER}/build/loop_functions/libkilogrid_stub
 
-    CONFIG_FILE=${EXP_FOLDER}/ARGoS_simulation/loop_functions/ASB_experiment_1.kconf
+    CONFIG_FILE=${EXP_FOLDER}/ARGoS_simulation/loop_functions/${conf}
     
     # path to template
     EXP_TEMPLATE_SRC=${EXP_FOLDER}/ARGoS_simulation/experiment/3_op_template_kilogrid.argos

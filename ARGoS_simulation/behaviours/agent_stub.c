@@ -393,7 +393,7 @@ void broadcast() {
 
         if (robot_commitment != UNCOMMITTED && robot_commitment_quality > 0 && random <= P_ShareCommitementInt){
             set_message();
-//            printf("[%d] sending a msg with option %d with prob %d \n", kilo_uid, robot_commitment, P_ShareCommitementInt);
+//            printf("[%d] sending a msg with option %d at %d %d \n", kilo_uid, robot_commitment, robot_gps_x, robot_gps_y);
         }
     }
 }
@@ -625,6 +625,36 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         robot_gps_y = msg->data[1];
         random_walk_waypoint_model();  // select first goal
         robot_commitment = msg->data[2];
+        // how to init the robots
+        // init commit = 1: all start at option 1
+        // init commit = 2: 50/50 option 2,3
+        // init commit = 3: 33/33/33 option 2,3,4
+        // init commit = 4: 25/25/25 option 2,3,4,5
+        switch(msg->data[2]){
+            case 1:
+                robot_commitment = 1;
+                break;
+            case 2:
+                if (kilo_uid < 25) robot_commitment = 2;
+                else robot_commitment = 3;
+                break;
+            case 3:
+                if (kilo_uid < 16) robot_commitment = 2;
+                else if (kilo_uid < 32+1) robot_commitment = 3; // this is one more
+                else robot_commitment = 4; // this is one more bc mod(50,3) != 0
+                break;
+            case 4:
+                if (kilo_uid < 13) robot_commitment = 2;  // this is one more
+                else if (kilo_uid < 26) robot_commitment = 3; // this is one more bc mod(50,3) != 0
+                else if (kilo_uid < 38) robot_commitment = 4;
+                else robot_commitment = 5;
+                break;
+            default:
+                printf("[%d] ERROR: error in initial commitment - robot starts with commitment 1 \n", kilo_uid);
+                robot_commitment = 1;
+                break;
+        }
+
         robot_commitment_quality = (msg->data[3])/255.0;
         NUMBER_OF_OPTIONS = msg->data[4];
         current_ground = msg->data[5];
@@ -645,7 +675,7 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
 //        if(kilo_uid == 0){
 //            printf("[%d] received a msg from %d with value %d \n", kilo_uid, received_kilo_uid, received_option_msg);
 //        }
-//        printf("[%d] received a msg from %d with value %d \n", kilo_uid, received_kilo_uid, received_option_msg);
+//        printf("[%d] received a msg from %d at %d %d \n", kilo_uid, received_kilo_uid, robot_gps_x, robot_gps_y);
     }
 }
 
@@ -772,6 +802,12 @@ void loop() {
             case 3:
                 set_color(RGB(0,0,3));
                 break;
+            case 4:
+                set_color(RGB(3,3,0));
+                break;
+            case 5:
+                set_color(RGB(0,0,0));
+                break;
             default:
                 printf("[%d] ERROR - wrong state %d \n", kilo_uid, robot_commitment);
                 set_color(RGB(3,3,3));
@@ -831,42 +867,3 @@ int main(){
     kilo_start(setup, loop);
     return 0;
 }
-
-
-
-//switch (current_state) {
-//case MOVE_STRAIGHT:
-//set_color(RGB(3, 0, 0));
-//break;
-//case MOVE_LEFT:
-//set_color(RGB(0, 3, 0));
-//break;
-//case MOVE_RIGHT:
-//set_color(RGB(0, 0, 3));
-//break;
-//case AVOIDANCE_TURN_LEFT:
-//set_color(RGB(3, 3, 0));
-//break;
-//case AVOIDANCE_TURN_RIGHT:
-//set_color(RGB(3, 0, 3));
-//break;
-//case AVOIDANCE_STRAIGHT:
-//set_color(RGB(3, 3, 3));
-//break;
-//case STOP:
-//default:
-//set_color(RGB(0, 0, 0));
-//break;
-//}
-
-//        if(kilo_uid == 0){
-//            msg_counter += 1;
-//            if(msg_counter > 30){
-//                robot_commitment = ((robot_commitment + 1) % 4);
-//                msg_counter = 0;
-//                communication_range = 20;
-//                printf("[%d] sending a msg from %d %d \n", kilo_uid, robot_gps_x, robot_gps_y);
-//                set_message();
-//
-//            }
-//        }

@@ -28,9 +28,6 @@ CKilogrid::~CKilogrid() {}
 /*-----------------------------------------------------------------------------------------------*/
 /* Init method runs before every experiment starts.                                              */
 /*-----------------------------------------------------------------------------------------------*/
-// This method should initalize all the robot enteties in order to work with them
-// as you would with the real kilogrid
-// what else ?!?
 void CKilogrid::Init(TConfigurationNode &t_tree) {
     m_pcRNG = CRandom::CreateRNG("argos");
 
@@ -43,7 +40,7 @@ void CKilogrid::Init(TConfigurationNode &t_tree) {
     // get the debug info structs aka communication with the kilogrid
     GetDebugInfo();
 
-    // init map
+    // init map and other configuration for the simulation
     read_configuration(t_tree);
     for(int x_it = 0; x_it < 10; x_it++){
         for(int y_it = 0; y_it < 20; y_it++){
@@ -52,21 +49,18 @@ void CKilogrid::Init(TConfigurationNode &t_tree) {
     }
     // initialize some helpers to track the kilobots - only needed in sim
     robot_positions.resize(kilobot_entities.size());
-    logg_commitment_state.resize(4);  // TODO HARD CODED TO 3 OPTIONS CHANGE??
+    logg_commitment_state.resize(number_of_options+1);  // uncommitted is also a commitment state thus +1
 
 
     // init logging
     output_logg.open(data_file_name, std::ios_base::trunc | std::ios_base::out);
-    output_logg << "time;";
-    for(unsigned int i=0;i<3;i++){
-        output_logg << i << ";";
+    output_logg << "time";
+    for(unsigned int i=0;i<logg_commitment_state.size();i++){
+        output_logg << ";" << i;
     }
-
-    if(3>0){
-        output_logg << 3 << std::endl;
-    }
-
+    output_logg<< std::endl;
 }
+
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Gets called when the experiment is resetted.                                                  */
@@ -78,14 +72,13 @@ void CKilogrid::Reset() {
     // Reopen the file, erasing its contents
     output_logg.open(data_file_name, std::ios_base::trunc | std::ios_base::out);
     // write the log file header (it is not mendatory)
-    output_logg << "time;";
-    for(unsigned int i=0;i<3;i++){
-        output_logg << i << ";";
+    output_logg << "time";
+    for(unsigned int i=0;i<logg_commitment_state.size();i++){
+        output_logg << ";" << i;
     }
-    if(3>0){
-        output_logg << 3<< std::endl;
-    }
+    output_logg<< std::endl;
 }
+
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Gets called when the experiment ended.                                                        */
@@ -242,8 +235,6 @@ void CKilogrid::read_configuration(TConfigurationNode& t_node){
             }
         }
     }
-
-
 }
 
 
