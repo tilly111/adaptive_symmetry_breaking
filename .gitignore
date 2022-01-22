@@ -1,6 +1,6 @@
 build/*
-data_cluster/
-experiments_cluster/
+data_cluster
+experiments_cluster
 job_cluster/
 output/
 .DS_Store
