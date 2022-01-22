@@ -625,38 +625,34 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         robot_gps_y = msg->data[1];
         random_walk_waypoint_model();  // select first goal
         robot_commitment = msg->data[2];
-        // how to init the robots
-        // init commit = 1: all start at option 1
-        // init commit = 2: 50/50 option 2,3
-        // init commit = 3: 33/33/33 option 2,3,4
-        // init commit = 4: 25/25/25 option 2,3,4,5
-        switch(msg->data[2]){
-            case 1:
-                robot_commitment = 1;
-                break;
-            case 2:
-                if (kilo_uid < 25) robot_commitment = 2;
-                else robot_commitment = 3;
-                break;
-            case 3:
-                if (kilo_uid < 16) robot_commitment = 2;
-                else if (kilo_uid < 32+1) robot_commitment = 3; // this is one more
-                else robot_commitment = 4; // this is one more bc mod(50,3) != 0
-                break;
-            case 4:
-                if (kilo_uid < 13) robot_commitment = 2;  // this is one more
-                else if (kilo_uid < 26) robot_commitment = 3; // this is one more bc mod(50,3) != 0
-                else if (kilo_uid < 38) robot_commitment = 4;
-                else robot_commitment = 5;
-                break;
-            default:
-                printf("[%d] ERROR: error in initial commitment - robot starts with commitment 1 \n", kilo_uid);
-                robot_commitment = 1;
-                break;
-        }
-
         robot_commitment_quality = (msg->data[3])/255.0;
         NUMBER_OF_OPTIONS = msg->data[4];
+        // how to init the robot
+        // 1 -> start at option one
+        // else start 50/50/50/50
+        if (robot_commitment != 1){
+            switch(NUMBER_OF_OPTIONS){
+                case 3:
+                    if (kilo_uid < 25) robot_commitment = 2;
+                    else robot_commitment = 3;
+                    break;
+                case 4:
+                    if (kilo_uid < 16) robot_commitment = 2;
+                    else if (kilo_uid < 32+1) robot_commitment = 3; // this is one more
+                    else robot_commitment = 4; // this is one more bc mod(50,3) != 0
+                    break;
+                case 5:
+                    if (kilo_uid < 13) robot_commitment = 2;  // this is one more
+                    else if (kilo_uid < 26) robot_commitment = 3; // this is one more bc mod(50,3) != 0
+                    else if (kilo_uid < 38) robot_commitment = 4;
+                    else robot_commitment = 5;
+                    break;
+                default:
+                    printf("[%d] ERROR: error in initial commitment - robot starts with commitment 1 \n", kilo_uid);
+                    robot_commitment = 1;
+                    break;
+            }
+        }
         current_ground = msg->data[5];
         op_to_sample = current_ground;
         communication_range = msg->data[6];

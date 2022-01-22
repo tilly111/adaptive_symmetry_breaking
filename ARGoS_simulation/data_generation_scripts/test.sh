@@ -1,7 +1,7 @@
 #!/bin/bash
 tmp_counter=0
 com_range_counter=1
-for j in `seq 63 81`;
+for j in `seq 81 98`;
     do
       conf=ASB_experiment_$((1 + ${tmp_counter} % 3)).kconf
       n=$((3 + ${tmp_counter} % 3))

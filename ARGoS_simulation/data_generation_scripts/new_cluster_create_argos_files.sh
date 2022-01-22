@@ -3,10 +3,10 @@
 ###################################
 # Synopsis of the script
 ###################################
-# init commit = 1: all start at option 1
-# init commit = 2: 50/50 option 2,3
-# init commit = 3: 33/33/33 option 2,3,4
-# init commit = 4: 25/25/25 option 2,3,4,5
+#how to init the robot
+#1 -> start at option one
+#else start 50/50/50/50
+
 
 EXPECTED_ARGS=2
 if [ $# -lt ${EXPECTED_ARGS} ]; then
@@ -22,9 +22,9 @@ else
 
   for j in $(seq ${1} ${2}); do
     # parameters to choose
-    INITIAL_COMMITMENT=1 # initial commitment of the robots
+    INITIAL_COMMITMENT=2 # initial commitment of the robots
 
-    conf=ASB_experiment_$((1 + ${tmp_counter} % 3)).kconf
+    conf=ASB_experiment_cl_$((1 + ${tmp_counter} % 3)).kconf
     n=$((3 + ${tmp_counter} % 3))
 
     if ((${tmp_counter} == 3)); then
