@@ -24,7 +24,7 @@ else
     # parameters to choose
     INITIAL_COMMITMENT=2 # initial commitment of the robots
 
-    conf=ASB_experiment_cl_$((1 + ${tmp_counter} % 3)).kconf
+    conf=ASB_experiment_$((1 + ${tmp_counter} % 3)).kconf
     n=$((3 + ${tmp_counter} % 3))
 
     if ((${tmp_counter} == 3)); then
@@ -39,11 +39,10 @@ else
       com_range_counter=45
     fi
     INITIAL_COMMUNICATION_RANGE=${com_range_counter}
-    EXP_NAME=experiment_adaptation_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
+    EXP_NAME=experiment_cl_symmetry_breaking_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots
-    INITIAL_COMMITMENT=1 # initial commitment of the robots
     QUORUM=-1            # Quorum to stop experiment NOT USED ATM
     EXP_LENGTH=2400      #length of the experiment in secs
     DATA_FREQUENCY=1     # frequency of saving the experiment data
