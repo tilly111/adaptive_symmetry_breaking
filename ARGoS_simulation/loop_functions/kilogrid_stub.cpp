@@ -157,6 +157,7 @@ void CKilogrid::PostStep(){
     // reset init flag if not every robot is inited -> robots cannot get uncommitted
     if (logg_commitment_state[0] > 0) {
         printf("[LOOPFUNCTION] not all robots are inited; repeat... \n");
+        GetSimulator().Reset();
         for (int x_it = 0; x_it < 10; x_it++) {
             for (int y_it = 0; y_it < 20; y_it++) {
                 module_memory[x_it][y_it].init_flag = false;
