@@ -52,7 +52,7 @@
 #define ROTATION_SPEED 38
 
 #define SAMPLE_COUNTER_MAX 30
-#define UPDATE_TICKS 600
+#define UPDATE_TICKS 60
 #define BROADCAST_TICKS 15
 #define PARAM 0.0
 
@@ -110,6 +110,8 @@ uint32_t last_waypoint_time = 0;
 uint32_t state_counter = 0;
 state current_state = MOVE_STRAIGHT;
 state last_state = STOP;
+
+uint32_t last_commitment_switch = 0;
 
 // sample variables
 const uint32_t SAMPLE_TICKS = 32;  // TODO change back to 32 or 160
@@ -311,6 +313,8 @@ void update_commitment() {
             // set new commitment
             robot_commitment = discovered_option;
             robot_commitment_quality = discovered_quality;
+            // set last commitment update
+            last_commitment_switch = kilo_ticks;
 //            printf("[%d] ind: %d %f \n ", kilo_uid, robot_commitment, robot_commitment_quality);
         }else if(social){
             // case the robot got recruited back
@@ -335,6 +339,8 @@ void update_commitment() {
             op_to_sample = received_option;
             sample_op_counter = 0;
             sample_counter = 0;
+            // set last commitment update
+//            last_commitment_switch = kilo_ticks;
         }
         new_robot_msg = false;
         discovered = false;
@@ -343,8 +349,29 @@ void update_commitment() {
 
 
 void update_communication_range(){
-    // TODO IMPLEMENT
-    //communication_range = 4;
+    // here we implement different adaptive communication ranges
+//    uint32_t tmp_communication_range;
+//
+//    // different update rules
+//    // exponential increase
+////    tmp_communication_range = (uint32_t) exp( (double)(kilo_ticks - last_commitment_switch) / 4925 );  // 2462
+//    // exponential decrease
+////    tmp_communication_range = (uint32_t) 45 * exp( -((double)((kilo_ticks+1) - last_commitment_switch) / 2462.0));
+//    // linear increase
+////    tmp_communication_range = (uint32_t) 45 * ( (double)(kilo_ticks - last_commitment_switch) / 18750);  //9375
+//    // linear decrease
+////    tmp_communication_range = (uint32_t) 45 * (1 - (kilo_ticks - last_commitment_switch) / 9375);
+//
+//    // check for bounds
+//    if (tmp_communication_range > 45) {
+//        tmp_communication_range = 45;
+////        last_commitment_switch = kilo_ticks;
+//    } else if (tmp_communication_range < 1) {
+//        tmp_communication_range = 1;
+//    }
+
+//    communication_range = tmp_communication_range;
+//    debug_info_set(com_range, communication_range);
 }
 
 
@@ -631,27 +658,7 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         // 1 -> start at option one
         // else start 50/50/50/50
         if (robot_commitment != 1){
-            switch(NUMBER_OF_OPTIONS){
-                case 3:
-                    if (kilo_uid < 25) robot_commitment = 2;
-                    else robot_commitment = 3;
-                    break;
-                case 4:
-                    if (kilo_uid < 16) robot_commitment = 2;
-                    else if (kilo_uid < 32+1) robot_commitment = 3; // this is one more
-                    else robot_commitment = 4; // this is one more bc mod(50,3) != 0
-                    break;
-                case 5:
-                    if (kilo_uid < 13) robot_commitment = 2;  // this is one more
-                    else if (kilo_uid < 26) robot_commitment = 3; // this is one more bc mod(50,3) != 0
-                    else if (kilo_uid < 38) robot_commitment = 4;
-                    else robot_commitment = 5;
-                    break;
-                default:
-                    printf("[%d] ERROR: error in initial commitment - robot starts with commitment 1 \n", kilo_uid);
-                    robot_commitment = 1;
-                    break;
-            }
+            robot_commitment = (kilo_uid % (NUMBER_OF_OPTIONS-1)) + 2;
         }
         current_ground = msg->data[5];
         op_to_sample = current_ground;
@@ -805,7 +812,7 @@ void loop() {
                 set_color(RGB(0,0,0));
                 break;
             default:
-                printf("[%d] ERROR - wrong state %d \n", kilo_uid, robot_commitment);
+                //printf("[%d] ERROR - wrong state %d \n", kilo_uid, robot_commitment);
                 set_color(RGB(3,3,3));
                 break;
         }

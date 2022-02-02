@@ -136,21 +136,21 @@ void CKilogrid::PreStep(){
 void CKilogrid::PostStep(){
     // Save experiment data to the specified log file
     // check if quorum is reached
-//    int inactive_robots = 0;
+    //int c_range = 0;
     std::fill(logg_commitment_state.begin(), logg_commitment_state.end(), 0);
     for(unsigned int i=0;i< kilobot_entities.size();i++){
         logg_commitment_state[((unsigned int) debug_info_kilobots[i]->commitement)]++;
-//        if (debug_info_kilobots[i]->inactive){
-//            inactive_robots++;
-//        }
+        //c_range +=  (unsigned int) debug_info_kilobots[i]->com_range;
+//        printf("%d ", (unsigned int) debug_info_kilobots[i]->com_range);
     }
-
+//    printf("\n");
     // if quroum reached, time to write something down, max time passed
     if( (data_saving_counter%DATA_SAVING_FREQUENCY == 0) || (GetSpace().GetSimulationClock() >= GetSimulator().GetMaxSimulationClock()) ){
         output_logg << GetSpace().GetSimulationClock();
         for(unsigned int i=0;i< logg_commitment_state.size();i++){
             output_logg << ";" << logg_commitment_state[i];
         }
+        //output_logg<< ";" << (c_range/50);  // for logging the avg communication range
         output_logg<< std::endl;
     }
 
