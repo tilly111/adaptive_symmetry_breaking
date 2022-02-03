@@ -351,6 +351,8 @@ void update_commitment() {
 void update_communication_range(){
     // here we implement different adaptive communication ranges
     uint32_t tmp_communication_range;
+    uint32_t threshold_1 = 7500;
+    uint32_t threshold_2 = 2 * threshold_1;
 
     // different update rules
     // exponential increase
@@ -363,11 +365,11 @@ void update_communication_range(){
 //    tmp_communication_range = (uint32_t) 45 * (1 - (kilo_ticks - last_commitment_switch) / 9375);
     // on of
     tmp_communication_range = communication_range;
-    if (kilo_ticks - last_commitment_switch > 7500) {
-        // change
-//        last_commitment_switch = kilo_ticks;
-//        if (tmp_communication_range == 1) tmp_communication_range = 45;
-//        else tmp_communication_range = 1;
+    if (kilo_ticks - last_commitment_switch < threshold_1) {
+        tmp_communication_range = 1;
+    }else if(kilo_ticks - last_commitment_switch < threshold_2 ){
+        tmp_communication_range = (int)(44.0/((double)(threshold_2-threshold_1)) * (double)kilo_ticks) - 43;
+    }else {
         tmp_communication_range = 45;
     }
 
