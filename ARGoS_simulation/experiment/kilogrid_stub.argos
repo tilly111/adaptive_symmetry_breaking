@@ -44,7 +44,7 @@
     label="kilogrid_loop_functions">
 
     <variables
-        config_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/ASB_experiment_4.kconf"
+        config_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/ASB_experiment_5.kconf"
         data_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/options_2_test.txt"
         initial_commitment="1"
         number_of_options="2"

@@ -24,7 +24,7 @@ else
     # parameters to choose
     INITIAL_COMMITMENT=1 # initial commitment of the robots
 
-    conf=ASB_experiment_4.kconf
+    conf=ASB_experiment_5.kconf
     n=2
     if ((${tmp_counter} == 0)); then
         com_range_counter=1
@@ -41,7 +41,7 @@ else
     fi
 
     INITIAL_COMMUNICATION_RANGE=${com_range_counter}
-    EXP_NAME=experiment_cl_acclimatisation_2_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
+    EXP_NAME=experiment_cl_acclimatisation_3_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots
