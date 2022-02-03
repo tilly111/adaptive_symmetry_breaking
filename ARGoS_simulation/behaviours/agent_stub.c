@@ -314,7 +314,7 @@ void update_commitment() {
             robot_commitment = discovered_option;
             robot_commitment_quality = discovered_quality;
             // set last commitment update
-            last_commitment_switch = kilo_ticks;
+//            last_commitment_switch = kilo_ticks;
 //            printf("[%d] ind: %d %f \n ", kilo_uid, robot_commitment, robot_commitment_quality);
         }else if(social){
             // case the robot got recruited back
@@ -350,28 +350,37 @@ void update_commitment() {
 
 void update_communication_range(){
     // here we implement different adaptive communication ranges
-//    uint32_t tmp_communication_range;
-//
-//    // different update rules
-//    // exponential increase
-////    tmp_communication_range = (uint32_t) exp( (double)(kilo_ticks - last_commitment_switch) / 4925 );  // 2462
-//    // exponential decrease
-////    tmp_communication_range = (uint32_t) 45 * exp( -((double)((kilo_ticks+1) - last_commitment_switch) / 2462.0));
-//    // linear increase
-////    tmp_communication_range = (uint32_t) 45 * ( (double)(kilo_ticks - last_commitment_switch) / 18750);  //9375
-//    // linear decrease
-////    tmp_communication_range = (uint32_t) 45 * (1 - (kilo_ticks - last_commitment_switch) / 9375);
-//
-//    // check for bounds
-//    if (tmp_communication_range > 45) {
-//        tmp_communication_range = 45;
-////        last_commitment_switch = kilo_ticks;
-//    } else if (tmp_communication_range < 1) {
-//        tmp_communication_range = 1;
-//    }
+    uint32_t tmp_communication_range;
 
-//    communication_range = tmp_communication_range;
-//    debug_info_set(com_range, communication_range);
+    // different update rules
+    // exponential increase
+//    tmp_communication_range = (uint32_t) exp( (double)(kilo_ticks - last_commitment_switch) / 4925 );  // 2462
+    // exponential decrease
+//    tmp_communication_range = (uint32_t) 45 * exp( -((double)((kilo_ticks+1) - last_commitment_switch) / 2462.0));
+    // linear increase
+//    tmp_communication_range = (uint32_t) 45 * ( (double)(kilo_ticks - last_commitment_switch) / 18750);  //9375
+    // linear decrease
+//    tmp_communication_range = (uint32_t) 45 * (1 - (kilo_ticks - last_commitment_switch) / 9375);
+    // on of
+    tmp_communication_range = communication_range;
+    if (kilo_ticks - last_commitment_switch > 7500) {
+        // change
+//        last_commitment_switch = kilo_ticks;
+//        if (tmp_communication_range == 1) tmp_communication_range = 45;
+//        else tmp_communication_range = 1;
+        tmp_communication_range = 45;
+    }
+
+    // check for bounds
+    if (tmp_communication_range > 45) {
+        tmp_communication_range = 45;
+//        last_commitment_switch = kilo_ticks;
+    } else if (tmp_communication_range < 1) {
+        tmp_communication_range = 1;
+    }
+
+    communication_range = tmp_communication_range;
+    debug_info_set(com_range, communication_range);
 }
 
 

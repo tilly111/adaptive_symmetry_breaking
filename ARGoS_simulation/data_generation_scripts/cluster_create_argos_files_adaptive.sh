@@ -3,17 +3,12 @@
 ###################################
 # Synopsis of the script
 ###################################
-#how to init the robot
-#1 -> start at option one
-#else start 50/50/50/50
-
-
 EXPECTED_ARGS=2
 if [ $# -lt ${EXPECTED_ARGS} ]; then
   echo "This script creates N argos files for the cluster!"
   echo "Usage $0 <start> <end> "
   echo $'\t'"[MANDATORY] <start> number of the first experiment"
-  echo $'\t'"[MANDATORY] <end> number of the last experiment (first + 4 for a parameter set)"
+  echo $'\t'"[MANDATORY] <end> number of the last experiment ()"
   exit
 
 else
@@ -22,26 +17,13 @@ else
 
   for j in $(seq ${1} ${2}); do
     # parameters to choose
-    INITIAL_COMMITMENT=2 # initial commitment of the robots
+    INITIAL_COMMITMENT=1 # initial commitment of the robots
 
-    conf=ASB_experiment_10.kconf
-    n=10
-    if ((${tmp_counter} == 0)); then
-        com_range_counter=1
-      elif ((${tmp_counter} == 1)); then
-        com_range_counter=2
-      elif ((${tmp_counter} == 2)); then
-        com_range_counter=5
-      elif ((${tmp_counter} == 3)); then
-        com_range_counter=10
-      elif ((${tmp_counter} == 4)); then
-        com_range_counter=20
-      elif ((${tmp_counter} == 5)); then
-        com_range_counter=45
-    fi
+    conf=ASB_experiment_1.kconf
+    n=3
 
-    INITIAL_COMMUNICATION_RANGE=${com_range_counter}
-    EXP_NAME=experiment_cl_symmetry_breaking_10_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
+    INITIAL_COMMUNICATION_RANGE=1
+    EXP_NAME=experiment_cl_adaptive_com_range_01_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots
