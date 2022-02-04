@@ -136,15 +136,21 @@ void CKilogrid::PreStep(){
 void CKilogrid::PostStep(){
     // Save experiment data to the specified log file
     // check if quorum is reached
+    bool wrong_init = false;
 //    int c_range = 0;
     std::fill(logg_commitment_state.begin(), logg_commitment_state.end(), 0);
     for(unsigned int i=0;i< kilobot_entities.size();i++){
-        logg_commitment_state[((unsigned int) debug_info_kilobots[i]->commitement)]++;
-//        c_range +=  (unsigned int) debug_info_kilobots[i]->com_range;
-//        printf("%d ", (unsigned int) debug_info_kilobots[i]->com_range);
+        if (((unsigned int) debug_info_kilobots[i]->commitement) == 20){
+            wrong_init = true;
+            break;
+        }else{
+            logg_commitment_state[((unsigned int) debug_info_kilobots[i]->commitement)]++;
+//            c_range +=  (unsigned int) debug_info_kilobots[i]->com_range;
+//            printf("%d ", (unsigned int) debug_info_kilobots[i]->com_range);
+        }
     }
 //    printf("\n");
-    // if quroum reached, time to write something down, max time passed
+    // time to write something down, max time passed
     if( (data_saving_counter%DATA_SAVING_FREQUENCY == 0) || (GetSpace().GetSimulationClock() >= GetSimulator().GetMaxSimulationClock()) ){
         output_logg << GetSpace().GetSimulationClock();
         for(unsigned int i=0;i< logg_commitment_state.size();i++){
@@ -155,7 +161,7 @@ void CKilogrid::PostStep(){
     }
 
     // reset init flag if not every robot is inited -> robots cannot get uncommitted
-    if (logg_commitment_state[0] > 0) {
+    if (wrong_init) {
         printf("[LOOPFUNCTION] not all robots are inited; repeat... \n");
         GetSimulator().Reset();
         for (int x_it = 0; x_it < 10; x_it++) {

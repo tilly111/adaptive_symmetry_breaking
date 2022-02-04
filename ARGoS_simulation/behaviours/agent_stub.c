@@ -40,6 +40,7 @@
 #define PI 3.14159265358979323846
 // options
 #define UNCOMMITTED 0
+#define UNINITIALISED 20
 // message types
 
 
@@ -94,10 +95,10 @@ uint8_t goal_gps_y = 0;
 int32_t robot_orientation;
 bool calculated_orientation = false;
 
-uint8_t robot_commitment = 0;  // This is the initial commitment
+uint8_t robot_commitment = UNINITIALISED;
 float robot_commitment_quality = 0.0;
 
-uint8_t last_robot_commitment = 0;
+uint8_t last_robot_commitment = UNINITIALISED;
 float last_robot_commitment_quality = 0.0;
 
 uint8_t communication_range = 0;  // communication range in cells
@@ -112,6 +113,8 @@ state current_state = MOVE_STRAIGHT;
 state last_state = STOP;
 
 uint32_t last_commitment_switch = 0;
+bool init_commitment_switch = false;
+uint8_t  step_size = 1;
 
 // sample variables
 const uint32_t SAMPLE_TICKS = 32;  // TODO change back to 32 or 160
@@ -262,6 +265,7 @@ void update_commitment() {
 
         double quality;
         bool social = false;
+        bool recruitment = false;
         bool individual = false;
 
         // we can decide on the quality if the robot sampled enough
@@ -272,7 +276,7 @@ void update_commitment() {
         }
         unsigned int P_qualityInt = (unsigned int) (quality * range_rnd) + 1;
 
-        // robot is uncommitted - it can do discovery or recruitment.
+        /// robot is uncommitted - it can do discovery or recruitment.
         if(robot_commitment == UNCOMMITTED){
             // DISCOVERY: with prob quality switch new option
             if(quality > 0 && random <= P_qualityInt){
@@ -281,8 +285,9 @@ void update_commitment() {
             // RECRUITMENT: in message we trust -> always true bc robot is uncommitted
             if(new_robot_msg && received_option != UNCOMMITTED){
                 social = true;
+                recruitment = true;
             }
-        }else{  // robot is committed
+        }else{  /// robot is committed
             // if current sampled option is better than current committed one switch
             // COMPARE
             //printf("quality %f discovered option %d \n", quality, discovered_option);
@@ -314,33 +319,51 @@ void update_commitment() {
             robot_commitment = discovered_option;
             robot_commitment_quality = discovered_quality;
             // set last commitment update
-//            last_commitment_switch = kilo_ticks;
+            last_commitment_switch = kilo_ticks;
+            init_commitment_switch = true;
+//            step_size = (int)(20.0*(robot_commitment_quality/(last_robot_commitment_quality + robot_commitment_quality))); // this should be between 1 and 0.5
 //            printf("[%d] ind: %d %f \n ", kilo_uid, robot_commitment, robot_commitment_quality);
         }else if(social){
-            // case the robot got recruited back
+            /// case the robot got recruited back
             if(last_robot_commitment == received_option){
+                // setting last robot commitment if it was not uncommited
+                if (robot_commitment != UNCOMMITTED) {
+                    last_robot_commitment = robot_commitment;
+                    float tmp_quality = last_robot_commitment_quality;
+                    last_robot_commitment_quality = robot_commitment_quality;
+                    /// setting current commitment
+                    robot_commitment = received_option;
+                    robot_commitment_quality = tmp_quality;  // can directly broadcast bc we have quality estimate
+                    op_to_sample = received_option;
+                }else {  // if current opinion uncommitted -> dont save it
+                    robot_commitment = received_option;
+                    robot_commitment_quality = last_robot_commitment_quality;
+                    op_to_sample = received_option;
+                }
+            }else{  /// robot got new commitment
                 // setting last robot commitment
-                last_robot_commitment = robot_commitment;
-                float tmp_quality = last_robot_commitment_quality;
-                last_robot_commitment_quality = robot_commitment_quality;
-                // setting current commitment
-                robot_commitment = received_option;
-                robot_commitment_quality = tmp_quality;  // can directly broadcast bc we have quality estimate
-            }else{  // robot got new commitment
-                //setting last robot commitment
-                last_robot_commitment = robot_commitment;
-                last_robot_commitment_quality = robot_commitment_quality;
+                if (robot_commitment != UNCOMMITTED) {
+                    last_robot_commitment = robot_commitment;
+                    last_robot_commitment_quality = robot_commitment_quality;
+                }
+                if (recruitment){
+                    /// direct switch - applies when the robot is uncommitted and gets a different option
+                    robot_commitment = received_option;
+                    robot_commitment_quality = 0; // thus we first sample and then broadcast
+                    op_to_sample = received_option;
 
-                // discovered a new option where we do not know the quality
-                robot_commitment = received_option;
-                robot_commitment_quality = 0; // thus we first sample and then broadcast
+                }else {
+                    /// cross inhibition - applies when committed and getting a different opinion
+                    robot_commitment = UNCOMMITTED;
+                    robot_commitment_quality = 0;
+                    op_to_sample = current_ground;
+                }
             }
             // reset sampling to make a new estiamte on current commitment
-            op_to_sample = received_option;
             sample_op_counter = 0;
             sample_counter = 0;
             // set last commitment update
-//            last_commitment_switch = kilo_ticks;
+            init_commitment_switch= false;
         }
         new_robot_msg = false;
         discovered = false;
@@ -354,23 +377,39 @@ void update_communication_range(){
     uint32_t threshold_1 = 7500;
     uint32_t threshold_2 = 2 * threshold_1;
 
-    // different update rules
-    // exponential increase
-//    tmp_communication_range = (uint32_t) exp( (double)(kilo_ticks - last_commitment_switch) / 4925 );  // 2462
-    // exponential decrease
-//    tmp_communication_range = (uint32_t) 45 * exp( -((double)((kilo_ticks+1) - last_commitment_switch) / 2462.0));
-    // linear increase
-//    tmp_communication_range = (uint32_t) 45 * ( (double)(kilo_ticks - last_commitment_switch) / 18750);  //9375
-    // linear decrease
-//    tmp_communication_range = (uint32_t) 45 * (1 - (kilo_ticks - last_commitment_switch) / 9375);
-    // on of
     tmp_communication_range = communication_range;
-    if (kilo_ticks - last_commitment_switch < threshold_1) {
-        tmp_communication_range = 1;
-    }else if(kilo_ticks - last_commitment_switch < threshold_2 ){
-        tmp_communication_range = (int)(44.0/((double)(threshold_2-threshold_1)) * (double)kilo_ticks) - 43;
+
+    /// different update rules
+    /// exponential increase
+//    tmp_communication_range = (uint32_t) exp( (double)(kilo_ticks - last_commitment_switch) / 4925 );  // 2462
+    /// exponential decrease
+//    tmp_communication_range = (uint32_t) 45 * exp( -((double)((kilo_ticks+1) - last_commitment_switch) / 2462.0));
+    /// linear increase
+//    tmp_communication_range = (uint32_t) 45 * ( (double)(kilo_ticks - last_commitment_switch) / 18750);  //9375
+    /// linear decrease
+//    tmp_communication_range = (uint32_t) 45 * (1 - (kilo_ticks - last_commitment_switch) / 9375);
+    /// on of basically step
+//    if (kilo_ticks - last_commitment_switch < threshold_1) {
+//        tmp_communication_range = 1;
+//    }else if(kilo_ticks - last_commitment_switch < threshold_2 ){
+//        tmp_communication_range = (int)(44.0/((double)(threshold_2-threshold_1)) * (double)kilo_ticks) - 43;
+//    }else {
+//        tmp_communication_range = 45;
+//    }
+    /// adaptive by changing its opinion - step
+//    if (kilo_ticks - last_commitment_switch < threshold_1 && init_commitment_switch) {
+//        tmp_communication_range = 45;
+//    }else {
+//        tmp_communication_range = 1;
+//    }
+
+    /// adaptive by changing its opinion - linear decrease
+    if (kilo_ticks - last_commitment_switch < threshold_1 && init_commitment_switch) {
+        tmp_communication_range = 10;
+    }else if (kilo_ticks - last_commitment_switch < threshold_2 && init_commitment_switch){
+        tmp_communication_range = (int)(9.0/((double)(threshold_2-threshold_1)) * (double)kilo_ticks) - 8;
     }else {
-        tmp_communication_range = 45;
+        tmp_communication_range = 1;
     }
 
     // check for bounds

@@ -23,7 +23,7 @@ else
     n=3
 
     INITIAL_COMMUNICATION_RANGE=1
-    EXP_NAME=experiment_cl_adaptive_com_range_02_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
+    EXP_NAME=experiment_cl_adaptive_com_range_03_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots
