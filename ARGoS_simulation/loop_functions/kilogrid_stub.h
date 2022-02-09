@@ -206,6 +206,7 @@ private:
     uint8_t initial_commitment = 1;
     uint8_t number_of_options = 3;
     uint8_t initial_communication_range;
+    uint8_t max_communication_range;
     // this data structure is used to save the init data
     std::vector<uint8_t> configuration[10][20];
 

@@ -52,9 +52,13 @@
 #define MAX_WAYPOINT_TIME 3600
 #define ROTATION_SPEED 38
 
+// parameters
 #define SAMPLE_COUNTER_MAX 30
 #define UPDATE_TICKS 60
 #define BROADCAST_TICKS 15
+//#define MAX_COMMUNICATION_RANGE 45  // should be 2 <= com range <= 45
+#define MIN_COMMUNICATION_RANGE 1  // should be smaller max com range
+#define COMMUNICATION_THRESHOLD_TIMER 7500 // in ticks
 #define PARAM 0.0
 
 // flags
@@ -102,6 +106,7 @@ uint8_t last_robot_commitment = UNINITIALISED;
 float last_robot_commitment_quality = 0.0;
 
 uint8_t communication_range = 0;  // communication range in cells
+uint8_t max_communication_range = 0;  // for dynamic setting
 
 uint8_t received_option = 0;
 
@@ -374,8 +379,8 @@ void update_commitment() {
 void update_communication_range(){
     // here we implement different adaptive communication ranges
     uint32_t tmp_communication_range;
-    uint32_t threshold_1 = 7500;
-    uint32_t threshold_2 = 2 * threshold_1;
+    uint32_t threshold_1 = COMMUNICATION_THRESHOLD_TIMER;
+    uint32_t threshold_2 = 2 * threshold_1;  // TODO do we need to make this dynamic as well
 
     tmp_communication_range = communication_range;
 
@@ -405,23 +410,21 @@ void update_communication_range(){
 
     /// adaptive by changing its opinion - linear decrease
     if (kilo_ticks - last_commitment_switch < threshold_1 && init_commitment_switch) {
-        tmp_communication_range = 10;
+        tmp_communication_range = max_communication_range;
     }else if (kilo_ticks - last_commitment_switch < threshold_2 && init_commitment_switch){
-        tmp_communication_range = (int)(9.0/((double)(threshold_2-threshold_1)) * (double)kilo_ticks) - 8;
+        tmp_communication_range = max_communication_range - (int)((double)(max_communication_range - MIN_COMMUNICATION_RANGE)/(double)(threshold_2 - threshold_1)*((kilo_ticks - last_commitment_switch)-threshold_1));
     }else {
-        tmp_communication_range = 1;
+        tmp_communication_range = MIN_COMMUNICATION_RANGE;
     }
 
     // check for bounds
     if (tmp_communication_range > 45) {
         tmp_communication_range = 45;
-//        last_commitment_switch = kilo_ticks;
     } else if (tmp_communication_range < 1) {
         tmp_communication_range = 1;
     }
 
     communication_range = tmp_communication_range;
-    debug_info_set(com_range, communication_range);
 }
 
 
@@ -713,6 +716,7 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         current_ground = msg->data[5];
         op_to_sample = current_ground;
         communication_range = msg->data[6];
+        max_communication_range = msg->data[7];
         init_flag = true;
     }else if(msg->type == GRID_MSG && init_flag){
         received_x = msg->data[0];
@@ -885,6 +889,7 @@ void loop() {
     }else{
         debug_info_set(inactive, 0);
     }
+    debug_info_set(com_range, communication_range);
 
     // debug prints
 //    if(kilo_uid == 0){

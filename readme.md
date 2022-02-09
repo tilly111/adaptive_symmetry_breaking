@@ -176,11 +176,11 @@ argos3 -v
 ```
 
 ### Kilobot-Plugin
-First you have to source and load modules, if not already done 
+First you have to source (source where the file is located) and load modules, if not already done 
 
 ```
 module load cmake
-source set_argos_env
+source set_argos_env.sh
 ```
 
 Now we can download the plugin.

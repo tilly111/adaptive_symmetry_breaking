@@ -207,6 +207,8 @@ void CKilogrid::read_configuration(TConfigurationNode& t_node){
     GetNodeAttribute(tExperimentVariablesNode, "initial_commitment", initial_commitment);
     GetNodeAttribute(tExperimentVariablesNode, "number_of_options", number_of_options);
     GetNodeAttribute(tExperimentVariablesNode, "initial_communication_range", initial_communication_range);
+    GetNodeAttribute(tExperimentVariablesNode, "max_communication_range", max_communication_range);
+
 
     // variables used for reading
     int tmp_x_module;
@@ -562,6 +564,7 @@ void CKilogrid::loop(int x, int y){
             module_memory[x][y].ir_message_tx->data[4] = number_of_options;
             module_memory[x][y].ir_message_tx->data[5] = module_memory[x][y].cell_colour[f];  // tested cast to unit_8 not needed
             module_memory[x][y].ir_message_tx->data[6] = initial_communication_range;
+            module_memory[x][y].ir_message_tx->data[7] = max_communication_range;
 
             set_IR_message(x, y, *module_memory[x][y].ir_message_tx, cell_id[f]);
         }

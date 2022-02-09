@@ -49,6 +49,7 @@
         initial_commitment="initialcommitment"
         number_of_options="numberofoptions"
         initial_communication_range="initialcommunicationrange"
+        max_communication_range="maxcommunicationrange"
     />
 
 </loop_functions>

@@ -13,7 +13,6 @@ if [ $# -lt ${EXPECTED_ARGS} ]; then
 
 else
   tmp_counter=0
-  com_range_counter=1
 
   for j in $(seq ${1} ${2}); do
     # parameters to choose
@@ -23,7 +22,30 @@ else
     n=3
 
     INITIAL_COMMUNICATION_RANGE=1
-    EXP_NAME=experiment_cl_adaptive_com_range_03_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
+
+    MAX_COMMUNICATION_RANGE=2
+    if ((${tmp_counter} == 0)); then
+      MAX_COMMUNICATION_RANGE=5
+    elif ((${tmp_counter} == 1)); then
+      MAX_COMMUNICATION_RANGE=6
+    elif ((${tmp_counter} == 2)); then
+      MAX_COMMUNICATION_RANGE=7
+    elif ((${tmp_counter} == 3)); then
+      MAX_COMMUNICATION_RANGE=8
+    elif ((${tmp_counter} == 4)); then
+      MAX_COMMUNICATION_RANGE=10
+    elif ((${tmp_counter} == 5)); then
+      MAX_COMMUNICATION_RANGE=15
+    elif ((${tmp_counter} == 6)); then
+      MAX_COMMUNICATION_RANGE=20
+    elif ((${tmp_counter} == 7)); then
+      MAX_COMMUNICATION_RANGE=30
+    elif ((${tmp_counter} == 8)); then
+      MAX_COMMUNICATION_RANGE=45
+  fi
+
+
+    EXP_NAME=experiment_cl_adaptive_com_range_03_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_to_${MAX_COMMUNICATION_RANGE}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots
@@ -74,6 +96,7 @@ else
         -e "s|initialcommitment|${INITIAL_COMMITMENT}|" \
         -e "s|numberofoptions|${n}|" \
         -e "s|initialcommunicationrange|${INITIAL_COMMUNICATION_RANGE}|" \
+        -e "s|maxcommunicationrange|${MAX_COMMUNICATION_RANGE}|" \
         ${EXP_TEMPLATE_SRC} >${EXP_FILE}
 
       sed -e "s|jobname|${JOB_NAME}|" \
