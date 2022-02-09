@@ -58,7 +58,7 @@
 #define BROADCAST_TICKS 15
 //#define MAX_COMMUNICATION_RANGE 45  // should be 2 <= com range <= 45
 #define MIN_COMMUNICATION_RANGE 1  // should be smaller max com range
-#define COMMUNICATION_THRESHOLD_TIMER 7500 // in ticks
+#define COMMUNICATION_THRESHOLD_TIMER 11250 // in ticks
 #define PARAM 0.0
 
 // flags

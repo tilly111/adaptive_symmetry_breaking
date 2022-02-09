@@ -27,19 +27,19 @@ else
     if ((${tmp_counter} == 0)); then
       MAX_COMMUNICATION_RANGE=5
     elif ((${tmp_counter} == 1)); then
-      MAX_COMMUNICATION_RANGE=6
-    elif ((${tmp_counter} == 2)); then
-      MAX_COMMUNICATION_RANGE=7
-    elif ((${tmp_counter} == 3)); then
-      MAX_COMMUNICATION_RANGE=8
-    elif ((${tmp_counter} == 4)); then
       MAX_COMMUNICATION_RANGE=10
-    elif ((${tmp_counter} == 5)); then
+    elif ((${tmp_counter} == 2)); then
       MAX_COMMUNICATION_RANGE=15
-    elif ((${tmp_counter} == 6)); then
+    elif ((${tmp_counter} == 3)); then
       MAX_COMMUNICATION_RANGE=20
-    elif ((${tmp_counter} == 7)); then
+    elif ((${tmp_counter} == 4)); then
+      MAX_COMMUNICATION_RANGE=25
+    elif ((${tmp_counter} == 5)); then
       MAX_COMMUNICATION_RANGE=30
+    elif ((${tmp_counter} == 6)); then
+      MAX_COMMUNICATION_RANGE=35
+    elif ((${tmp_counter} == 7)); then
+      MAX_COMMUNICATION_RANGE=40
     elif ((${tmp_counter} == 8)); then
       MAX_COMMUNICATION_RANGE=45
   fi
