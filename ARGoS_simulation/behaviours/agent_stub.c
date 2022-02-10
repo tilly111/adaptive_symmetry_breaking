@@ -354,18 +354,18 @@ void update_commitment() {
                     last_robot_commitment = robot_commitment;
                     last_robot_commitment_quality = robot_commitment_quality;
                 }
-                //if (recruitment){
+                if (recruitment){
                     /// direct switch - applies when the robot is uncommitted and gets a different option
                     robot_commitment = received_option;
                     robot_commitment_quality = 0; // thus we first sample and then broadcast
                     op_to_sample = received_option;
 
-//                }else {
-//                    /// cross inhibition - applies when committed and getting a different opinion
-//                    robot_commitment = UNCOMMITTED;
-//                    robot_commitment_quality = 0;
-//                    op_to_sample = current_ground;
-//                }
+                }else {
+                    /// cross inhibition - applies when committed and getting a different opinion
+                    robot_commitment = UNCOMMITTED;
+                    robot_commitment_quality = 0;
+                    op_to_sample = current_ground;
+                }
             }
             // reset sampling to make a new estiamte on current commitment
             sample_op_counter = 0;
@@ -405,20 +405,20 @@ void update_communication_range(){
 //        tmp_communication_range = 45;
 //    }
     /// adaptive by changing its opinion - step
-//    if (kilo_ticks - last_commitment_switch < threshold_1 && init_commitment_switch) {
-//        tmp_communication_range = 45;
-//    }else {
-//        tmp_communication_range = 1;
-//    }
+    if (kilo_ticks - last_commitment_switch < threshold_1 && init_commitment_switch) {
+        tmp_communication_range = 45;
+    }else {
+        tmp_communication_range = 1;
+    }
 
     /// adaptive by changing its opinion - linear decrease
-    if (kilo_ticks - last_commitment_switch < threshold_1 && init_commitment_switch) {
-        tmp_communication_range = max_communication_range;
-    }else if (kilo_ticks - last_commitment_switch < threshold_2 && init_commitment_switch){
-        tmp_communication_range = max_communication_range - (int)((double)(max_communication_range - MIN_COMMUNICATION_RANGE)/(double)(threshold_2 - threshold_1)*((kilo_ticks - last_commitment_switch)-threshold_1));
-    }else {
-        tmp_communication_range = MIN_COMMUNICATION_RANGE;
-    }
+//    if (kilo_ticks - last_commitment_switch < threshold_1 && init_commitment_switch) {
+//        tmp_communication_range = max_communication_range;
+//    }else if (kilo_ticks - last_commitment_switch < threshold_2 && init_commitment_switch){
+//        tmp_communication_range = max_communication_range - (int)((double)(max_communication_range - MIN_COMMUNICATION_RANGE)/(double)(threshold_2 - threshold_1)*((kilo_ticks - last_commitment_switch)-threshold_1));
+//    }else {
+//        tmp_communication_range = MIN_COMMUNICATION_RANGE;
+//    }
 
     // check for bounds
     if (tmp_communication_range > 45) {
