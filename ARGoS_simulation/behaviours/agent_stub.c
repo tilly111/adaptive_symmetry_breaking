@@ -318,8 +318,11 @@ void update_commitment() {
         // do the switch
         if(individual){
             // update last robot commitment
-            last_robot_commitment = robot_commitment;
-            last_robot_commitment_quality = robot_commitment_quality;
+            // TODO CHECK IF THIS MAKES A DIFFERENCE
+            if (robot_commitment != UNCOMMITTED) {  // probably not needed bc received option is never uncommitted
+                last_robot_commitment = robot_commitment;
+                last_robot_commitment_quality = robot_commitment_quality;
+            }
             // set new commitment
             robot_commitment = discovered_option;
             robot_commitment_quality = discovered_quality;
@@ -351,18 +354,18 @@ void update_commitment() {
                     last_robot_commitment = robot_commitment;
                     last_robot_commitment_quality = robot_commitment_quality;
                 }
-                if (recruitment){
+                //if (recruitment){
                     /// direct switch - applies when the robot is uncommitted and gets a different option
                     robot_commitment = received_option;
                     robot_commitment_quality = 0; // thus we first sample and then broadcast
                     op_to_sample = received_option;
 
-                }else {
-                    /// cross inhibition - applies when committed and getting a different opinion
-                    robot_commitment = UNCOMMITTED;
-                    robot_commitment_quality = 0;
-                    op_to_sample = current_ground;
-                }
+//                }else {
+//                    /// cross inhibition - applies when committed and getting a different opinion
+//                    robot_commitment = UNCOMMITTED;
+//                    robot_commitment_quality = 0;
+//                    op_to_sample = current_ground;
+//                }
             }
             // reset sampling to make a new estiamte on current commitment
             sample_op_counter = 0;
