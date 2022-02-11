@@ -27,9 +27,9 @@ else
     conf=ASB_experiment_10.kconf
     n=10
     if ((${tmp_counter} == 0)); then
-        com_range_counter=1
+        com_range_counter=3
       elif ((${tmp_counter} == 1)); then
-        com_range_counter=2
+        com_range_counter=4
       elif ((${tmp_counter} == 2)); then
         com_range_counter=5
       elif ((${tmp_counter} == 3)); then
@@ -41,6 +41,7 @@ else
     fi
 
     INITIAL_COMMUNICATION_RANGE=${com_range_counter}
+    MAX_COMMUNICATION_RANGE=100  # not needed
     EXP_NAME=experiment_cl_symmetry_breaking_10_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
@@ -92,6 +93,7 @@ else
         -e "s|initialcommitment|${INITIAL_COMMITMENT}|" \
         -e "s|numberofoptions|${n}|" \
         -e "s|initialcommunicationrange|${INITIAL_COMMUNICATION_RANGE}|" \
+        -e "s|maxcommunicationrange|${MAX_COMMUNICATION_RANGE}|" \
         ${EXP_TEMPLATE_SRC} >${EXP_FILE}
 
       sed -e "s|jobname|${JOB_NAME}|" \
