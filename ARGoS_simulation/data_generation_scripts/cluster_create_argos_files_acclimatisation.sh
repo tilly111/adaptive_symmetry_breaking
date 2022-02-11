@@ -41,6 +41,7 @@ else
     fi
 
     INITIAL_COMMUNICATION_RANGE=${com_range_counter}
+    MAX_COMMUNICATION_RANGE=100  # not needed
     EXP_NAME=experiment_cl_acclimatisation_4_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
@@ -92,6 +93,7 @@ else
         -e "s|initialcommitment|${INITIAL_COMMITMENT}|" \
         -e "s|numberofoptions|${n}|" \
         -e "s|initialcommunicationrange|${INITIAL_COMMUNICATION_RANGE}|" \
+        -e "s|maxcommunicationrange|${MAX_COMMUNICATION_RANGE}|" \
         ${EXP_TEMPLATE_SRC} >${EXP_FILE}
 
       sed -e "s|jobname|${JOB_NAME}|" \
