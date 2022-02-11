@@ -24,7 +24,7 @@ else
     # parameters to choose
     INITIAL_COMMITMENT=1 # initial commitment of the robots
 
-    conf=ASB_experiment_5.kconf
+    conf=ASB_experiment_4.kconf
     n=2
     if ((${tmp_counter} == 0)); then
         com_range_counter=3
