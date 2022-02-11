@@ -27,9 +27,9 @@ else
     conf=ASB_experiment_5.kconf
     n=2
     if ((${tmp_counter} == 0)); then
-        com_range_counter=1
+        com_range_counter=3
       elif ((${tmp_counter} == 1)); then
-        com_range_counter=2
+        com_range_counter=4
       elif ((${tmp_counter} == 2)); then
         com_range_counter=5
       elif ((${tmp_counter} == 3)); then
@@ -41,7 +41,7 @@ else
     fi
 
     INITIAL_COMMUNICATION_RANGE=${com_range_counter}
-    EXP_NAME=experiment_cl_acclimatisation_3_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
+    EXP_NAME=experiment_cl_acclimatisation_4_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots

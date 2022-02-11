@@ -327,8 +327,8 @@ void update_commitment() {
             robot_commitment = discovered_option;
             robot_commitment_quality = discovered_quality;
             // set last commitment update
-            last_commitment_switch = kilo_ticks;
-            init_commitment_switch = true;
+//            last_commitment_switch = kilo_ticks;
+//            init_commitment_switch = true;
 //            step_size = (int)(20.0*(robot_commitment_quality/(last_robot_commitment_quality + robot_commitment_quality))); // this should be between 1 and 0.5
 //            printf("[%d] ind: %d %f \n ", kilo_uid, robot_commitment, robot_commitment_quality);
         }else if(social){
@@ -405,11 +405,11 @@ void update_communication_range(){
 //        tmp_communication_range = 45;
 //    }
     /// adaptive by changing its opinion - step
-    if (kilo_ticks - last_commitment_switch < threshold_1 && init_commitment_switch) {
-        tmp_communication_range = 45;
-    }else {
-        tmp_communication_range = 1;
-    }
+//    if (kilo_ticks - last_commitment_switch < threshold_1 && init_commitment_switch) {
+//        tmp_communication_range = 45;
+//    }else {
+//        tmp_communication_range = 1;
+//    }
 
     /// adaptive by changing its opinion - linear decrease
 //    if (kilo_ticks - last_commitment_switch < threshold_1 && init_commitment_switch) {
