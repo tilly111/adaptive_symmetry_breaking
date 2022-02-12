@@ -393,7 +393,10 @@ make -j4
 make install
 ```
 
-This should install these two components on newmajorana. 
+This should install these two components on newmajorana.
+(There can be problems with running the examples, then make sure, that you remove any if clauses in the CMakeLists.txt files related to
+OpenGL - because there is no visualisation on the cluster you do not need it - for example in the 
+examples/loopfunction/CMakeLists.txt you have to remove it.)
 
 ## Notes regarding the implementation
 Message types 

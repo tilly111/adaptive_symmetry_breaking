@@ -45,7 +45,7 @@
 
     <variables
         config_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/ASB_experiment_1.kconf"
-        data_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/step_adaptation_test_22.txt"
+        data_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/step_adaptation_test_24.txt"
         initial_commitment="1"
         number_of_options="3"
         initial_communication_range="1"

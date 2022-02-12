@@ -235,18 +235,23 @@ void sample(){
 //                if (kilo_uid == 5) printf("[%d] cur ground %d %d/%d \n", kilo_uid, current_ground, sample_op_counter, sample_counter);
                 sample_op_counter++;
             }
-        }else{
-            // sampling finished -> new sampling is set in update commitment either it is set
-            // to sample the option it received from another robot or samples based on what the
-            // robot measured last
+        }else{ // sampling finished
+            // update discovered option
             discovered_option = op_to_sample;
             discovered_quality = (float)sample_op_counter/(float)sample_counter;
-//            printf("[%d] sample %d with quality %f \n", kilo_uid, discovered_option, discovered_quality);
 
-            // set my quality to the measured quality iff its our commitment
-            discovered = true;
+            // set my quality to the measured quality if it's the robot commitment
+            // also delete the last commitment, bc the robot can only store one!
+            if (op_to_sample == robot_commitment){
+                robot_commitment_quality = discovered_quality;
+                last_robot_commitment = UNINITIALISED;
+                last_robot_commitment_quality = 0.0;
+            }else{
+                // set discovery flag if we discovered something new!
+                discovered = true;
+            }
 
-            // reset sampling ?
+            // reset sampling
             op_to_sample = current_ground;
             sample_counter = 0;
             sample_op_counter = 0;
@@ -261,6 +266,7 @@ void sample(){
 /*-----------------------------------------------------------------------------------------------*/
 void update_commitment() {
     if(kilo_ticks > last_update_ticks + update_ticks_noise){
+        // set next update
         last_update_ticks = kilo_ticks;
         update_ticks_noise = UPDATE_TICKS + GetRandomNumber(10000) % 5;
 
@@ -273,11 +279,11 @@ void update_commitment() {
         bool recruitment = false;
         bool individual = false;
 
-        // we can decide on the quality if the robot sampled enough
+        // if robot made a discovery
         if(discovered){
             quality = discovered_quality;
         }else{  // robot did not sample enough yet
-            quality = 0.0;  // if not sampled enough sampled quality is zero - basically a flag
+            quality = 0.0;
         }
         unsigned int P_qualityInt = (unsigned int) (quality * range_rnd) + 1;
 
@@ -287,19 +293,17 @@ void update_commitment() {
             if(quality > 0 && random <= P_qualityInt){
                 individual = true;
             }
-            // RECRUITMENT: in message we trust -> always true bc robot is uncommitted
+            // RECRUITMENT: recruited by other robot
             if(new_robot_msg && received_option != UNCOMMITTED){
                 social = true;
                 recruitment = true;
             }
         }else{  /// robot is committed
-            // if current sampled option is better than current committed one switch
-            // COMPARE
-            //printf("quality %f discovered option %d \n", quality, discovered_option);
+            // COMPARE: found a better option TODO maybe choose PARAM higher than 0.0 in order to improve stability
             if(quality > robot_commitment_quality + PARAM && random <= P_qualityInt){
                 individual = true;
             }
-            // DIRECT-SWITCH
+            // DIRECT-SWITCH: message with different option
             if(new_robot_msg && robot_commitment != received_option && received_option != UNCOMMITTED){
                 // only switch when you are also allowed to speak otherwise you would be just listen
                 social = true;
@@ -315,62 +319,69 @@ void update_commitment() {
                 social = true;
             }
         }
-        // do the switch
+
         if(individual){
-            // update last robot commitment
-            // TODO CHECK IF THIS MAKES A DIFFERENCE
-            if (robot_commitment != UNCOMMITTED) {  // probably not needed bc received option is never uncommitted
-                last_robot_commitment = robot_commitment;
-                last_robot_commitment_quality = robot_commitment_quality;
-            }
+            // update last robot commitment, if not uncommitted - TODO: this is fraud, the robot is
+            //  only allowed to save one quality at a time and the new quality is already set
+            //  because the robot knows it
+//            if (robot_commitment != UNCOMMITTED) {
+//                last_robot_commitment = robot_commitment;
+//                last_robot_commitment_quality = robot_commitment_quality;
+//            }
             // set new commitment
             robot_commitment = discovered_option;
             robot_commitment_quality = discovered_quality;
-            // set last commitment update
+            // set last commitment switch - needed for updating the communication range dynamically
 //            last_commitment_switch = kilo_ticks;
 //            init_commitment_switch = true;
+            // in case we want to try communication range based on how large the change is
 //            step_size = (int)(20.0*(robot_commitment_quality/(last_robot_commitment_quality + robot_commitment_quality))); // this should be between 1 and 0.5
-//            printf("[%d] ind: %d %f \n ", kilo_uid, robot_commitment, robot_commitment_quality);
         }else if(social){
             /// case the robot got recruited back
             if(last_robot_commitment == received_option){
-                // setting last robot commitment if it was not uncommited
-                if (robot_commitment != UNCOMMITTED) {
-                    last_robot_commitment = robot_commitment;
-                    float tmp_quality = last_robot_commitment_quality;
-                    last_robot_commitment_quality = robot_commitment_quality;
-                    /// setting current commitment
-                    robot_commitment = received_option;
-                    robot_commitment_quality = tmp_quality;  // can directly broadcast bc we have quality estimate
-                    op_to_sample = received_option;
-                }else {  // if current opinion uncommitted -> dont save it
-                    robot_commitment = received_option;
-                    robot_commitment_quality = last_robot_commitment_quality;
-                    op_to_sample = received_option;
-                }
+                // TODO this is also not allowed, because the robot is only allowed to have one quality
+//                if (robot_commitment != UNCOMMITTED) {
+//                    last_robot_commitment = robot_commitment;
+//                    float tmp_quality = last_robot_commitment_quality;
+//                    last_robot_commitment_quality = robot_commitment_quality;
+//                    /// setting current commitment
+//                    robot_commitment = received_option;
+//                    robot_commitment_quality = tmp_quality;  // can directly broadcast bc we have quality estimate
+//                    op_to_sample = received_option;
+//                }else {
+                /// setting current commitment - this is executed, when robot gets recruited
+                robot_commitment = received_option;
+                robot_commitment_quality = last_robot_commitment_quality;
+                op_to_sample = received_option;
+                // reset last robot commitment
+                last_robot_commitment = UNINITIALISED;
+                last_robot_commitment_quality = 0.0;
+//                }
             }else{  /// robot got new commitment
-                // setting last robot commitment
-                if (robot_commitment != UNCOMMITTED) {
-                    last_robot_commitment = robot_commitment;
-                    last_robot_commitment_quality = robot_commitment_quality;
-                }
                 if (recruitment){
                     /// direct switch - applies when the robot is uncommitted and gets a different option
                     robot_commitment = received_option;
-                    robot_commitment_quality = 0; // thus we first sample and then broadcast
+                    robot_commitment_quality = 0.0; // thus we first sample and then broadcast
                     op_to_sample = received_option;
 
                 }else {
+                    // here the robot should always be committed to something.. thus we save the last commitment of the robot till it updates
+                    if (robot_commitment != UNCOMMITTED) {
+                        last_robot_commitment = robot_commitment;
+                        last_robot_commitment_quality = robot_commitment_quality;
+                    }else{
+                        printf("[%d] ERROR: social update commitment, the robot is uncommitted when it should not be! \n", kilo_uid);
+                    }
                     /// cross inhibition - applies when committed and getting a different opinion
                     robot_commitment = UNCOMMITTED;
-                    robot_commitment_quality = 0;
+                    robot_commitment_quality = 0.0;
                     op_to_sample = current_ground;
                 }
             }
-            // reset sampling to make a new estiamte on current commitment
+            // reset sampling to make a new estimate on current commitment
             sample_op_counter = 0;
             sample_counter = 0;
-            // set last commitment update
+            // set last commitment switch - if we switch based on social information it is only second hand, thus we do not want to tell everybody
             init_commitment_switch= false;
         }
         new_robot_msg = false;

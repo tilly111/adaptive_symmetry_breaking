@@ -27,22 +27,38 @@ else
     conf=ASB_experiment_4.kconf
     n=2
     if ((${tmp_counter} == 0)); then
-        com_range_counter=3
+        com_range_counter=0
       elif ((${tmp_counter} == 1)); then
-        com_range_counter=4
+        com_range_counter=1
       elif ((${tmp_counter} == 2)); then
-        com_range_counter=5
+        com_range_counter=2
       elif ((${tmp_counter} == 3)); then
-        com_range_counter=10
+        com_range_counter=3
       elif ((${tmp_counter} == 4)); then
-        com_range_counter=20
+        com_range_counter=4
       elif ((${tmp_counter} == 5)); then
+        com_range_counter=5
+      elif ((${tmp_counter} == 6)); then
+        com_range_counter=10
+      elif ((${tmp_counter} == 7)); then
+        com_range_counter=15
+      elif ((${tmp_counter} == 8)); then
+        com_range_counter=20
+      elif ((${tmp_counter} == 9)); then
+        com_range_counter=25
+      elif ((${tmp_counter} == 10)); then
+        com_range_counter=30
+      elif ((${tmp_counter} == 11)); then
+        com_range_counter=35
+      elif ((${tmp_counter} == 12)); then
+        com_range_counter=40
+      elif ((${tmp_counter} == 13)); then
         com_range_counter=45
     fi
 
     INITIAL_COMMUNICATION_RANGE=${com_range_counter}
     MAX_COMMUNICATION_RANGE=100  # not needed
-    EXP_NAME=experiment_cl_acclimatisation_4_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
+    EXP_NAME=experiment_cl_acclimatisation_5_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots
