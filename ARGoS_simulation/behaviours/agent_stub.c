@@ -323,13 +323,16 @@ void update_commitment() {
             /// set new commitment
             robot_commitment = discovered_option;
             robot_commitment_quality = discovered_quality;
+            // reset last robot commitment
+            last_robot_commitment = UNINITIALISED;
+            last_robot_commitment_quality = 0.0;
             /// set last commitment switch - trigger for updating the communication range dynamically
 //            last_commitment_switch = kilo_ticks;
 //            init_commitment_switch = true;
             // in case we want to try communication range based on how large the change is
 //            step_size = (int)(20.0*(robot_commitment_quality/(last_robot_commitment_quality + robot_commitment_quality))); // this should be between 1 and 0.5
         }else if(social){
-            /// case the robot got recruited back
+            /// case the robot got recruited back - never true if the robot is committed?
             if(last_robot_commitment == received_option){
                 /// setting current commitment - this is executed, when robot gets recruited
                 robot_commitment = received_option;
@@ -344,6 +347,8 @@ void update_commitment() {
                     robot_commitment = received_option;
                     robot_commitment_quality = 0.0; // thus, we first sample and then broadcast
                     op_to_sample = received_option;
+                    // possible problem: robot is at opinion 1 -> gets opinion 2 -> shortly after gets opinion 3 -> still can be recruited back to 1
+                    // because the robot did not stay long enough in the other opinions to sample them
                 }else {
                     // remember last robot commitment
                     last_robot_commitment = robot_commitment;
