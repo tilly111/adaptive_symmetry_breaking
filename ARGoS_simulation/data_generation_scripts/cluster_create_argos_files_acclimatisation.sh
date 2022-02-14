@@ -24,7 +24,7 @@ else
     # parameters to choose
     INITIAL_COMMITMENT=1 # initial commitment of the robots
 
-    conf=ASB_experiment_4.kconf
+    conf=ASB_experiment_6.kconf
     n=2
     if ((${tmp_counter} == 0)); then
         com_range_counter=0
@@ -38,21 +38,29 @@ else
         com_range_counter=4
       elif ((${tmp_counter} == 5)); then
         com_range_counter=5
-      elif ((${tmp_counter} == 6)); then
-        com_range_counter=10
       elif ((${tmp_counter} == 7)); then
-        com_range_counter=15
+        com_range_counter=6
       elif ((${tmp_counter} == 8)); then
-        com_range_counter=20
+        com_range_counter=7
       elif ((${tmp_counter} == 9)); then
-        com_range_counter=25
+        com_range_counter=8
       elif ((${tmp_counter} == 10)); then
-        com_range_counter=30
+        com_range_counter=9
       elif ((${tmp_counter} == 11)); then
-        com_range_counter=35
+        com_range_counter=10
       elif ((${tmp_counter} == 12)); then
-        com_range_counter=40
+        com_range_counter=15
       elif ((${tmp_counter} == 13)); then
+        com_range_counter=20
+      elif ((${tmp_counter} == 14)); then
+        com_range_counter=25
+      elif ((${tmp_counter} == 15)); then
+        com_range_counter=30
+      elif ((${tmp_counter} == 16)); then
+        com_range_counter=35
+      elif ((${tmp_counter} == 17)); then
+        com_range_counter=40
+      elif ((${tmp_counter} == 18)); then
         com_range_counter=45
     fi
 

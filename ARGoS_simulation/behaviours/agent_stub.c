@@ -232,7 +232,6 @@ void sample(){
         if(sample_counter < sample_counter_max_noise){
             sample_counter++;
             if (current_ground == op_to_sample){
-//                if (kilo_uid == 5) printf("[%d] cur ground %d %d/%d \n", kilo_uid, current_ground, sample_op_counter, sample_counter);
                 sample_op_counter++;
             }
         }else{ // sampling finished
@@ -321,17 +320,10 @@ void update_commitment() {
         }
 
         if(individual){
-            // update last robot commitment, if not uncommitted - TODO: this is fraud, the robot is
-            //  only allowed to save one quality at a time and the new quality is already set
-            //  because the robot knows it
-//            if (robot_commitment != UNCOMMITTED) {
-//                last_robot_commitment = robot_commitment;
-//                last_robot_commitment_quality = robot_commitment_quality;
-//            }
-            // set new commitment
+            /// set new commitment
             robot_commitment = discovered_option;
             robot_commitment_quality = discovered_quality;
-            // set last commitment switch - needed for updating the communication range dynamically
+            /// set last commitment switch - trigger for updating the communication range dynamically
 //            last_commitment_switch = kilo_ticks;
 //            init_commitment_switch = true;
             // in case we want to try communication range based on how large the change is
@@ -339,16 +331,6 @@ void update_commitment() {
         }else if(social){
             /// case the robot got recruited back
             if(last_robot_commitment == received_option){
-                // TODO this is also not allowed, because the robot is only allowed to have one quality
-//                if (robot_commitment != UNCOMMITTED) {
-//                    last_robot_commitment = robot_commitment;
-//                    float tmp_quality = last_robot_commitment_quality;
-//                    last_robot_commitment_quality = robot_commitment_quality;
-//                    /// setting current commitment
-//                    robot_commitment = received_option;
-//                    robot_commitment_quality = tmp_quality;  // can directly broadcast bc we have quality estimate
-//                    op_to_sample = received_option;
-//                }else {
                 /// setting current commitment - this is executed, when robot gets recruited
                 robot_commitment = received_option;
                 robot_commitment_quality = last_robot_commitment_quality;
@@ -356,32 +338,30 @@ void update_commitment() {
                 // reset last robot commitment
                 last_robot_commitment = UNINITIALISED;
                 last_robot_commitment_quality = 0.0;
-//                }
             }else{  /// robot got new commitment
                 if (recruitment){
-                    /// direct switch - applies when the robot is uncommitted and gets a different option
+                    /// RECRUITMENT - applies when the robot is uncommitted and gets a different option
                     robot_commitment = received_option;
-                    robot_commitment_quality = 0.0; // thus we first sample and then broadcast
+                    robot_commitment_quality = 0.0; // thus, we first sample and then broadcast
                     op_to_sample = received_option;
-
                 }else {
-                    // here the robot should always be committed to something.. thus we save the last commitment of the robot till it updates
-                    if (robot_commitment != UNCOMMITTED) {
-                        last_robot_commitment = robot_commitment;
-                        last_robot_commitment_quality = robot_commitment_quality;
-                    }else{
-                        printf("[%d] ERROR: social update commitment, the robot is uncommitted when it should not be! \n", kilo_uid);
-                    }
-                    /// cross inhibition - applies when committed and getting a different opinion
+                    // remember last robot commitment
+                    last_robot_commitment = robot_commitment;
+                    last_robot_commitment_quality = robot_commitment_quality;
+                    /// DIRECT-SWITCH: cross inhibition - becomes uncommitted
                     robot_commitment = UNCOMMITTED;
                     robot_commitment_quality = 0.0;
                     op_to_sample = current_ground;
+                    /// DIRECT-SWITCH: recruited directly
+//                    robot_commitment = received_option;
+//                    robot_commitment_quality = 0.0;
+//                    op_to_sample = received_option;
                 }
             }
-            // reset sampling to make a new estimate on current commitment
+            /// reset sampling to make a new estimate on current commitment
             sample_op_counter = 0;
             sample_counter = 0;
-            // set last commitment switch - if we switch based on social information it is only second hand, thus we do not want to tell everybody
+            /// set last commitment switch - if we switch based on social information it is only second hand, thus we do not want to tell everybody
             init_commitment_switch= false;
         }
         new_robot_msg = false;
@@ -391,6 +371,7 @@ void update_commitment() {
 
 
 void update_communication_range(){
+    // TODO clean up when we exactly know what we want to do!!!!
     // here we implement different adaptive communication ranges
     uint32_t tmp_communication_range;
     uint32_t threshold_1 = COMMUNICATION_THRESHOLD_TIMER;
@@ -476,6 +457,7 @@ void set_message(){
 /* Function to broadcast the commitment message                                                  */
 /*-----------------------------------------------------------------------------------------------*/
 void broadcast() {
+    // try to broadcast every 0.5 s
     if(kilo_ticks > last_broadcast_ticks + BROADCAST_TICKS && init_flag){
         last_broadcast_ticks = kilo_ticks;
 
@@ -485,9 +467,9 @@ void broadcast() {
 
         unsigned int P_ShareCommitementInt = (unsigned int)(robot_commitment_quality * range_rnd) + 1;
 
+        // broadcast message if the robot is committed - with probability equal to commitment quality
         if (robot_commitment != UNCOMMITTED && robot_commitment_quality > 0 && random <= P_ShareCommitementInt){
             set_message();
-//            printf("[%d] sending a msg with option %d at %d %d \n", kilo_uid, robot_commitment, robot_gps_x, robot_gps_y);
         }
     }
 }
@@ -743,10 +725,6 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         received_option_msg = msg->data[2];
         received_kilo_uid = msg->data[3];
         received_virtual_agent_msg_flag = true;
-//        if(kilo_uid == 0){
-//            printf("[%d] received a msg from %d with value %d \n", kilo_uid, received_kilo_uid, received_option_msg);
-//        }
-//        printf("[%d] received a msg from %d at %d %d \n", kilo_uid, received_kilo_uid, robot_gps_x, robot_gps_y);
     }
 }
 
