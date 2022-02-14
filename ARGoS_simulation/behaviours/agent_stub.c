@@ -347,12 +347,12 @@ void update_commitment() {
                     robot_commitment = received_option;
                     robot_commitment_quality = 0.0; // thus, we first sample and then broadcast
                     op_to_sample = received_option;
-                    // possible problem: robot is at opinion 1 -> gets opinion 2 -> shortly after gets opinion 3 -> still can be recruited back to 1
-                    // because the robot did not stay long enough in the other opinions to sample them
                 }else {
                     // remember last robot commitment
-                    last_robot_commitment = robot_commitment;
-                    last_robot_commitment_quality = robot_commitment_quality;
+                    if (robot_commitment_quality != 0.0){
+                        last_robot_commitment = robot_commitment;
+                        last_robot_commitment_quality = robot_commitment_quality;
+                    }
                     /// DIRECT-SWITCH: cross inhibition - becomes uncommitted
                     robot_commitment = UNCOMMITTED;
                     robot_commitment_quality = 0.0;
