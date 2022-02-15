@@ -267,6 +267,7 @@ void update_commitment() {
     if(kilo_ticks > last_update_ticks + update_ticks_noise){
         // set next update
         last_update_ticks = kilo_ticks;
+
         update_ticks_noise = UPDATE_TICKS + GetRandomNumber(10000) % 5;
 
         // drawing a random number TODO not needed if we do not have probability transitions
@@ -278,7 +279,7 @@ void update_commitment() {
         bool recruitment = false;
         bool individual = false;
 
-        // if robot made a discovery
+        // if robot made a discovery we have a discovery quality
         if(discovered){
             quality = discovered_quality;
         }else{  // robot did not sample enough yet
@@ -304,11 +305,10 @@ void update_commitment() {
             }
             // DIRECT-SWITCH: message with different option
             if(new_robot_msg && robot_commitment != received_option && received_option != UNCOMMITTED){
-                // only switch when you are also allowed to speak otherwise you would be just listen
                 social = true;
             }
         }
-        // if both true do a flip
+        // if both are true do a flip
         if(individual && social) {
             if (GetRandomNumber(10000) % 2) {
                 individual = true;
@@ -332,9 +332,9 @@ void update_commitment() {
             // in case we want to try communication range based on how large the change is
 //            step_size = (int)(20.0*(robot_commitment_quality/(last_robot_commitment_quality + robot_commitment_quality))); // this should be between 1 and 0.5
         }else if(social){
-            /// case the robot got recruited back - never true if the robot is committed?
+            /// case the robot got recruited back
             if(last_robot_commitment == received_option){
-                /// setting current commitment - this is executed, when robot gets recruited
+                /// setting current commitment
                 robot_commitment = received_option;
                 robot_commitment_quality = last_robot_commitment_quality;
                 op_to_sample = received_option;
@@ -348,7 +348,7 @@ void update_commitment() {
                     robot_commitment_quality = 0.0; // thus, we first sample and then broadcast
                     op_to_sample = received_option;
                 }else {
-                    // remember last robot commitment
+                    // remember last robot commitment if there is some information
                     if (robot_commitment_quality != 0.0){
                         last_robot_commitment = robot_commitment;
                         last_robot_commitment_quality = robot_commitment_quality;
@@ -377,11 +377,12 @@ void update_commitment() {
 
 
 void update_communication_range(){
-    // TODO clean up when we exactly know what we want to do!!!!
-    // here we implement different adaptive communication ranges
+    // TODO clean up when we exactly know what we want to do
+    // @giovanni this is very messy at the moment and is still under construction so does not need
+    // to be checked
     uint32_t tmp_communication_range;
     uint32_t threshold_1 = COMMUNICATION_THRESHOLD_TIMER;
-    uint32_t threshold_2 = 2 * threshold_1;  // TODO do we need to make this dynamic as well
+    uint32_t threshold_2 = 2 * threshold_1;  // TODO maybe we need to do this dynamic as well
 
     tmp_communication_range = communication_range;
 
@@ -431,7 +432,6 @@ void update_communication_range(){
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Setting values of the message                                                                 */
-/* TODO this needs to be adjusted on what kind of messages you want to send                      */
 /*-----------------------------------------------------------------------------------------------*/
 void set_message(){
 #ifdef SIMULATION
@@ -471,10 +471,10 @@ void broadcast() {
         unsigned int range_rnd = 10000;
         unsigned int random = GetRandomNumber(range_rnd);
 
-        unsigned int P_ShareCommitementInt = (unsigned int)(robot_commitment_quality * range_rnd) + 1;
+        unsigned int p_share_commitment_int = (unsigned int)(robot_commitment_quality * range_rnd) + 1;
 
         // broadcast message if the robot is committed - with probability equal to commitment quality
-        if (robot_commitment != UNCOMMITTED && robot_commitment_quality > 0 && random <= P_ShareCommitementInt){
+        if (robot_commitment != UNCOMMITTED && robot_commitment_quality > 0 && random <= p_share_commitment_int){
             set_message();
         }
     }
@@ -539,7 +539,9 @@ void random_walk_waypoint_model(){
 }
 
 
-// todo implement the walking method of the robot
+/*-----------------------------------------------------------------------------------------------*/
+/* Implements the movement of the robot.                                                         */
+/*-----------------------------------------------------------------------------------------------*/
 void move(){
     // reached goal - select new waypoint
     if((goal_gps_x == robot_gps_x && goal_gps_y == robot_gps_y) || last_waypoint_time >= kilo_ticks + MAX_WAYPOINT_TIME){
@@ -584,7 +586,7 @@ void move(){
             state_counter = STRAIGHT_COUNTER_MAX + GetRandomNumber(10000) % (STRAIGHT_COUNTER_MAX/2);
         }
     }else if(current_state == MOVE_STRAIGHT){
-        if(!(state_counter == 0)){
+        if(state_counter != 0){
             state_counter -= 1;
         }else{
             if (calculated_orientation) {
@@ -636,13 +638,12 @@ void move(){
                     state_counter = (uint32_t) ( (fabs(angletogoal)/ROTATION_SPEED)*32.0 ); // it is important to keep this as fabs bc abs introduces error that the robtos only turn on the spot
                 }
             }else{
-                current_state = MOVE_STRAIGHT;  // TODO this is probably not needed !?!?!?
+                current_state = MOVE_STRAIGHT;
             }
         }
     }else{
         printf("[%d] ERROR: bad movement state \n", kilo_uid);
     }
-
     set_motion();
 }
 
@@ -711,7 +712,7 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         NUMBER_OF_OPTIONS = msg->data[4];
         // how to init the robot
         // 1 -> start at option one
-        // else start 50/50/50/50
+        // else start uniform distributed over all options
         if (robot_commitment != 1){
             robot_commitment = (kilo_uid % (NUMBER_OF_OPTIONS-1)) + 2;
         }
@@ -727,7 +728,7 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         received_role = msg->data[3];
         received_grid_msg_flag = true;
     }else if(msg->type == VIRTUAL_AGENT_MSG  && init_flag){
-        // in the prcessing method we check that it is not our own msg ..
+        // in the processing method we check that it is not our own msg
         received_option_msg = msg->data[2];
         received_kilo_uid = msg->data[3];
         received_virtual_agent_msg_flag = true;
@@ -808,7 +809,7 @@ void setup(){
 
     last_broadcast_ticks = GetRandomNumber(10000) % BROADCAST_TICKS + 1;
 
-    // Intialize time to 0
+    // Initialise time to 0
     kilo_ticks = 0;
 }
 
