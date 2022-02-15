@@ -269,9 +269,9 @@ void update_commitment() {
         last_update_ticks = kilo_ticks;
         update_ticks_noise = UPDATE_TICKS + GetRandomNumber(10000) % 5;
 
-        // drawing a random number
-        unsigned int range_rnd = 10000;
-        unsigned int random = GetRandomNumber(range_rnd);
+        // drawing a random number TODO not needed if we do not have probability transitions
+//        unsigned int range_rnd = 10000;
+//        unsigned int random = GetRandomNumber(range_rnd);
 
         double quality;
         bool social = false;
@@ -284,12 +284,12 @@ void update_commitment() {
         }else{  // robot did not sample enough yet
             quality = 0.0;
         }
-        unsigned int P_qualityInt = (unsigned int) (quality * range_rnd) + 1;
+//        unsigned int P_qualityInt = (unsigned int) (quality * range_rnd) + 1;
 
         /// robot is uncommitted - it can do discovery or recruitment.
         if(robot_commitment == UNCOMMITTED){
             // DISCOVERY: with prob quality switch new option
-            if(quality > 0 && random <= P_qualityInt){
+            if(quality > 0){  // && random <= P_qualityInt
                 individual = true;
             }
             // RECRUITMENT: recruited by other robot
@@ -299,7 +299,7 @@ void update_commitment() {
             }
         }else{  /// robot is committed
             // COMPARE: found a better option TODO maybe choose PARAM higher than 0.0 in order to improve stability
-            if(quality > robot_commitment_quality + PARAM && random <= P_qualityInt){
+            if(quality > robot_commitment_quality + PARAM){  // && random <= P_qualityInt
                 individual = true;
             }
             // DIRECT-SWITCH: message with different option
@@ -369,6 +369,7 @@ void update_commitment() {
             /// set last commitment switch - if we switch based on social information it is only second hand, thus we do not want to tell everybody
             init_commitment_switch= false;
         }
+        // reset discovery and new message, so that they are not used again
         new_robot_msg = false;
         discovered = false;
     }
