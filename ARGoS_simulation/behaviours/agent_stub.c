@@ -12,7 +12,6 @@
 /*-----------------------------------------------------------------------------------------------*/
 
 #include <stdlib.h>
-#include<time.h>
 #include "kilolib.h"
 #include <math.h>
 
@@ -45,10 +44,8 @@
 
 
 // counters
-#define AVOIDANCE_TURNING_COUNTER_MAX 30
 #define AVOIDANCE_STRAIGHT_COUNTER_MAX 300
 #define STRAIGHT_COUNTER_MAX 20
-#define TURNING_COUNTER_MAX 37
 #define MAX_WAYPOINT_TIME 3600
 #define ROTATION_SPEED 38
 
@@ -56,8 +53,7 @@
 #define SAMPLE_COUNTER_MAX 30
 #define UPDATE_TICKS 60
 #define BROADCAST_TICKS 15
-//#define MAX_COMMUNICATION_RANGE 45  // should be 2 <= com range <= 45
-#define MIN_COMMUNICATION_RANGE 1  // should be smaller max com range
+#define MIN_COMMUNICATION_RANGE 1  // is used in dynamic com update
 #define COMMUNICATION_THRESHOLD_TIMER 11250 // in ticks
 #define PARAM 0.0
 
@@ -118,7 +114,7 @@ state current_state = MOVE_STRAIGHT;
 state last_state = STOP;
 
 uint32_t last_commitment_switch = 0;
-bool init_commitment_switch = false;
+bool commitment_switch_flag = false;
 uint8_t  step_size = 1;
 
 // sample variables
@@ -162,11 +158,9 @@ bool received_virtual_agent_msg_flag = false;
 bool broadcast_msg = false;
 #else
 IR_message_t* message;
-#endif
-uint8_t communication_range_msg = 0;
-uint8_t x_pos_msg = 0;
-uint8_t y_pos_msg = 0;
 uint32_t msg_counter = 0;
+#endif
+
 // tmp variables for saving in callback function
 uint8_t received_option_msg = 0;
 uint8_t received_kilo_uid = 0;
@@ -187,8 +181,6 @@ uint8_t NUMBER_OF_OPTIONS = 0;
 uint8_t current_ground = 0;
 const uint8_t CELLS_X = 20;
 const uint8_t CELLS_Y = 40;
-
-time_t t;
 
 
 uint32_t normalize_angle(double angle){
@@ -213,13 +205,11 @@ unsigned int GetRandomNumber(unsigned int range_rnd){
     }
     unsigned int random = randomInt % range_rnd + 1;
     return random;
-
 }
 
 
 /*-----------------------------------------------------------------------------------------------*/
-/* Sample function for the ground - sampling should take 10 sec (so the robot is able to         */
-/* explore 10 grid cells)                                                                        */
+/* Sample function for the ground - sampling should take 30 sec                                  */
 /*-----------------------------------------------------------------------------------------------*/
 void sample(){
     // sample every second
@@ -276,38 +266,28 @@ void update_commitment() {
 
         double quality;
         bool social = false;
-        bool recruitment = false;
         bool individual = false;
 
         // if robot made a discovery we have a discovery quality
         if(discovered){
-            quality = discovered_quality;
+            quality = 2 * discovered_quality;
         }else{  // robot did not sample enough yet
             quality = 0.0;
         }
         unsigned int p_quality = (unsigned int) (quality * range_rnd) + 1;
 
-        /// robot is uncommitted - it can do discovery or recruitment.
-        if(robot_commitment == UNCOMMITTED){
-            // DISCOVERY: with prob quality switch new option
-            if(quality > 0 && random <= p_quality){
-                individual = true;
-            }
-            // RECRUITMENT: recruited by other robot
-            if(new_robot_msg && received_option != UNCOMMITTED){
-                social = true;
-                recruitment = true;
-            }
-        }else{  /// robot is committed
-            // COMPARE: found a better option TODO maybe choose PARAM higher than 0.0 in order to improve stability
-            if(quality > robot_commitment_quality + PARAM && random <= p_quality){
-                individual = true;
-            }
-            // DIRECT-SWITCH: message with different option
-            if(new_robot_msg && robot_commitment != received_option && received_option != UNCOMMITTED){
-                social = true;
-            }
+        // Discovery and COMPARE: found a better option (in case of discovery robot is uncommitted
+        // thus robot_commitment_quality should be 0
+        // TODO maybe choose PARAM higher than 0.0 in order to improve stability
+        // TODO maybe remove p_quality???
+        if(quality > robot_commitment_quality + PARAM && random <= p_quality){
+            individual = true;
         }
+        // RECRUITMENT and DIRECT-SWITCH: message with different option
+        if(new_robot_msg && robot_commitment != received_option && received_option != UNCOMMITTED){
+            social = true;
+        }
+
         // if both are true do a flip
         if(individual && social) {
             if (GetRandomNumber(10000) % 2) {
@@ -328,10 +308,44 @@ void update_commitment() {
             last_robot_commitment_quality = 0.0;
             /// set last commitment switch - trigger for updating the communication range dynamically
 //            last_commitment_switch = kilo_ticks;
-//            init_commitment_switch = true;
+//            commitment_switch_flag = true;
             // in case we want to try communication range based on how large the change is
 //            step_size = (int)(20.0*(robot_commitment_quality/(last_robot_commitment_quality + robot_commitment_quality))); // this should be between 1 and 0.5
         }else if(social){
+            if (robot_commitment == UNCOMMITTED){
+                // set new commitment
+                robot_commitment = received_option;
+                // set new option the robot should sample
+                op_to_sample = received_option;
+                /// Depending on the storage set commitment quality
+                if (last_robot_commitment == received_option){
+                    robot_commitment_quality = last_robot_commitment_quality;
+                    // reset last robot commitment
+                    last_robot_commitment = UNINITIALISED;
+                    last_robot_commitment_quality = 0.0;
+                } else {  // no information -> start form 0
+                    robot_commitment_quality = 0.0;
+                    // todo here we do not need to reset last_robot commitment bc
+                    //  red -> uncom -> blue -> uncom -> red never finished sampling;
+                    //  robot can immediately speak
+                }
+            } else {  /// Robot is committed
+                // remember last robot commitment if there is some information
+                if (robot_commitment_quality != 0.0){
+                    last_robot_commitment = robot_commitment;
+                    last_robot_commitment_quality = robot_commitment_quality;
+                }
+                /// DIRECT-SWITCH: cross inhibition - becomes uncommitted
+                robot_commitment = UNCOMMITTED;
+                robot_commitment_quality = 0.0;
+                op_to_sample = current_ground;
+                /// DIRECT-SWITCH: recruited directly TODO we need to adjust the recruit back feature
+//                    robot_commitment = received_option;
+//                    robot_commitment_quality = 0.0;
+//                    op_to_sample = received_option;
+            }
+
+
             /// case the robot got recruited back
             if(last_robot_commitment == received_option){
                 /// setting current commitment
@@ -342,7 +356,7 @@ void update_commitment() {
                 last_robot_commitment = UNINITIALISED;
                 last_robot_commitment_quality = 0.0;
             }else{  /// robot got new commitment
-                if (recruitment){
+                if (robot_commitment == UNCOMMITTED){
                     /// RECRUITMENT - applies when the robot is uncommitted and gets a different option
                     robot_commitment = received_option;
                     robot_commitment_quality = 0.0; // thus, we first sample and then broadcast
@@ -367,7 +381,7 @@ void update_commitment() {
             sample_op_counter = 0;
             sample_counter = 0;
             /// set last commitment switch - if we switch based on social information it is only second hand, thus we do not want to tell everybody
-            init_commitment_switch= false;
+            commitment_switch_flag= false;
         }
         // reset discovery and new message, so that they are not used again
         new_robot_msg = false;
@@ -404,16 +418,16 @@ void update_communication_range(){
 //        tmp_communication_range = 45;
 //    }
     /// adaptive by changing its opinion - step
-//    if (kilo_ticks - last_commitment_switch < threshold_1 && init_commitment_switch) {
+//    if (kilo_ticks - last_commitment_switch < threshold_1 && commitment_switch_flag) {
 //        tmp_communication_range = 45;
 //    }else {
 //        tmp_communication_range = 1;
 //    }
 
     /// adaptive by changing its opinion - linear decrease
-//    if (kilo_ticks - last_commitment_switch < threshold_1 && init_commitment_switch) {
+//    if (kilo_ticks - last_commitment_switch < threshold_1 && commitment_switch_flag) {
 //        tmp_communication_range = max_communication_range;
-//    }else if (kilo_ticks - last_commitment_switch < threshold_2 && init_commitment_switch){
+//    }else if (kilo_ticks - last_commitment_switch < threshold_2 && commitment_switch_flag){
 //        tmp_communication_range = max_communication_range - (int)((double)(max_communication_range - MIN_COMMUNICATION_RANGE)/(double)(threshold_2 - threshold_1)*((kilo_ticks - last_commitment_switch)-threshold_1));
 //    }else {
 //        tmp_communication_range = MIN_COMMUNICATION_RANGE;
@@ -556,12 +570,10 @@ void move(){
                 atan2((CELLS_Y/2) - robot_gps_y, (CELLS_X/2) - robot_gps_x) / PI * 180 -
                 robot_orientation);
         // right from target
-        if (angletogoal < 0) {
+        if (angletogoal <= 0) {
             current_state = AVOIDANCE_TURN_RIGHT;
-        } else if (angletogoal > 0) {
+        } else {  // if (angletogoal > 0) {
             current_state = AVOIDANCE_TURN_LEFT;
-        } else {
-            printf("[%d] ERROR: turning calculation is fraud \n", kilo_uid);
         }
         state_counter =(uint32_t) ( fabs(angletogoal)/ROTATION_SPEED*32.0 );  // it is important to keep this as fabs bc abs introduces error that the robtos only turn on the spot
 
@@ -737,6 +749,15 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
 
 
 /*-----------------------------------------------------------------------------------------------*/
+/* Callback function for successful transmission                                                 */
+/*-----------------------------------------------------------------------------------------------*/
+void tx_message_success() {
+    msg_counter_sent += 1;
+    return;
+}
+
+
+/*-----------------------------------------------------------------------------------------------*/
 /* This function implements the sending to the kilogrid. you should call this function every     */
 /* loop cycle because in reality you dont have a indicator if the message was received so we     */
 /* have to send it multiple times. The when and how often to send a message should be            */
@@ -752,18 +773,17 @@ void message_tx(){
         msg_counter_sent = 0;
     }
 #ifdef SIMULATION
-    // TODO find a better solution currently needed to reset the broadcast flag
-    // check if counter reached ... reset send flag so kilogrid knows that message stoped
+    /// this is needed because in simulation we use the debug struct, thus we do not really send
+    /// a message
     if(msg_counter_sent >= MSG_SEND_TRIES){
         debug_info_set(broadcast_flag, 0);
+    } else {
+        tx_message_success();
     }
-#endif
-    // send msg if not sended enough yet
-    if (msg_counter_sent <= MSG_SEND_TRIES){
-#ifdef SIMULATION
-        // count messages
-        msg_counter_sent += 1;
 #else
+    /// sending a real message - thus tx_message_success gets called anyway
+    // TODO check if this is true
+    if (msg_counter_sent <= MSG_SEND_TRIES){
         if((message = kilob_message_send()) != NULL) {
             /*
             message->type = TO_KILOGRID_MSG;
@@ -776,9 +796,12 @@ void message_tx(){
             msg_counter_sent += 1;
 
         }
-#endif
     }
+#endif
 }
+
+
+
 
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -920,6 +943,7 @@ int main(){
 #endif
     // callback for received messages
     kilo_message_rx = message_rx;
+    kilo_message_tx_success = tx_message_success;
     // start control loop
     kilo_start(setup, loop);
     return 0;
