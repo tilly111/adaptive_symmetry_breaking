@@ -257,7 +257,6 @@ void update_commitment() {
     if(kilo_ticks > last_update_ticks + update_ticks_noise){
         // set next update
         last_update_ticks = kilo_ticks;
-
         update_ticks_noise = UPDATE_TICKS + GetRandomNumber(10000) % 5;
 
         // drawing a random number
@@ -270,16 +269,16 @@ void update_commitment() {
 
         // if robot made a discovery we have a discovery quality
         if(discovered){
-            quality = 2 * discovered_quality;
+            quality = discovered_quality;
         }else{  // robot did not sample enough yet
             quality = 0.0;
         }
-        unsigned int p_quality = (unsigned int) (quality * range_rnd) + 1;
+        // switch with higher probability - @giovanni this is what you suggested right?
+        unsigned int p_quality = (unsigned int) ((2*quality) * range_rnd) + 1;
 
         // Discovery and COMPARE: found a better option (in case of discovery robot is uncommitted
         // thus robot_commitment_quality should be 0
         // TODO maybe choose PARAM higher than 0.0 in order to improve stability
-        // TODO maybe remove p_quality???
         if(quality > robot_commitment_quality + PARAM && random <= p_quality){
             individual = true;
         }
