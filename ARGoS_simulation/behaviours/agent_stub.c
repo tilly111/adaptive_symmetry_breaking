@@ -344,39 +344,6 @@ void update_commitment() {
 //                    robot_commitment_quality = 0.0;
 //                    op_to_sample = received_option;
             }
-
-
-            /// case the robot got recruited back
-            if(last_robot_commitment == received_option){
-                /// setting current commitment
-                robot_commitment = received_option;
-                robot_commitment_quality = last_robot_commitment_quality;
-                op_to_sample = received_option;
-                // reset last robot commitment
-                last_robot_commitment = UNINITIALISED;
-                last_robot_commitment_quality = 0.0;
-            }else{  /// robot got new commitment
-                if (robot_commitment == UNCOMMITTED){
-                    /// RECRUITMENT - applies when the robot is uncommitted and gets a different option
-                    robot_commitment = received_option;
-                    robot_commitment_quality = 0.0; // thus, we first sample and then broadcast
-                    op_to_sample = received_option;
-                }else {
-                    // remember last robot commitment if there is some information
-                    if (robot_commitment_quality != 0.0){
-                        last_robot_commitment = robot_commitment;
-                        last_robot_commitment_quality = robot_commitment_quality;
-                    }
-                    /// DIRECT-SWITCH: cross inhibition - becomes uncommitted
-                    robot_commitment = UNCOMMITTED;
-                    robot_commitment_quality = 0.0;
-                    op_to_sample = current_ground;
-                    /// DIRECT-SWITCH: recruited directly
-//                    robot_commitment = received_option;
-//                    robot_commitment_quality = 0.0;
-//                    op_to_sample = received_option;
-                }
-            }
             /// reset sampling to make a new estimate on current commitment
             sample_op_counter = 0;
             sample_counter = 0;
