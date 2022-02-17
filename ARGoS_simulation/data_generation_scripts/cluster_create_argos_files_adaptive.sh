@@ -82,7 +82,7 @@ else
 
       EXP_FILE=${EXP_DIR}/${EXP_NAME}_${i}.argos # full path to the experiment configuration file
       JOB_FILE=${JOB_DIR}/${EXP_NAME}_${i}.sh
-      DATA_FILE=tmp/${EXP_NAME}_${i}.txt # Full path to the data file TODO do we need to remove tmp/
+      DATA_FILE=${EXP_NAME}_${i}.txt # Full path to the data file
 
       JOB_NAME=${EXP_NAME}_${i}
 
