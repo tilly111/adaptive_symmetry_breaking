@@ -54,7 +54,7 @@
 #define UPDATE_TICKS 60
 #define BROADCAST_TICKS 15
 #define MIN_COMMUNICATION_RANGE 1  // is used in dynamic com update
-#define COMMUNICATION_THRESHOLD_TIMER 11250 // in ticks
+#define COMMUNICATION_THRESHOLD_TIMER 7500 // in ticks
 #define PARAM 0.0
 
 // flags
@@ -306,8 +306,8 @@ void update_commitment() {
             last_robot_commitment = UNINITIALISED;
             last_robot_commitment_quality = 0.0;
             /// set last commitment switch - trigger for updating the communication range dynamically
-//            last_commitment_switch = kilo_ticks;
-//            commitment_switch_flag = true;
+            last_commitment_switch = kilo_ticks;
+            commitment_switch_flag = true;
             // in case we want to try communication range based on how large the change is
 //            step_size = (int)(20.0*(robot_commitment_quality/(last_robot_commitment_quality + robot_commitment_quality))); // this should be between 1 and 0.5
         }else if(social){
@@ -347,7 +347,7 @@ void update_commitment() {
             sample_op_counter = 0;
             sample_counter = 0;
             /// set last commitment switch - if we switch based on social information it is only second hand, thus we do not want to tell everybody
-            commitment_switch_flag= false;
+            commitment_switch_flag = false;
         }
         // reset discovery and new message, so that they are not used again
         new_robot_msg = false;
@@ -364,7 +364,7 @@ void update_communication_range(){
     uint32_t threshold_1 = COMMUNICATION_THRESHOLD_TIMER;
     uint32_t threshold_2 = 2 * threshold_1;  // TODO maybe we need to do this dynamic as well
 
-    tmp_communication_range = communication_range;
+    //tmp_communication_range = communication_range;
 
     /// different update rules
     /// exponential increase
@@ -384,11 +384,11 @@ void update_communication_range(){
 //        tmp_communication_range = 45;
 //    }
     /// adaptive by changing its opinion - step
-//    if (kilo_ticks - last_commitment_switch < threshold_1 && commitment_switch_flag) {
-//        tmp_communication_range = 45;
-//    }else {
-//        tmp_communication_range = 1;
-//    }
+    if (kilo_ticks - last_commitment_switch < threshold_1 && commitment_switch_flag) {
+        tmp_communication_range = max_communication_range;
+    }else {
+        tmp_communication_range = MIN_COMMUNICATION_RANGE;
+    }
 
     /// adaptive by changing its opinion - linear decrease
 //    if (kilo_ticks - last_commitment_switch < threshold_1 && commitment_switch_flag) {
