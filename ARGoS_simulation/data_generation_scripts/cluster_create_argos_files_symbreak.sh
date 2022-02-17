@@ -66,7 +66,7 @@ else
 
     INITIAL_COMMUNICATION_RANGE=${com_range_counter}
     MAX_COMMUNICATION_RANGE=100  # not needed
-    EXP_NAME=experiment_cl_symmetry_breaking_11_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
+    EXP_NAME=experiment_cl_symmetry_breaking_12_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots

@@ -274,7 +274,7 @@ void update_commitment() {
             quality = 0.0;
         }
         // switch with higher probability - @giovanni this is what you suggested right?
-        unsigned int p_quality = (unsigned int) ((2*quality) * range_rnd) + 1;
+        unsigned int p_quality = (unsigned int) ((quality) * range_rnd) + 1;
 
         // Discovery and COMPARE: found a better option (in case of discovery robot is uncommitted
         // thus robot_commitment_quality should be 0
