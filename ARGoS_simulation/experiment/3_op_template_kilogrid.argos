@@ -50,6 +50,7 @@
         number_of_options="numberofoptions"
         initial_communication_range="initialcommunicationrange"
         max_communication_range="maxcommunicationrange"
+        second_config="dynamicenvname"
     />
 
 </loop_functions>

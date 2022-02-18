@@ -97,6 +97,7 @@ else
         -e "s|numberofoptions|${n}|" \
         -e "s|initialcommunicationrange|${INITIAL_COMMUNICATION_RANGE}|" \
         -e "s|maxcommunicationrange|${MAX_COMMUNICATION_RANGE}|" \
+        -e "s|dynamicenvname|${CONFIG_FILE}|" \
         ${EXP_TEMPLATE_SRC} >${EXP_FILE}
 
       sed -e "s|jobname|${JOB_NAME}|" \

@@ -3,70 +3,49 @@
 ###################################
 # Synopsis of the script
 ###################################
-#how to init the robot
-#1 -> start at option one
-#else start 50/50/50/50
-
-
 EXPECTED_ARGS=2
 if [ $# -lt ${EXPECTED_ARGS} ]; then
   echo "This script creates N argos files for the cluster!"
   echo "Usage $0 <start> <end> "
   echo $'\t'"[MANDATORY] <start> number of the first experiment"
-  echo $'\t'"[MANDATORY] <end> number of the last experiment (first + 4 for a parameter set)"
+  echo $'\t'"[MANDATORY] <end> number of the last experiment ()"
   exit
 
 else
   tmp_counter=0
-  com_range_counter=1
 
   for j in $(seq ${1} ${2}); do
     # parameters to choose
-    INITIAL_COMMITMENT=2 # initial commitment of the robots
+    INITIAL_COMMITMENT=1 # initial commitment of the robots
 
-    conf=ASB_experiment_7.kconf
-    n=4
+    conf=ASB_experiment_1.kconf
+    conf2=ASB_experiment_9.kconf
+    n=3
+
+    INITIAL_COMMUNICATION_RANGE=1
+
+    MAX_COMMUNICATION_RANGE=2
     if ((${tmp_counter} == 0)); then
-      com_range_counter=0
+      MAX_COMMUNICATION_RANGE=5
     elif ((${tmp_counter} == 1)); then
-      com_range_counter=1
+      MAX_COMMUNICATION_RANGE=10
     elif ((${tmp_counter} == 2)); then
-      com_range_counter=2
+      MAX_COMMUNICATION_RANGE=15
     elif ((${tmp_counter} == 3)); then
-      com_range_counter=3
+      MAX_COMMUNICATION_RANGE=20
     elif ((${tmp_counter} == 4)); then
-      com_range_counter=4
+      MAX_COMMUNICATION_RANGE=25
     elif ((${tmp_counter} == 5)); then
-      com_range_counter=5
+      MAX_COMMUNICATION_RANGE=30
     elif ((${tmp_counter} == 6)); then
-      com_range_counter=6
+      MAX_COMMUNICATION_RANGE=35
     elif ((${tmp_counter} == 7)); then
-      com_range_counter=7
+      MAX_COMMUNICATION_RANGE=40
     elif ((${tmp_counter} == 8)); then
-      com_range_counter=8
-    elif ((${tmp_counter} == 9)); then
-      com_range_counter=9
-    elif ((${tmp_counter} == 10)); then
-      com_range_counter=10
-    elif ((${tmp_counter} == 11)); then
-      com_range_counter=15
-    elif ((${tmp_counter} == 12)); then
-      com_range_counter=20
-    elif ((${tmp_counter} == 13)); then
-      com_range_counter=25
-    elif ((${tmp_counter} == 14)); then
-      com_range_counter=30
-    elif ((${tmp_counter} == 15)); then
-      com_range_counter=35
-    elif ((${tmp_counter} == 16)); then
-      com_range_counter=40
-    elif ((${tmp_counter} == 17)); then
-      com_range_counter=45
-    fi
+      MAX_COMMUNICATION_RANGE=45
+  fi
 
-    INITIAL_COMMUNICATION_RANGE=${com_range_counter}
-    MAX_COMMUNICATION_RANGE=100  # not needed
-    EXP_NAME=experiment_cl_symmetry_breaking_12_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
+    EXP_NAME=experiment_cl_adaptive_com_range_map_00_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_to_${MAX_COMMUNICATION_RANGE}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots
@@ -85,6 +64,7 @@ else
     LOOPFUNCTION_FILE=${EXP_FOLDER}/build/loop_functions/libkilogrid_stub
 
     CONFIG_FILE=${EXP_FOLDER}/ARGoS_simulation/loop_functions/${conf}
+    SECOND_CONFIG=${EXP_FOLDER}/ARGoS_simulation/loop_functions/${conf2}
 
     # path to template
     EXP_TEMPLATE_SRC=${EXP_FOLDER}/ARGoS_simulation/experiment/3_op_template_kilogrid.argos
@@ -118,7 +98,7 @@ else
         -e "s|numberofoptions|${n}|" \
         -e "s|initialcommunicationrange|${INITIAL_COMMUNICATION_RANGE}|" \
         -e "s|maxcommunicationrange|${MAX_COMMUNICATION_RANGE}|" \
-        -e "s|dynamicenvname|${CONFIG_FILE}|" \
+        -e "s|dynamicenvname|${SECOND_CONFIG}|" \
         ${EXP_TEMPLATE_SRC} >${EXP_FILE}
 
       sed -e "s|jobname|${JOB_NAME}|" \

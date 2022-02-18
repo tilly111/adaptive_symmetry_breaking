@@ -165,6 +165,9 @@ public:
     // this parser mimics the real kilogrid
     void read_configuration(TConfigurationNode& t_tree);
 
+    // for changing the environment
+    void change_environment();
+
     // this is the setup method - which is simular to the setup method on the real kilogrid
     // atleast from the logic point - it is called before each experiment
     void setup(int x, int y);
@@ -198,6 +201,7 @@ private:
     // for reading the config file
     std::ifstream input;
     std::string config_file_name;
+    std::string second_config_file_name;
     // this struct imitates the message structure of the messaging in the real kilogrid
     // TODO this may need adjustment
     distance_measurement_t *d;

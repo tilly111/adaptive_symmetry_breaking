@@ -54,7 +54,7 @@
 #define UPDATE_TICKS 60
 #define BROADCAST_TICKS 15
 #define MIN_COMMUNICATION_RANGE 1  // is used in dynamic com update
-#define COMMUNICATION_THRESHOLD_TIMER 7500 // in ticks
+#define COMMUNICATION_THRESHOLD_TIMER 15000 // in ticks
 #define PARAM 0.0
 
 // flags
@@ -232,6 +232,12 @@ void sample(){
             // set my quality to the measured quality if it's the robot commitment
             // also delete the last commitment, bc the robot can only store one!
             if (op_to_sample == robot_commitment){
+                // todo is this legit? if the measured quality is better as the last known
+                //  than you are allowed to update
+//                if (last_robot_commitment < discovered_quality){
+                    last_commitment_switch = kilo_ticks;
+                    commitment_switch_flag = true;
+//                }
                 robot_commitment_quality = discovered_quality;
                 last_robot_commitment = UNINITIALISED;
                 last_robot_commitment_quality = 0.0;
@@ -274,7 +280,7 @@ void update_commitment() {
             quality = 0.0;
         }
         // switch with higher probability - @giovanni this is what you suggested right?
-        unsigned int p_quality = (unsigned int) ((quality) * range_rnd) + 1;
+        unsigned int p_quality = (unsigned int) ((1) * range_rnd) + 1;  // quality
 
         // Discovery and COMPARE: found a better option (in case of discovery robot is uncommitted
         // thus robot_commitment_quality should be 0
@@ -335,13 +341,13 @@ void update_commitment() {
                     last_robot_commitment_quality = robot_commitment_quality;
                 }
                 /// DIRECT-SWITCH: cross inhibition - becomes uncommitted
-                robot_commitment = UNCOMMITTED;
+//                robot_commitment = UNCOMMITTED;
+//                robot_commitment_quality = 0.0;
+//                op_to_sample = current_ground;
+                /// DIRECT-SWITCH: recruited directly
+                robot_commitment = received_option;
                 robot_commitment_quality = 0.0;
-                op_to_sample = current_ground;
-                /// DIRECT-SWITCH: recruited directly TODO we need to adjust the recruit back feature
-//                    robot_commitment = received_option;
-//                    robot_commitment_quality = 0.0;
-//                    op_to_sample = received_option;
+                op_to_sample = received_option;
             }
             /// reset sampling to make a new estimate on current commitment
             sample_op_counter = 0;
@@ -389,6 +395,16 @@ void update_communication_range(){
     }else {
         tmp_communication_range = MIN_COMMUNICATION_RANGE;
     }
+
+    /// linear decrease
+    //tmp_communication_range = max_communication_range - ((kilo_ticks-last_commitment_switch)*max_communication_range/COMMUNICATION_THRESHOLD_TIMER);
+//    if (kilo_ticks > 20000) {
+//        tmp_communication_range = 2;
+//    }else if (kilo_ticks > 10000) {
+//        tmp_communication_range = 45;
+//    }else{
+//        tmp_communication_range = 2;
+//    }
 
     /// adaptive by changing its opinion - linear decrease
 //    if (kilo_ticks - last_commitment_switch < threshold_1 && commitment_switch_flag) {
@@ -881,7 +897,7 @@ void loop() {
 
     // debug prints
 //    if(kilo_uid == 0){
-//        printf("[%d] current ground: %d  op_to_sample %d  progress %d/%d  robot_commitment_quality(%d) %f \n", kilo_uid, current_ground, op_to_sample, sample_op_counter, sample_counter, robot_commitment, robot_commitment_quality);
+//        printf("[%d] max com range %d  \n", kilo_uid, max_communication_range);
 //    }
 #else
     tracking_data.byte[1] = received_x;
