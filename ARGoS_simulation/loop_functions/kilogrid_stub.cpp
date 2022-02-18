@@ -144,7 +144,7 @@ void CKilogrid::PostStep() {
     // Save experiment data to the specified log file
     // check if quorum is reached
     bool wrong_init = false;
-    int c_range = 0;
+//    int c_range = 0;
     std::fill(logg_commitment_state.begin(), logg_commitment_state.end(), 0);
     for (unsigned int i = 0; i < kilobot_entities.size(); i++) {
         if (((unsigned int) debug_info_kilobots[i]->commitement) == 20) {
@@ -152,7 +152,7 @@ void CKilogrid::PostStep() {
             break;
         } else {
             logg_commitment_state[((unsigned int) debug_info_kilobots[i]->commitement)]++;
-            c_range += (unsigned int) debug_info_kilobots[i]->com_range;
+//            c_range += (unsigned int) debug_info_kilobots[i]->com_range;
 //            printf("%d ", (unsigned int) debug_info_kilobots[i]->com_range);
         }
     }
@@ -164,7 +164,7 @@ void CKilogrid::PostStep() {
         for (unsigned int i = 0; i < logg_commitment_state.size(); i++) {
             output_logg << ";" << logg_commitment_state[i];
         }
-        output_logg << ";" << (c_range / 50);  // for logging the avg communication range
+//        output_logg << ";" << (c_range / 50);  // for logging the avg communication range
         output_logg << std::endl;
     }
 
@@ -194,7 +194,7 @@ void CKilogrid::PostStep() {
     data_saving_counter++;
 
     // TODO change environment dynamically, atm dirty hack and imo wont make it into the kilogrid
-    if (GetSpace().GetSimulationClock() == 36400) {
+    if (GetSpace().GetSimulationClock() == 19200) {
         printf("changing environment \n");
         change_environment();
         GetSpace().GetFloorEntity().SetChanged();
