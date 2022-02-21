@@ -341,13 +341,13 @@ void update_commitment() {
                     last_robot_commitment_quality = robot_commitment_quality;
                 }
                 /// DIRECT-SWITCH: cross inhibition - becomes uncommitted
-//                robot_commitment = UNCOMMITTED;
-//                robot_commitment_quality = 0.0;
-//                op_to_sample = current_ground;
-                /// DIRECT-SWITCH: recruited directly
-                robot_commitment = received_option;
+                robot_commitment = UNCOMMITTED;
                 robot_commitment_quality = 0.0;
-                op_to_sample = received_option;
+                op_to_sample = current_ground;
+                /// DIRECT-SWITCH: recruited directly
+//                robot_commitment = received_option;
+//                robot_commitment_quality = 0.0;
+//                op_to_sample = received_option;
             }
             /// reset sampling to make a new estimate on current commitment
             sample_op_counter = 0;
