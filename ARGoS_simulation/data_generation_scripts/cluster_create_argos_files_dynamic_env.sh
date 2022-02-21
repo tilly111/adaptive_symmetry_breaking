@@ -19,7 +19,7 @@ else
     INITIAL_COMMITMENT=1 # initial commitment of the robots
 
     conf=ASB_experiment_1.kconf
-    conf2=ASB_experiment_9.kconf
+    conf2=ASB_experiment_11.kconf
     n=3
 
     INITIAL_COMMUNICATION_RANGE=1
@@ -63,8 +63,8 @@ else
     BEHAVIOUR_FILE=${EXP_FOLDER}/build/behaviours/agent_stub
     LOOPFUNCTION_FILE=${EXP_FOLDER}/build/loop_functions/libkilogrid_stub
 
-    CONFIG_FILE=${EXP_FOLDER}/ARGoS_simulation/loop_functions/${conf}
-    SECOND_CONFIG=${EXP_FOLDER}/ARGoS_simulation/loop_functions/${conf2}
+    CONFIG_FILE=${EXP_FOLDER}/ARGoS_simulation/loop_functions/kilogrid_conf_files/${conf}
+    SECOND_CONFIG=${EXP_FOLDER}/ARGoS_simulation/loop_functions/kilogrid_conf_files/${conf2}
 
     # path to template
     EXP_TEMPLATE_SRC=${EXP_FOLDER}/ARGoS_simulation/experiment/3_op_template_kilogrid.argos

@@ -84,7 +84,7 @@ else
     BEHAVIOUR_FILE=${EXP_FOLDER}/build/behaviours/agent_stub
     LOOPFUNCTION_FILE=${EXP_FOLDER}/build/loop_functions/libkilogrid_stub
 
-    CONFIG_FILE=${EXP_FOLDER}/ARGoS_simulation/loop_functions/${conf}
+    CONFIG_FILE=${EXP_FOLDER}/ARGoS_simulation/loop_functions/kilogrid_conf_files/${conf}
 
     # path to template
     EXP_TEMPLATE_SRC=${EXP_FOLDER}/ARGoS_simulation/experiment/3_op_template_kilogrid.argos

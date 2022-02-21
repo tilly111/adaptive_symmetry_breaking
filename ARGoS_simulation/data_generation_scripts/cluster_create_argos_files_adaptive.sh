@@ -15,37 +15,35 @@ else
   tmp_counter=0
 
   for j in $(seq ${1} ${2}); do
-    # parameters to choose
-    INITIAL_COMMITMENT=1 # initial commitment of the robots
+      # parameters to choose
+      INITIAL_COMMITMENT=1 # initial commitment of the robots
+      conf=ASB_experiment_$((11 + ${tmp_counter} % 11)).kconf
+      n=3
 
-    conf=ASB_experiment_1.kconf
-    n=3
+      if ((${tmp_counter}  == 0)); then
+        MAX_COMMUNICATION_RANGE=2
+      elif ((${tmp_counter} == 11)); then
+        MAX_COMMUNICATION_RANGE=5
+      elif ((${tmp_counter} == 22)); then
+        MAX_COMMUNICATION_RANGE=10
+      elif ((${tmp_counter} == 33)); then
+        MAX_COMMUNICATION_RANGE=15
+      elif ((${tmp_counter} == 44)); then
+        MAX_COMMUNICATION_RANGE=20
+      elif ((${tmp_counter} == 55)); then
+        MAX_COMMUNICATION_RANGE=25
+      elif ((${tmp_counter} == 66)); then
+        MAX_COMMUNICATION_RANGE=30
+      elif ((${tmp_counter} == 77)); then
+        MAX_COMMUNICATION_RANGE=35
+      elif ((${tmp_counter} == 88)); then
+        MAX_COMMUNICATION_RANGE=40
+      elif ((${tmp_counter} == 99)); then
+        MAX_COMMUNICATION_RANGE=45
+    fi
 
     INITIAL_COMMUNICATION_RANGE=1
-
-    MAX_COMMUNICATION_RANGE=2
-    if ((${tmp_counter} == 0)); then
-      MAX_COMMUNICATION_RANGE=5
-    elif ((${tmp_counter} == 1)); then
-      MAX_COMMUNICATION_RANGE=10
-    elif ((${tmp_counter} == 2)); then
-      MAX_COMMUNICATION_RANGE=15
-    elif ((${tmp_counter} == 3)); then
-      MAX_COMMUNICATION_RANGE=20
-    elif ((${tmp_counter} == 4)); then
-      MAX_COMMUNICATION_RANGE=25
-    elif ((${tmp_counter} == 5)); then
-      MAX_COMMUNICATION_RANGE=30
-    elif ((${tmp_counter} == 6)); then
-      MAX_COMMUNICATION_RANGE=35
-    elif ((${tmp_counter} == 7)); then
-      MAX_COMMUNICATION_RANGE=40
-    elif ((${tmp_counter} == 8)); then
-      MAX_COMMUNICATION_RANGE=45
-  fi
-
-
-    EXP_NAME=experiment_cl_adaptive_com_range_05_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_to_${MAX_COMMUNICATION_RANGE}
+    EXP_NAME=experiment_cl_adaptive_com_range_vanilla_01_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_to_${MAX_COMMUNICATION_RANGE}_map_$((11 + ${tmp_counter} % 11))
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots
@@ -63,7 +61,7 @@ else
     BEHAVIOUR_FILE=${EXP_FOLDER}/build/behaviours/agent_stub
     LOOPFUNCTION_FILE=${EXP_FOLDER}/build/loop_functions/libkilogrid_stub
 
-    CONFIG_FILE=${EXP_FOLDER}/ARGoS_simulation/loop_functions/${conf}
+    CONFIG_FILE=${EXP_FOLDER}/ARGoS_simulation/loop_functions/kilogrid_conf_files/${conf}
 
     # path to template
     EXP_TEMPLATE_SRC=${EXP_FOLDER}/ARGoS_simulation/experiment/3_op_template_kilogrid.argos
