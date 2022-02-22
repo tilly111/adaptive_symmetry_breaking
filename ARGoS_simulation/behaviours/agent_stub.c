@@ -54,7 +54,7 @@
 #define UPDATE_TICKS 60
 #define BROADCAST_TICKS 15
 #define MIN_COMMUNICATION_RANGE 1  // is used in dynamic com update
-#define COMMUNICATION_THRESHOLD_TIMER 15000 // in ticks
+#define COMMUNICATION_THRESHOLD_TIMER 1875 // in ticks - should be 1 min????
 #define PARAM 0.0
 
 // flags
@@ -280,7 +280,7 @@ void update_commitment() {
             quality = 0.0;
         }
         // switch with higher probability - @giovanni this is what you suggested right?
-        // unsigned int p_quality = (unsigned int) ((1) * range_rnd) + 1;  // quality
+//         unsigned int p_quality = (unsigned int) ((quality) * range_rnd) + 1;  // quality
 
         // Discovery and COMPARE: found a better option (in case of discovery robot is uncommitted
         // thus robot_commitment_quality should be 0
@@ -368,7 +368,7 @@ void update_communication_range(){
     // to be checked
     uint32_t tmp_communication_range;
     uint32_t threshold_1 = COMMUNICATION_THRESHOLD_TIMER;
-    uint32_t threshold_2 = 2 * threshold_1;  // TODO maybe we need to do this dynamic as well
+//    uint32_t threshold_2 = 2 * threshold_1;  // TODO maybe we need to do this dynamic as well
 
     //tmp_communication_range = communication_range;
 

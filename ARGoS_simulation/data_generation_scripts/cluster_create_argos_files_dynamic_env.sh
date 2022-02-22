@@ -19,33 +19,38 @@ else
     INITIAL_COMMITMENT=1 # initial commitment of the robots
 
     conf=ASB_experiment_1.kconf
-    conf2=ASB_experiment_11.kconf
+    if ((${tmp_counter} == 0)); then
+      conf2=ASB_experiment_8.kconf
+    elif ((${tmp_counter} == 1)); then
+      conf2=ASB_experiment_9.kconf
+    fi
     n=3
 
     INITIAL_COMMUNICATION_RANGE=1
+    MAX_COMMUNICATION_RANGE=45
+#    if ((${tmp_counter} == 0)); then
+#      MAX_COMMUNICATION_RANGE=2
+#    elif ((${tmp_counter} == 1)); then
+#      MAX_COMMUNICATION_RANGE=5
+#    elif ((${tmp_counter} == 2)); then
+#      MAX_COMMUNICATION_RANGE=10
+#    elif ((${tmp_counter} == 3)); then
+#      MAX_COMMUNICATION_RANGE=15
+#    elif ((${tmp_counter} == 4)); then
+#      MAX_COMMUNICATION_RANGE=20
+#    elif ((${tmp_counter} == 5)); then
+#      MAX_COMMUNICATION_RANGE=25
+#    elif ((${tmp_counter} == 6)); then
+#      MAX_COMMUNICATION_RANGE=30
+#    elif ((${tmp_counter} == 7)); then
+#      MAX_COMMUNICATION_RANGE=35
+#    elif ((${tmp_counter} == 8)); then
+#      MAX_COMMUNICATION_RANGE=40
+#    elif ((${tmp_counter} == 9)); then
+#      MAX_COMMUNICATION_RANGE=45
+#    fi
 
-    MAX_COMMUNICATION_RANGE=2
-    if ((${tmp_counter} == 0)); then
-      MAX_COMMUNICATION_RANGE=5
-    elif ((${tmp_counter} == 1)); then
-      MAX_COMMUNICATION_RANGE=10
-    elif ((${tmp_counter} == 2)); then
-      MAX_COMMUNICATION_RANGE=15
-    elif ((${tmp_counter} == 3)); then
-      MAX_COMMUNICATION_RANGE=20
-    elif ((${tmp_counter} == 4)); then
-      MAX_COMMUNICATION_RANGE=25
-    elif ((${tmp_counter} == 5)); then
-      MAX_COMMUNICATION_RANGE=30
-    elif ((${tmp_counter} == 6)); then
-      MAX_COMMUNICATION_RANGE=35
-    elif ((${tmp_counter} == 7)); then
-      MAX_COMMUNICATION_RANGE=40
-    elif ((${tmp_counter} == 8)); then
-      MAX_COMMUNICATION_RANGE=45
-  fi
-
-    EXP_NAME=experiment_cl_adaptive_com_range_map_00_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_to_${MAX_COMMUNICATION_RANGE}
+    EXP_NAME=experiment_cl_adaptive_com_range_map_01_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_to_${MAX_COMMUNICATION_RANGE}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots

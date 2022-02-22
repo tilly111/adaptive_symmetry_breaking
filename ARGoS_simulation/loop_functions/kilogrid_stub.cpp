@@ -195,7 +195,9 @@ void CKilogrid::PostStep() {
 
     // TODO change to desired value! -> how to implement in the kilogrid probably saving multiple
     //  during the init phase
-    if (GetSpace().GetSimulationClock() == 100000) {
+    // change after 20 min = 38400 (20*60*1000/(1000/32)) = min*60*32
+    // change after 10 min = 19200 (20*60*32) = min*60*32
+    if (GetSpace().GetSimulationClock() == 19200) {
         printf("changing environment \n");
         change_environment();
         GetSpace().GetFloorEntity().SetChanged();
