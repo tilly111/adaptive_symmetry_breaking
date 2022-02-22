@@ -304,6 +304,7 @@ void update_commitment() {
             }
         }
 
+        /// CROSS-INHIBITION MODEL
         if(individual){
             /// set new commitment
             robot_commitment = discovered_option;
@@ -355,6 +356,57 @@ void update_commitment() {
             /// set last commitment switch - if we switch based on social information it is only second hand, thus we do not want to tell everybody
             commitment_switch_flag = false;
         }
+
+//        /// DIRECT-SWITCHING MODEL
+//        if(individual){
+//            /// set new commitment
+//            robot_commitment = discovered_option;
+//            robot_commitment_quality = discovered_quality;
+//            // reset last robot commitment
+//            last_robot_commitment = UNINITIALISED;
+//            last_robot_commitment_quality = 0.0;
+//            /// set last commitment switch - trigger for updating the communication range dynamically
+//            last_commitment_switch = kilo_ticks;
+//            commitment_switch_flag = true;
+//        }else if(social){
+//            if (last_robot_commitment == received_option){
+//                quality
+//            }
+//
+//            if (robot_commitment == UNCOMMITTED){
+//                // set new commitment
+//                robot_commitment = received_option;
+//                // set new option the robot should sample
+//                op_to_sample = received_option;
+//                /// Depending on the storage set commitment quality
+//                if (last_robot_commitment == received_option){
+//                    robot_commitment_quality = last_robot_commitment_quality;
+//                    // reset last robot commitment
+//                    last_robot_commitment = UNINITIALISED;
+//                    last_robot_commitment_quality = 0.0;
+//                } else {  // no information -> start form 0
+//                    robot_commitment_quality = 0.0;
+//                    // todo here we do not need to reset last_robot commitment bc
+//                    //  red -> uncom -> blue -> uncom -> red never finished sampling;
+//                    //  robot can immediately speak
+//                }
+//            } else {  /// Robot is committed
+//                // remember last robot commitment if there is some information
+//                if (robot_commitment_quality != 0.0){
+//                    last_robot_commitment = robot_commitment;
+//                    last_robot_commitment_quality = robot_commitment_quality;
+//                }
+//                /// DIRECT-SWITCH: recruited directly
+////                robot_commitment = received_option;
+////                robot_commitment_quality = 0.0;
+////                op_to_sample = received_option;
+//            }
+//            /// reset sampling to make a new estimate on current commitment
+//            sample_op_counter = 0;
+//            sample_counter = 0;
+//            /// set last commitment switch - if we switch based on social information it is only second hand, thus we do not want to tell everybody
+//            commitment_switch_flag = false;
+//        }
         // reset discovery and new message, so that they are not used again
         new_robot_msg = false;
         discovered = false;
