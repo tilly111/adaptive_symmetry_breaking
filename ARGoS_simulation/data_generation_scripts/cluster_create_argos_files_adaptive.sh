@@ -23,23 +23,23 @@ else
 #      MAX_COMMUNICATION_RANGE=45
       if ((${tmp_counter}  == 0)); then
         MAX_COMMUNICATION_RANGE=2
-      elif ((${tmp_counter} == 3)); then
+      elif ((${tmp_counter} == 11)); then
         MAX_COMMUNICATION_RANGE=5
-      elif ((${tmp_counter} == 6)); then
+      elif ((${tmp_counter} == 22)); then
         MAX_COMMUNICATION_RANGE=10
-      elif ((${tmp_counter} == 9)); then
+      elif ((${tmp_counter} == 33)); then
         MAX_COMMUNICATION_RANGE=15
-      elif ((${tmp_counter} == 12)); then
+      elif ((${tmp_counter} == 44)); then
         MAX_COMMUNICATION_RANGE=20
-      elif ((${tmp_counter} == 15)); then
+      elif ((${tmp_counter} == 55)); then
         MAX_COMMUNICATION_RANGE=25
-      elif ((${tmp_counter} == 18)); then
+      elif ((${tmp_counter} == 66)); then
         MAX_COMMUNICATION_RANGE=30
-      elif ((${tmp_counter} == 21)); then
+      elif ((${tmp_counter} == 77)); then
         MAX_COMMUNICATION_RANGE=35
-      elif ((${tmp_counter} == 24)); then
+      elif ((${tmp_counter} == 88)); then
         MAX_COMMUNICATION_RANGE=40
-      elif ((${tmp_counter} == 27)); then
+      elif ((${tmp_counter} == 99)); then
         MAX_COMMUNICATION_RANGE=45
       fi
 
