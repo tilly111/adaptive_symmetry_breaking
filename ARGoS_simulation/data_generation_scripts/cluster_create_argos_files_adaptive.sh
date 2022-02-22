@@ -17,33 +17,33 @@ else
   for j in $(seq ${1} ${2}); do
       # parameters to choose
       INITIAL_COMMITMENT=1 # initial commitment of the robots
-      conf=ASB_experiment_$((11 + ${tmp_counter} % 11)).kconf
+      conf=ASB_experiment_$((22 + ${tmp_counter} % 3)).kconf
       n=3
 
       if ((${tmp_counter}  == 0)); then
         MAX_COMMUNICATION_RANGE=2
-      elif ((${tmp_counter} == 11)); then
+      elif ((${tmp_counter} == 3)); then
         MAX_COMMUNICATION_RANGE=5
-      elif ((${tmp_counter} == 22)); then
+      elif ((${tmp_counter} == 6)); then
         MAX_COMMUNICATION_RANGE=10
-      elif ((${tmp_counter} == 33)); then
+      elif ((${tmp_counter} == 9)); then
         MAX_COMMUNICATION_RANGE=15
-      elif ((${tmp_counter} == 44)); then
+      elif ((${tmp_counter} == 12)); then
         MAX_COMMUNICATION_RANGE=20
-      elif ((${tmp_counter} == 55)); then
+      elif ((${tmp_counter} == 15)); then
         MAX_COMMUNICATION_RANGE=25
-      elif ((${tmp_counter} == 66)); then
+      elif ((${tmp_counter} == 18)); then
         MAX_COMMUNICATION_RANGE=30
-      elif ((${tmp_counter} == 77)); then
+      elif ((${tmp_counter} == 21)); then
         MAX_COMMUNICATION_RANGE=35
-      elif ((${tmp_counter} == 88)); then
+      elif ((${tmp_counter} == 24)); then
         MAX_COMMUNICATION_RANGE=40
-      elif ((${tmp_counter} == 99)); then
+      elif ((${tmp_counter} == 27)); then
         MAX_COMMUNICATION_RANGE=45
     fi
 
     INITIAL_COMMUNICATION_RANGE=1
-    EXP_NAME=experiment_cl_adaptive_com_range_vanilla_01_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_to_${MAX_COMMUNICATION_RANGE}_map_$((11 + ${tmp_counter} % 11))
+    EXP_NAME=experiment_cl_adaptive_com_range_3difopt_01_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_to_${MAX_COMMUNICATION_RANGE}_map_$((22 + ${tmp_counter} % 3))
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots

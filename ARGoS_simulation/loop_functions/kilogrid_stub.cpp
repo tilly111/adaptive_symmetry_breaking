@@ -193,8 +193,9 @@ void CKilogrid::PostStep() {
 
     data_saving_counter++;
 
-    // TODO change environment dynamically, atm dirty hack and imo wont make it into the kilogrid
-    if (GetSpace().GetSimulationClock() == 19200) {
+    // TODO change to desired value! -> how to implement in the kilogrid probably saving multiple
+    //  during the init phase
+    if (GetSpace().GetSimulationClock() == 100000) {
         printf("changing environment \n");
         change_environment();
         GetSpace().GetFloorEntity().SetChanged();
