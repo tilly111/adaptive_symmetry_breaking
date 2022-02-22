@@ -280,12 +280,12 @@ void update_commitment() {
             quality = 0.0;
         }
         // switch with higher probability - @giovanni this is what you suggested right?
-        unsigned int p_quality = (unsigned int) ((1) * range_rnd) + 1;  // quality
+        // unsigned int p_quality = (unsigned int) ((1) * range_rnd) + 1;  // quality
 
         // Discovery and COMPARE: found a better option (in case of discovery robot is uncommitted
         // thus robot_commitment_quality should be 0
         // TODO maybe choose PARAM higher than 0.0 in order to improve stability
-        if(quality > robot_commitment_quality + PARAM && random <= p_quality){
+        if(quality > robot_commitment_quality + PARAM){ //  && random <= p_quality
             individual = true;
         }
         // RECRUITMENT and DIRECT-SWITCH: message with different option
