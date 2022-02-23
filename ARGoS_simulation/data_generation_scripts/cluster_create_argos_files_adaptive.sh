@@ -20,31 +20,31 @@ else
       conf=ASB_experiment_$((11 + ${tmp_counter} % 11)).kconf
       n=3
 
-#      MAX_COMMUNICATION_RANGE=45
-      if ((${tmp_counter}  == 0)); then
-        MAX_COMMUNICATION_RANGE=2
-      elif ((${tmp_counter} == 11)); then
-        MAX_COMMUNICATION_RANGE=5
-      elif ((${tmp_counter} == 22)); then
-        MAX_COMMUNICATION_RANGE=10
-      elif ((${tmp_counter} == 33)); then
-        MAX_COMMUNICATION_RANGE=15
-      elif ((${tmp_counter} == 44)); then
-        MAX_COMMUNICATION_RANGE=20
-      elif ((${tmp_counter} == 55)); then
-        MAX_COMMUNICATION_RANGE=25
-      elif ((${tmp_counter} == 66)); then
-        MAX_COMMUNICATION_RANGE=30
-      elif ((${tmp_counter} == 77)); then
-        MAX_COMMUNICATION_RANGE=35
-      elif ((${tmp_counter} == 88)); then
-        MAX_COMMUNICATION_RANGE=40
-      elif ((${tmp_counter} == 99)); then
-        MAX_COMMUNICATION_RANGE=45
-      fi
+      MAX_COMMUNICATION_RANGE=45
+#      if ((${tmp_counter}  == 0)); then
+#        MAX_COMMUNICATION_RANGE=2
+#      elif ((${tmp_counter} == 11)); then
+#        MAX_COMMUNICATION_RANGE=5
+#      elif ((${tmp_counter} == 22)); then
+#        MAX_COMMUNICATION_RANGE=10
+#      elif ((${tmp_counter} == 33)); then
+#        MAX_COMMUNICATION_RANGE=15
+#      elif ((${tmp_counter} == 44)); then
+#        MAX_COMMUNICATION_RANGE=20
+#      elif ((${tmp_counter} == 55)); then
+#        MAX_COMMUNICATION_RANGE=25
+#      elif ((${tmp_counter} == 66)); then
+#        MAX_COMMUNICATION_RANGE=30
+#      elif ((${tmp_counter} == 77)); then
+#        MAX_COMMUNICATION_RANGE=35
+#      elif ((${tmp_counter} == 88)); then
+#        MAX_COMMUNICATION_RANGE=40
+#      elif ((${tmp_counter} == 99)); then
+#        MAX_COMMUNICATION_RANGE=45
+#      fi
 
     INITIAL_COMMUNICATION_RANGE=1
-    EXP_NAME=experiment_cl_adaptive_com_range_vanilla_02_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_to_${MAX_COMMUNICATION_RANGE}_map_$((11 + ${tmp_counter} % 11))
+    EXP_NAME=experiment_cl_adaptive_com_range_direct_switch_00_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_to_${MAX_COMMUNICATION_RANGE}_map_$((11 + ${tmp_counter} % 11))
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots
