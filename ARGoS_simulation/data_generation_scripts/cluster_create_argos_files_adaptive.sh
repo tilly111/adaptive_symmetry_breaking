@@ -44,7 +44,7 @@ else
 #      fi
 
     INITIAL_COMMUNICATION_RANGE=1
-    EXP_NAME=experiment_cl_adaptive_com_range_direct_switch_00_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_to_${MAX_COMMUNICATION_RANGE}_map_$((11 + ${tmp_counter} % 11))
+    EXP_NAME=experiment_cl_adaptive_com_range_direct_switch_01_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_to_${MAX_COMMUNICATION_RANGE}_map_$((11 + ${tmp_counter} % 11))
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots

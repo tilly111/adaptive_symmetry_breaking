@@ -263,8 +263,8 @@ void update_commitment() {
         update_ticks_noise = UPDATE_TICKS + GetRandomNumber(10000) % 5;
 
         // drawing a random number
-        unsigned int range_rnd = 10000;
-        unsigned int random = GetRandomNumber(range_rnd);
+//        unsigned int range_rnd = 10000;
+//        unsigned int random = GetRandomNumber(range_rnd);
 
         double quality;
         bool social = false;
@@ -361,23 +361,23 @@ void update_commitment() {
             last_commitment_switch = kilo_ticks;
             commitment_switch_flag = true;
         }else if(social){
-//            if (last_robot_commitment == received_option){
-//                // set commitment
-//                robot_commitment = received_option;
-//                robot_commitment_quality = last_robot_commitment_quality;
-//                // reset last robot commitment
-//                last_robot_commitment = UNINITIALISED;
-//                last_robot_commitment_quality = 0.0;
-//            }else {
-//                if (robot_commitment_quality != 0.0) {
-//                    last_robot_commitment = robot_commitment;
-//                    last_robot_commitment_quality = robot_commitment_quality;
-//                }
+            if (last_robot_commitment == received_option){
+                // set commitment
+                robot_commitment = received_option;
+                robot_commitment_quality = last_robot_commitment_quality;
+                // reset last robot commitment
+                last_robot_commitment = UNINITIALISED;
+                last_robot_commitment_quality = 0.0;
+            }else {
+                if (robot_commitment_quality != 0.0) {
+                    last_robot_commitment = robot_commitment;
+                    last_robot_commitment_quality = robot_commitment_quality;
+                }
                 /// DIRECT-SWITCHING
                 robot_commitment = received_option;
                 robot_commitment_quality = 0.0;
                 op_to_sample = received_option;
-//            }
+            }
             /// reset sampling to make a new estimate on current commitment
             sample_op_counter = 0;
             sample_counter = 0;
