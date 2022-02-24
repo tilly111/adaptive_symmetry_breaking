@@ -6,7 +6,7 @@
 // macro if we are in sim or reality -> command out if on real robot
 #define SIMULATION
 //#define CROSS_INHIBITION
-//#define RECRUITBACK
+#define RECRUITBACK
 
 
 /*-----------------------------------------------------------------------------------------------*/
