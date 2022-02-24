@@ -50,7 +50,7 @@ else
 #      MAX_COMMUNICATION_RANGE=45
 #    fi
 
-    EXP_NAME=experiment_cl_adaptive_com_range_map_01_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_to_${MAX_COMMUNICATION_RANGE}
+    EXP_NAME=experiment_cl_adaptive_com_range_map_02_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_to_${MAX_COMMUNICATION_RANGE}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots
