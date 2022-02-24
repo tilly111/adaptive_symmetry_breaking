@@ -375,10 +375,12 @@ void update_commitment() {
                     last_robot_commitment = robot_commitment;
                     last_robot_commitment_quality = robot_commitment_quality;
                 }
+#endif
                 /// DIRECT-SWITCHING
                 robot_commitment = received_option;
                 robot_commitment_quality = 0.0;
                 op_to_sample = received_option;
+#ifdef RECRUITBACK
             }
 #endif
             /// reset sampling to make a new estimate on current commitment
@@ -386,9 +388,8 @@ void update_commitment() {
             sample_counter = 0;
             /// set last commitment switch - if we switch based on social information it is only second hand, thus we do not want to tell everybody
             commitment_switch_flag = false;
-#ifdef RECRUITBACK
+
         }
-#endif
 #endif
         // reset discovery and new message, so that they are not used again
         new_robot_msg = false;
