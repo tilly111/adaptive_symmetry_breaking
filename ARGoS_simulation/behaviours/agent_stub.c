@@ -5,7 +5,7 @@
 
 // macro if we are in sim or reality -> command out if on real robot
 #define SIMULATION
-//#define CROSS_INHIBITION
+#define CROSS_INHIBITION
 #define RECRUITBACK
 
 
@@ -52,7 +52,9 @@
 #define ROTATION_SPEED 38
 
 // parameters
-#define SAMPLE_COUNTER_MAX 30
+//#define SAMPLE_COUNTER_MAX 30
+// TODO made dynaic for ants paper
+uint8_t SAMPLE_COUNTER_MAX = 0;
 #define UPDATE_TICKS 60
 #define BROADCAST_TICKS 15
 #define MIN_COMMUNICATION_RANGE 1  // is used in dynamic com update
@@ -396,7 +398,7 @@ void update_communication_range(){
     uint32_t threshold_1 = COMMUNICATION_THRESHOLD_TIMER;
 //    uint32_t threshold_2 = 2 * threshold_1;  // TODO maybe we need to do this dynamic as well
 
-    //tmp_communication_range = communication_range;
+    tmp_communication_range = communication_range;
 
     /// different update rules
     /// exponential increase
@@ -416,11 +418,11 @@ void update_communication_range(){
 //        tmp_communication_range = 45;
 //    }
     /// adaptive by changing its opinion - step
-    if (kilo_ticks - last_commitment_switch < threshold_1 && commitment_switch_flag) {
-        tmp_communication_range = max_communication_range;
-    }else {
-        tmp_communication_range = MIN_COMMUNICATION_RANGE;
-    }
+//    if (kilo_ticks - last_commitment_switch < threshold_1 && commitment_switch_flag) {
+//        tmp_communication_range = max_communication_range;
+//    }else {
+//        tmp_communication_range = MIN_COMMUNICATION_RANGE;
+//    }
 
     /// linear decrease
     //tmp_communication_range = max_communication_range - ((kilo_ticks-last_commitment_switch)*max_communication_range/COMMUNICATION_THRESHOLD_TIMER);
@@ -739,7 +741,10 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         current_ground = msg->data[5];
         op_to_sample = current_ground;
         communication_range = msg->data[6];
-        max_communication_range = msg->data[7];
+        // TODO: changed for experiment for ants paper
+        // max_communication_range = msg->data[7];
+        SAMPLE_COUNTER_MAX = msg->data[7];
+        sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);
         init_flag = true;
     }else if(msg->type == GRID_MSG && init_flag){
         received_x = msg->data[0];
@@ -835,7 +840,8 @@ void setup(){
     received_kilo_uid = kilo_uid;
 
     // init some counters
-    sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);
+    // TODO: is commented out due to experiments for ants paper with different sampling numbers
+    // sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);
     update_ticks_noise = UPDATE_TICKS + (GetRandomNumber(10000) % UPDATE_TICKS);
 
     last_broadcast_ticks = GetRandomNumber(10000) % BROADCAST_TICKS + 1;
@@ -923,7 +929,7 @@ void loop() {
 
     // debug prints
 //    if(kilo_uid == 0){
-//        printf("[%d] %d %d %d %d \n", kilo_uid, (uint8_t)ADDR_BROADCAST, (uint8_t)ADDR_ROW, (uint8_t)ADDR_COLUMN,(uint8_t)ADDR_INDIVIDUAL);
+//        printf("[%d] %d \n", kilo_uid, SAMPLE_COUNTER_MAX);
 //    }
 #else
     tracking_data.byte[1] = received_x;
