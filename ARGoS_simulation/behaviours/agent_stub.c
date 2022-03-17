@@ -300,8 +300,6 @@ void update_commitment() {
             }
         }
 
-#ifdef CROSS_INHIBITION
-        /// CROSS-INHIBITION MODEL
         if(individual){
             /// set new commitment
             robot_commitment = discovered_option;
@@ -314,6 +312,9 @@ void update_commitment() {
             commitment_switch_flag = true;
             // in case we want to try communication range based on how large the change is
 //            step_size = (int)(20.0*(robot_commitment_quality/(last_robot_commitment_quality + robot_commitment_quality))); // this should be between 1 and 0.5
+
+#ifdef CROSS_INHIBITION
+        /// CROSS-INHIBITION MODEL
         }else if(social){
             if (robot_commitment == UNCOMMITTED){
                 // set new commitment
@@ -351,16 +352,6 @@ void update_commitment() {
         }
 #else
         /// DIRECT-SWITCHING MODEL
-        if(individual){
-            /// set new commitment
-            robot_commitment = discovered_option;
-            robot_commitment_quality = discovered_quality;
-            // reset last robot commitment
-            last_robot_commitment = UNINITIALISED;
-            last_robot_commitment_quality = 0.0;
-            /// set last commitment switch - trigger for updating the communication range dynamically
-            last_commitment_switch = kilo_ticks;
-            commitment_switch_flag = true;
         }else if(social){
 #ifdef RECRUITBACK
             if (last_robot_commitment == received_option){
@@ -388,7 +379,6 @@ void update_commitment() {
             sample_counter = 0;
             /// set last commitment switch - if we switch based on social information it is only second hand, thus we do not want to tell everybody
             commitment_switch_flag = false;
-
         }
 #endif
         // reset discovery and new message, so that they are not used again
@@ -933,7 +923,7 @@ void loop() {
 
     // debug prints
 //    if(kilo_uid == 0){
-//        printf("[%d] max com range %d  \n", kilo_uid, max_communication_range);
+//        printf("[%d] %d %d %d %d \n", kilo_uid, (uint8_t)ADDR_BROADCAST, (uint8_t)ADDR_ROW, (uint8_t)ADDR_COLUMN,(uint8_t)ADDR_INDIVIDUAL);
 //    }
 #else
     tracking_data.byte[1] = received_x;

@@ -448,3 +448,34 @@ Installation instruction for
 - installation on cluster ?
 - installation on new cluster ?
 - installation of sidepkg aka lua5.3 mein erzfeind
+
+## Kilogrid fixing session 14.03.22 - notes 
+TODO make some notes about fixing the kilogrid
+
+Questions:
+If the control cycle takes less than 32 ms, does the controller wait? -> did not seem so
+ringbuffer.h short explanation on the syntax 
+
+sending message: 332
+receiving: can_rx -> processed in the main loop @ 261
+description on how to use is: module.c@263 -> this method does not exist imo -- i did not find it 
+
+
+
+- project settings -> adjust path maybe fixes the problem!
+- clean all before building .. release seems to work
+
+reset can with can init 
+check if the module hangs up or only the can module thingy
+WRITE EMAIL
+
+- one module sends can message, all modueles blink periodically - one module stops working -> seems to crash thus the main loop is not executed anymore bc it does not blink?! independent of the can module 
+- logging works till the module hangs up, after wards no more logging from any module
+- before it loggs normal
+
+init_ModuleCAN after some time does not fix the problem
+
+added CAN_message_type_t
+
+-------------------
+seems to be a problem with the addressing/broadcasting sending random messages to the dispatcher works fine
