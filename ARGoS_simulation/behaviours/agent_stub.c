@@ -744,7 +744,7 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         // TODO: changed for experiment for ants paper
         // max_communication_range = msg->data[7];
         SAMPLE_COUNTER_MAX = msg->data[7];
-        sample_counter_max_noise = SAMPLE_COUNTER_MAX;// + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);
+        sample_counter_max_noise = (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);
         init_flag = true;
     }else if(msg->type == GRID_MSG && init_flag){
         received_x = msg->data[0];
