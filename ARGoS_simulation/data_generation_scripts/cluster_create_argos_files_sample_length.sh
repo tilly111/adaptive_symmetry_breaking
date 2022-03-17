@@ -13,7 +13,8 @@ if [ $# -lt ${EXPECTED_ARGS} ]; then
 
 else
   tmp_counter=0
-
+  MAX_COMMUNICATION_RANGE=30
+  INITIAL_COMMUNICATION_RANGE=1
   for j in $(seq ${1} ${2}); do
       # parameters to choose
       INITIAL_COMMITMENT=1 # initial commitment of the robots
@@ -21,7 +22,6 @@ else
       n=2
 
       # max communication range = sampling number
-      MAX_COMMUNICATION_RANGE=30
       if ((${tmp_counter}  == 0)); then
         MAX_COMMUNICATION_RANGE=5
       elif ((${tmp_counter} == 17)); then
@@ -40,7 +40,6 @@ else
         MAX_COMMUNICATION_RANGE=60
       fi
     # initial communication range = communication range
-    INITIAL_COMMUNICATION_RANGE=1
     if (($((${tmp_counter} % 17)) == 0)); then
           INITIAL_COMMUNICATION_RANGE=1
     elif (($((${tmp_counter} % 17)) == 1)); then
