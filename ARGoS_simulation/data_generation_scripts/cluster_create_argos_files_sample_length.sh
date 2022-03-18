@@ -3,22 +3,29 @@
 ###################################
 # Synopsis of the script
 ###################################
-EXPECTED_ARGS=2
+EXPECTED_ARGS=4
 if [ $# -lt ${EXPECTED_ARGS} ]; then
   echo "This script creates N argos files for the cluster!"
   echo "Usage $0 <start> <end> "
   echo $'\t'"[MANDATORY] <start> number of the first experiment"
   echo $'\t'"[MANDATORY] <end> number of the last experiment ()"
+  echo $'\t'"[MANDATORY] <environment> number of the environment"
+  echo $'\t'"[MANDATORY] <init quality> init quality"
   exit
 
 else
   tmp_counter=0
   MAX_COMMUNICATION_RANGE=30
   INITIAL_COMMUNICATION_RANGE=1
+  INITIAL_COMMITMENT=1 # initial commitment of the robots
+
+  # stuff needs to be adjusted
+  ENVIRONMENT=${3}
+  INITIAL_COMMITMENT_QUALITY=${4}
   for j in $(seq ${1} ${2}); do
       # parameters to choose
-      INITIAL_COMMITMENT=1 # initial commitment of the robots
-      conf=ASB_experiment_4.kconf
+
+      conf=sample_${ENVIRONMENT}.kconf
       n=2
 
       # max communication range = sampling number
@@ -75,7 +82,7 @@ else
     elif (($((${tmp_counter} % 17)) == 16)); then
           INITIAL_COMMUNICATION_RANGE=45
     fi
-    EXP_NAME=experiment_cl_sampling_cross_inhib_02_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_samples_${MAX_COMMUNICATION_RANGE}
+    EXP_NAME=experiment_cl_sampling_cross_inhib_03_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_samples_${MAX_COMMUNICATION_RANGE}_env_${ENVIRONMENT}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots
@@ -124,6 +131,7 @@ else
         -e "s|datafilename|${DATA_FILE}|" \
         -e "s|num_robots|${NUM_ROBOTS}|" \
         -e "s|initialcommitment|${INITIAL_COMMITMENT}|" \
+        -e "s|initialcommitmentquality|${INITIAL_COMMITMENT_QUALITY}|" \
         -e "s|numberofoptions|${n}|" \
         -e "s|initialcommunicationrange|${INITIAL_COMMUNICATION_RANGE}|" \
         -e "s|maxcommunicationrange|${MAX_COMMUNICATION_RANGE}|" \

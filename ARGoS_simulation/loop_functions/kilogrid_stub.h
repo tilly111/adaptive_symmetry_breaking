@@ -208,6 +208,7 @@ private:
 
     // init stuff
     uint8_t initial_commitment = 1;
+    uint8_t initial_commitment_quality = 70;
     uint8_t number_of_options = 3;
     uint8_t initial_communication_range;
     uint8_t max_communication_range;

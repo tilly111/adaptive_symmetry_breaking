@@ -394,63 +394,63 @@ void update_communication_range(){
     // TODO clean up when we exactly know what we want to do
     // @giovanni this is very messy at the moment and is still under construction so does not need
     // to be checked
-    uint32_t tmp_communication_range;
-    uint32_t threshold_1 = COMMUNICATION_THRESHOLD_TIMER;
-//    uint32_t threshold_2 = 2 * threshold_1;  // TODO maybe we need to do this dynamic as well
-
-    tmp_communication_range = communication_range;
-
-    /// different update rules
-    /// exponential increase
-//    tmp_communication_range = (uint32_t) exp( (double)(kilo_ticks - last_commitment_switch) / 4925 );  // 2462
-    /// exponential decrease
-//    tmp_communication_range = (uint32_t) 45 * exp( -((double)((kilo_ticks+1) - last_commitment_switch) / 2462.0));
-    /// linear increase
-//    tmp_communication_range = (uint32_t) 45 * ( (double)(kilo_ticks - last_commitment_switch) / 18750);  //9375
-    /// linear decrease
-//    tmp_communication_range = (uint32_t) 45 * (1 - (kilo_ticks - last_commitment_switch) / 9375);
-    /// on of basically step
-//    if (kilo_ticks - last_commitment_switch < threshold_1) {
+//    uint32_t tmp_communication_range;
+//    uint32_t threshold_1 = COMMUNICATION_THRESHOLD_TIMER;
+////    uint32_t threshold_2 = 2 * threshold_1;  // TODO maybe we need to do this dynamic as well
+//
+//    tmp_communication_range = communication_range;
+//
+//    /// different update rules
+//    /// exponential increase
+////    tmp_communication_range = (uint32_t) exp( (double)(kilo_ticks - last_commitment_switch) / 4925 );  // 2462
+//    /// exponential decrease
+////    tmp_communication_range = (uint32_t) 45 * exp( -((double)((kilo_ticks+1) - last_commitment_switch) / 2462.0));
+//    /// linear increase
+////    tmp_communication_range = (uint32_t) 45 * ( (double)(kilo_ticks - last_commitment_switch) / 18750);  //9375
+//    /// linear decrease
+////    tmp_communication_range = (uint32_t) 45 * (1 - (kilo_ticks - last_commitment_switch) / 9375);
+//    /// on of basically step
+////    if (kilo_ticks - last_commitment_switch < threshold_1) {
+////        tmp_communication_range = 1;
+////    }else if(kilo_ticks - last_commitment_switch < threshold_2 ){
+////        tmp_communication_range = (int)(44.0/((double)(threshold_2-threshold_1)) * (double)kilo_ticks) - 43;
+////    }else {
+////        tmp_communication_range = 45;
+////    }
+//    /// adaptive by changing its opinion - step
+////    if (kilo_ticks - last_commitment_switch < threshold_1 && commitment_switch_flag) {
+////        tmp_communication_range = max_communication_range;
+////    }else {
+////        tmp_communication_range = MIN_COMMUNICATION_RANGE;
+////    }
+//
+//    /// linear decrease
+//    //tmp_communication_range = max_communication_range - ((kilo_ticks-last_commitment_switch)*max_communication_range/COMMUNICATION_THRESHOLD_TIMER);
+////    if (kilo_ticks > 20000) {
+////        tmp_communication_range = 2;
+////    }else if (kilo_ticks > 10000) {
+////        tmp_communication_range = 45;
+////    }else{
+////        tmp_communication_range = 2;
+////    }
+//
+//    /// adaptive by changing its opinion - linear decrease
+////    if (kilo_ticks - last_commitment_switch < threshold_1 && commitment_switch_flag) {
+////        tmp_communication_range = max_communication_range;
+////    }else if (kilo_ticks - last_commitment_switch < threshold_2 && commitment_switch_flag){
+////        tmp_communication_range = max_communication_range - (int)((double)(max_communication_range - MIN_COMMUNICATION_RANGE)/(double)(threshold_2 - threshold_1)*((kilo_ticks - last_commitment_switch)-threshold_1));
+////    }else {
+////        tmp_communication_range = MIN_COMMUNICATION_RANGE;
+////    }
+//
+//    // check for bounds
+//    if (tmp_communication_range > 45) {
+//        tmp_communication_range = 45;
+//    } else if (tmp_communication_range < 1) {
 //        tmp_communication_range = 1;
-//    }else if(kilo_ticks - last_commitment_switch < threshold_2 ){
-//        tmp_communication_range = (int)(44.0/((double)(threshold_2-threshold_1)) * (double)kilo_ticks) - 43;
-//    }else {
-//        tmp_communication_range = 45;
 //    }
-    /// adaptive by changing its opinion - step
-//    if (kilo_ticks - last_commitment_switch < threshold_1 && commitment_switch_flag) {
-//        tmp_communication_range = max_communication_range;
-//    }else {
-//        tmp_communication_range = MIN_COMMUNICATION_RANGE;
-//    }
-
-    /// linear decrease
-    //tmp_communication_range = max_communication_range - ((kilo_ticks-last_commitment_switch)*max_communication_range/COMMUNICATION_THRESHOLD_TIMER);
-//    if (kilo_ticks > 20000) {
-//        tmp_communication_range = 2;
-//    }else if (kilo_ticks > 10000) {
-//        tmp_communication_range = 45;
-//    }else{
-//        tmp_communication_range = 2;
-//    }
-
-    /// adaptive by changing its opinion - linear decrease
-//    if (kilo_ticks - last_commitment_switch < threshold_1 && commitment_switch_flag) {
-//        tmp_communication_range = max_communication_range;
-//    }else if (kilo_ticks - last_commitment_switch < threshold_2 && commitment_switch_flag){
-//        tmp_communication_range = max_communication_range - (int)((double)(max_communication_range - MIN_COMMUNICATION_RANGE)/(double)(threshold_2 - threshold_1)*((kilo_ticks - last_commitment_switch)-threshold_1));
-//    }else {
-//        tmp_communication_range = MIN_COMMUNICATION_RANGE;
-//    }
-
-    // check for bounds
-    if (tmp_communication_range > 45) {
-        tmp_communication_range = 45;
-    } else if (tmp_communication_range < 1) {
-        tmp_communication_range = 1;
-    }
-
-    communication_range = tmp_communication_range;
+//
+//    communication_range = tmp_communication_range;
 }
 
 
@@ -744,7 +744,7 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         // TODO: changed for experiment for ants paper
         // max_communication_range = msg->data[7];
         SAMPLE_COUNTER_MAX = msg->data[7];
-        sample_counter_max_noise = (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);
+        sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);  // to ensure that no robot makes random estimate with only one
         init_flag = true;
     }else if(msg->type == GRID_MSG && init_flag){
         received_x = msg->data[0];

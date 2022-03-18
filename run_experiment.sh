@@ -1,6 +1,6 @@
 #!/bin/bash
 
-EXPECTED_ARGS=2
+EXPECTED_ARGS=4
 if [ $# -lt ${EXPECTED_ARGS} ]; then
   echo "This script creates N argos files for the cluster!"
   echo "Usage $0 <start> <end> "
@@ -19,7 +19,7 @@ else
   make
   cd ..
   # here you have to change the specific file you want to run
-  sh ARGoS_simulation/data_generation_scripts/cluster_create_argos_files_sample_length.sh ${1} ${2}
+  sh ARGoS_simulation/data_generation_scripts/cluster_create_argos_files_sample_length.sh ${1} ${2} ${3} ${4}
   #sh ARGoS_simulation/data_generation_scripts/runjobs.sh
   #watch squeue -u taust
 fi

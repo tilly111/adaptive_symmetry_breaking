@@ -47,6 +47,7 @@
         config_file="configfilename"
         data_file="datafilename"
         initial_commitment="initialcommitment"
+        initial_commitment_quality="initialcommitmentquality"
         number_of_options="numberofoptions"
         initial_communication_range="initialcommunicationrange"
         max_communication_range="maxcommunicationrange"
