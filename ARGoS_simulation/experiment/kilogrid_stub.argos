@@ -8,7 +8,7 @@
 <system threads="1" />
 <experiment length="2400"
     ticks_per_second="32"
-    random_seed="11" />
+    random_seed="345" />
 </framework>
 
 <!-- *************** -->
@@ -45,14 +45,14 @@
     label="kilogrid_loop_functions">
 
     <variables
-        config_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sample_0.kconf"
-        second_config="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/ASB_experiment_8.kconf"
-        data_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/step_adaptation_test_43.txt"
-        initial_commitment="1"
-        initial_commitment_quality="230"
-        number_of_options="3"
+        config_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/test_2_op.kconf"
+        second_config="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/test_2_op.kconf"
+        data_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/step_adaptation_test_48.txt"
+        initial_commitment="2"
+        initial_commitment_quality="127"
+        number_of_options="2"
         initial_communication_range="2"
-        max_communication_range="30"
+        max_communication_range="2"
     />
 
 </loop_functions>
@@ -116,7 +116,7 @@
 <!-- ****************** -->
 <!-- * Visualization  * -->
 <!-- **************®**** -->
-<!-- -->
+<!--
 <visualization>
 
 <qt-opengl>
@@ -134,5 +134,5 @@
     </qt-opengl>
 
 </visualization>
-<!-- -->
+-->
 </argos-configuration>

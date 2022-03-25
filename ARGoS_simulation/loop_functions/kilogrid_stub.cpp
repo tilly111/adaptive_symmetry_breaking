@@ -604,15 +604,15 @@ void CKilogrid::setup(int x, int y) {
     module_memory[x][y].cell_y[2] = (configuration[x][y][1] * 2);
     module_memory[x][y].cell_y[3] = (configuration[x][y][1] * 2);
 
-    module_memory[x][y].cell_role[0] = (configuration[x][y][2]);
-    module_memory[x][y].cell_role[1] = (configuration[x][y][2]);
-    module_memory[x][y].cell_role[2] = (configuration[x][y][2]);
-    module_memory[x][y].cell_role[3] = (configuration[x][y][2]);
+    module_memory[x][y].cell_role[0] = (configuration[x][y][3]);
+    module_memory[x][y].cell_role[1] = (configuration[x][y][4]);
+    module_memory[x][y].cell_role[2] = (configuration[x][y][5]);
+    module_memory[x][y].cell_role[3] = (configuration[x][y][6]);
 
-    module_memory[x][y].cell_colour[0] = color_t(configuration[x][y][3]);
-    module_memory[x][y].cell_colour[1] = color_t(configuration[x][y][4]);
-    module_memory[x][y].cell_colour[2] = color_t(configuration[x][y][5]);
-    module_memory[x][y].cell_colour[3] = color_t(configuration[x][y][6]);
+    module_memory[x][y].cell_colour[0] = color_t(configuration[x][y][7]);
+    module_memory[x][y].cell_colour[1] = color_t(configuration[x][y][8]);
+    module_memory[x][y].cell_colour[2] = color_t(configuration[x][y][9]);
+    module_memory[x][y].cell_colour[3] = color_t(configuration[x][y][10]);
 
     module_memory[x][y].status_msg_counter = MIN_TIME_BETWEEN_MSG;
 

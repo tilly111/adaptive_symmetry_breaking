@@ -479,3 +479,8 @@ added CAN_message_type_t
 
 -------------------
 seems to be a problem with the addressing/broadcasting sending random messages to the dispatcher works fine
+
+-------------------
+Change filters to the following:
+0 and 1 to broadcast and individual message - thus these both are handled by RXB0 with a higher priority 
+filter 2 3 4 5 der rest handled by RXB1 with lower priority.. 

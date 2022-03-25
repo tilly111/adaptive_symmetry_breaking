@@ -6,7 +6,7 @@
 // macro if we are in sim or reality -> command out if on real robot
 #define SIMULATION
 #define CROSS_INHIBITION
-#define RECRUITBACK
+//#define RECRUITBACK
 
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -52,9 +52,9 @@
 #define ROTATION_SPEED 38
 
 // parameters
-//#define SAMPLE_COUNTER_MAX 30
+#define SAMPLE_COUNTER_MAX 30
 // TODO made dynaic for ants paper
-uint8_t SAMPLE_COUNTER_MAX = 0;
+//uint8_t SAMPLE_COUNTER_MAX = 0;
 #define UPDATE_TICKS 60
 #define BROADCAST_TICKS 15
 #define MIN_COMMUNICATION_RANGE 1  // is used in dynamic com update
@@ -251,7 +251,7 @@ void sample(){
             sample_counter = 0;
             sample_op_counter = 0;
             // for shuffling up we set the max sample counter
-            sample_counter_max_noise = SAMPLE_COUNTER_MAX; // + GetRandomNumber(10000) % 5;
+            sample_counter_max_noise = SAMPLE_COUNTER_MAX + GetRandomNumber(10000) % 5;
         }
     }
 }
@@ -324,23 +324,29 @@ void update_commitment() {
                 // set new option the robot should sample
                 op_to_sample = received_option;
                 /// Depending on the storage set commitment quality
+#ifdef RECRUITBACK
                 if (last_robot_commitment == received_option){
                     robot_commitment_quality = last_robot_commitment_quality;
                     // reset last robot commitment
                     last_robot_commitment = UNINITIALISED;
                     last_robot_commitment_quality = 0.0;
                 } else {  // no information -> start form 0
+#endif
                     robot_commitment_quality = 0.0;
                     // todo here we do not need to reset last_robot commitment bc
                     //  red -> uncom -> blue -> uncom -> red never finished sampling;
                     //  robot can immediately speak
+#ifdef RECRUITBACK
                 }
+#endif
             } else {  /// Robot is committed
+#ifdef RECRUITBACK
                 // remember last robot commitment if there is some information
                 if (robot_commitment_quality != 0.0){
                     last_robot_commitment = robot_commitment;
                     last_robot_commitment_quality = robot_commitment_quality;
                 }
+#endif
                 /// CROSS-INHIBITION - becomes uncommitted
                 robot_commitment = UNCOMMITTED;
                 robot_commitment_quality = 0.0;
@@ -736,15 +742,15 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         // 1 -> start at option one
         // else start uniform distributed over all options
         if (robot_commitment != 1){
-            robot_commitment = (kilo_uid % (NUMBER_OF_OPTIONS-1)) + 2;
+            robot_commitment = (kilo_uid % (NUMBER_OF_OPTIONS)) + 1;
         }
         current_ground = msg->data[5];
         op_to_sample = current_ground;
         communication_range = msg->data[6];
         // TODO: changed for experiment for ants paper
         // max_communication_range = msg->data[7];
-        SAMPLE_COUNTER_MAX = msg->data[7];
-        sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);  // to ensure that no robot makes random estimate with only one
+        // SAMPLE_COUNTER_MAX = msg->data[7];
+        // sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);  // to ensure that no robot makes random estimate with only one
         init_flag = true;
     }else if(msg->type == GRID_MSG && init_flag){
         received_x = msg->data[0];
@@ -841,7 +847,7 @@ void setup(){
 
     // init some counters
     // TODO: is commented out due to experiments for ants paper with different sampling numbers
-    // sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);
+    sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);
     update_ticks_noise = UPDATE_TICKS + (GetRandomNumber(10000) % UPDATE_TICKS);
 
     last_broadcast_ticks = GetRandomNumber(10000) % BROADCAST_TICKS + 1;
