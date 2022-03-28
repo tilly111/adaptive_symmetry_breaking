@@ -115,13 +115,12 @@ else
     JOB_DIR=${EXP_FOLDER}/job_cluster
     mkdir -p ${JOB_DIR}
 
+    JOB_FILE=${JOB_DIR}/${EXP_NAME}.sh
+    JOB_NAME=${EXP_NAME}
     for i in $(seq 0 19); do
 
       EXP_FILE=${EXP_DIR}/${EXP_NAME}_${i}.argos # full path to the experiment configuration file
-      JOB_FILE=${JOB_DIR}/${EXP_NAME}_${i}.sh
       DATA_FILE=${EXP_NAME}_${i}.txt # Full path to the data file
-
-      JOB_NAME=${EXP_NAME}_${i}
 
       sed -e "s|exp_length|${EXP_LENGTH}|" \
         -e "s|randomseed|$(($i * 124))|" \
@@ -145,7 +144,7 @@ else
         -e "s|logfile|${JOB_NAME}|" \
         -e "s|savefile|${DATA_FILE}|" \
         -e "s|wheresave|${DATA_DIR}/|" \
-        ${JOB_TEMPLATE_SRC} >${JOB_FILE}
+        ${JOB_TEMPLATE_SRC} >>${JOB_FILE}
     done
   done
 fi
