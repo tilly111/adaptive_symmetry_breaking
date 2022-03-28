@@ -52,9 +52,9 @@
 #define ROTATION_SPEED 38
 
 // parameters
-#define SAMPLE_COUNTER_MAX 30
+// #define SAMPLE_COUNTER_MAX 30
 // TODO made dynaic for ants paper
-//uint8_t SAMPLE_COUNTER_MAX = 0;
+uint8_t SAMPLE_COUNTER_MAX = 0;
 #define UPDATE_TICKS 60
 #define BROADCAST_TICKS 15
 #define MIN_COMMUNICATION_RANGE 1  // is used in dynamic com update
@@ -111,6 +111,7 @@ uint8_t max_communication_range = 0;  // for dynamic setting
 uint8_t received_option = 0;
 
 bool robot_hit_wall = false;
+bool robot_hit_semi_wall = false;
 
 uint32_t last_waypoint_time = 0;
 uint32_t state_counter = 0;
@@ -251,7 +252,8 @@ void sample(){
             sample_counter = 0;
             sample_op_counter = 0;
             // for shuffling up we set the max sample counter
-            sample_counter_max_noise = SAMPLE_COUNTER_MAX + GetRandomNumber(10000) % 5;
+            // TODO no noise on the sample time for ants
+            sample_counter_max_noise = SAMPLE_COUNTER_MAX;// + GetRandomNumber(10000) % 5;
         }
     }
 }
@@ -580,8 +582,9 @@ void move(){
     }
 
     // select current state
-    if(robot_hit_wall && !(current_state == AVOIDANCE_STRAIGHT || current_state == AVOIDANCE_TURN_LEFT || current_state == AVOIDANCE_TURN_RIGHT)){
-        // escape from wall triggered
+    if((robot_hit_wall || robot_hit_semi_wall) && !(current_state == AVOIDANCE_STRAIGHT || current_state == AVOIDANCE_TURN_LEFT || current_state == AVOIDANCE_TURN_RIGHT)){
+        // escape from wall triggered - even if the robot hit the semi wall but it is still allowed
+        //  to sample
         int32_t angletogoal = normalize_angle(
                 atan2((CELLS_Y/2) - robot_gps_y, (CELLS_X/2) - robot_gps_x) / PI * 180 -
                 robot_orientation);
@@ -680,11 +683,16 @@ void move(){
 /* Function to process the data received from the kilogrid regarding the environment             */
 /*-----------------------------------------------------------------------------------------------*/
 void update_grid_msg() {
-    // check for obstacles
-    if(received_role == 42){
+    // check for obstacles - lock that only one obstacle is viable
+    if (received_role == 21){
+        robot_hit_semi_wall = true;
+        robot_hit_wall = false;
+    }else if(received_role == 42){
         robot_hit_wall = true;
+        robot_hit_semi_wall = false;
     }else{
         robot_hit_wall = false;
+        robot_hit_semi_wall = false;
         current_ground = received_ground;
     }
 
@@ -747,10 +755,10 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         current_ground = msg->data[5];
         op_to_sample = current_ground;
         communication_range = msg->data[6];
-        // TODO: changed for experiment for ants paper
+        // TODO: changed for experiment for ants paper -> init
         // max_communication_range = msg->data[7];
-        // SAMPLE_COUNTER_MAX = msg->data[7];
-        // sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);  // to ensure that no robot makes random estimate with only one
+         SAMPLE_COUNTER_MAX = msg->data[7];
+         sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);  // to ensure that no robot makes random estimate with only one
         init_flag = true;
     }else if(msg->type == GRID_MSG && init_flag){
         received_x = msg->data[0];
@@ -847,7 +855,7 @@ void setup(){
 
     // init some counters
     // TODO: is commented out due to experiments for ants paper with different sampling numbers
-    sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);
+    //sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);
     update_ticks_noise = UPDATE_TICKS + (GetRandomNumber(10000) % UPDATE_TICKS);
 
     last_broadcast_ticks = GetRandomNumber(10000) % BROADCAST_TICKS + 1;
@@ -912,6 +920,13 @@ void loop() {
                 set_color(RGB(3,3,3));
                 break;
         }
+//        if (robot_hit_semi_wall){
+//            set_color(RGB(3,0,0));
+//        } else if (robot_hit_wall){
+//            set_color(RGB(0,3,0));
+//        }else {
+//            set_color(RGB(0,0,3));
+//        }
 
         // for sending messages
         message_tx();

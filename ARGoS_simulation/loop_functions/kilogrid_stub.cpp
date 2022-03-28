@@ -7,7 +7,7 @@
 #ifdef SIMULATION
 #define MSG_SEND_TRIES 1
 #define MAX_RESET_TIMER 1
-#define MIN_TIME_BETWEEN_MSG 1
+#define MIN_TIME_BETWEEN_MSG 0
 #else
 #define MSG_SEND_TRIES 10
 #define MAX_RESET_TIMER 5
@@ -115,15 +115,10 @@ void CKilogrid::PreStep() {
     // simulate reception of can messages
     for (int x_it = 0; x_it < 10; x_it++) {
         for (int y_it = 0; y_it < 20; y_it++) {
-            // if we have multiple messages at the same time select a random one
-            if (module_memory[x_it][y_it].received_cell_messages.size() > 0) {
-                // shuffle and take first element (this way because we also consider case == 1)
-                CAN_rx(x_it, y_it,
-                       &module_memory[x_it][y_it].received_cell_messages[m_pcRNG->Uniform(
-                               CRange<UInt32>(0,
-                                              module_memory[x_it][y_it].received_cell_messages.size()))]);
-                // clear list afterwards
-                module_memory[x_it][y_it].received_cell_messages.clear();
+            // forward all messages -> if they should be randomly shuffled by argos
+            while (module_memory[x_it][y_it].received_cell_messages.size() > 0) {
+                CAN_rx(x_it, y_it, &module_memory[x_it][y_it].received_cell_messages[0]);
+                module_memory[x_it][y_it].received_cell_messages.erase(module_memory[x_it][y_it].received_cell_messages.begin() + 0);
             }
         }
     }
@@ -570,8 +565,16 @@ void CKilogrid::init_CAN_message(CAN_message_t *cell_msg) {
 uint8_t CKilogrid::CAN_message_tx(CAN_message_t *m, kilogrid_address_t add) {
     // this is a hack because we can only virtually set msgs
     // TODO is this message coppied or just the pointer
-    // module_memory[add.x][add.y].received_cell_message = m;
-    module_memory[add.x][add.y].received_cell_messages.push_back(*m);
+
+    if (add.type == ADDR_INDIVIDUAL) {
+        module_memory[add.x][add.y].received_cell_messages.push_back(*m);
+    }else if (add.type == ADDR_BROADCAST_TO_MODULE) {
+        for (int can_tx_it_x = 0; can_tx_it_x < 10; can_tx_it_x++) {
+            for (int can_tx_it_y = 0; can_tx_it_y < 20; can_tx_it_y++) {
+                module_memory[can_tx_it_x][can_tx_it_y].received_cell_messages.push_back(*m);
+            }
+        }
+    }
 
     return 1;
 }
@@ -604,15 +607,15 @@ void CKilogrid::setup(int x, int y) {
     module_memory[x][y].cell_y[2] = (configuration[x][y][1] * 2);
     module_memory[x][y].cell_y[3] = (configuration[x][y][1] * 2);
 
-    module_memory[x][y].cell_role[0] = (configuration[x][y][3]);
-    module_memory[x][y].cell_role[1] = (configuration[x][y][4]);
-    module_memory[x][y].cell_role[2] = (configuration[x][y][5]);
-    module_memory[x][y].cell_role[3] = (configuration[x][y][6]);
+    module_memory[x][y].cell_role[0] = (configuration[x][y][2]);
+    module_memory[x][y].cell_role[1] = (configuration[x][y][3]);
+    module_memory[x][y].cell_role[2] = (configuration[x][y][4]);
+    module_memory[x][y].cell_role[3] = (configuration[x][y][5]);
 
-    module_memory[x][y].cell_colour[0] = color_t(configuration[x][y][7]);
-    module_memory[x][y].cell_colour[1] = color_t(configuration[x][y][8]);
-    module_memory[x][y].cell_colour[2] = color_t(configuration[x][y][9]);
-    module_memory[x][y].cell_colour[3] = color_t(configuration[x][y][10]);
+    module_memory[x][y].cell_colour[0] = color_t(configuration[x][y][6]);
+    module_memory[x][y].cell_colour[1] = color_t(configuration[x][y][7]);
+    module_memory[x][y].cell_colour[2] = color_t(configuration[x][y][8]);
+    module_memory[x][y].cell_colour[3] = color_t(configuration[x][y][9]);
 
     module_memory[x][y].status_msg_counter = MIN_TIME_BETWEEN_MSG;
 
@@ -621,17 +624,23 @@ void CKilogrid::setup(int x, int y) {
     // module_memory[x][y].received_cell_message->id = 0;
 
     for (int i = 0; i < 4; i++) {
+//        if (module_memory[x][y].cell_role[i] == 0) {
+//            set_LED_with_brightness(x, y, cell_id[i], WHITE, HIGH);
+//        }
+//        else if(module_memory[x][y].cell_role[i] == 21) {
+//            set_LED_with_brightness(x, y, cell_id[i], RED, HIGH);
+//        }
+//        else if (module_memory[x][y].cell_role[i] == 42) {
+//            set_LED_with_brightness(x, y, cell_id[i], GREEN, HIGH);
+//        }
         set_LED_with_brightness(x, y, cell_id[i], module_memory[x][y].cell_colour[i], HIGH);
+
     }
 }
 
 
 // this method implements the loop function
 void CKilogrid::loop(int x, int y) {
-    // the real line is
-    // test_counter += 1;
-    // module_memory[x][y].test_counter += 1;
-
     // send initial message
     if (!module_memory[x][y].init_flag) {
         module_memory[x][y].init_flag = true;
@@ -645,190 +654,130 @@ void CKilogrid::loop(int x, int y) {
             module_memory[x][y].ir_message_tx->data[4] = number_of_options;
             module_memory[x][y].ir_message_tx->data[5] = module_memory[x][y].cell_colour[f];  // tested cast to unit_8 not needed
             module_memory[x][y].ir_message_tx->data[6] = initial_communication_range;
-            module_memory[x][y].ir_message_tx->data[7] = max_communication_range;
+                module_memory[x][y].ir_message_tx->data[7] = max_communication_range;
 
             set_IR_message(x, y, *module_memory[x][y].ir_message_tx, cell_id[f]);
         }
-    } else {
-        for (int c = 0; c < 4; c++) {
-            module_memory[x][y].cell_op[c] = module_memory[x][y].received_cell_op[c];
-            module_memory[x][y].status_msg_counter += 1;
+        return;
+    }
+    // normal loop
+    int c;
+    // processing ir messages
+    if (module_memory[x][y].received_ir) {
+        module_memory[x][y].received_ir = false;
 
-            // send messages - forward before sending status
-            if (module_memory[x][y].cell_op[c] > 0) {
-                module_memory[x][y].can_kilo_uid = module_memory[x][y].received_can_kilo_uid;
-
-                module_memory[x][y].ir_message_tx->type = VIRTUAL_AGENT_MSG;
-                module_memory[x][y].ir_message_tx->crc = 0;
-                module_memory[x][y].ir_message_tx->data[0] = module_memory[x][y].cell_x[c];
-                module_memory[x][y].ir_message_tx->data[1] = module_memory[x][y].cell_y[c];
-                module_memory[x][y].ir_message_tx->data[2] = module_memory[x][y].cell_op[c];
-                module_memory[x][y].ir_message_tx->data[3] = module_memory[x][y].can_kilo_uid;
-                set_IR_message(x, y, *module_memory[x][y].ir_message_tx, cell_id[c]);
-
-                // reset after certain time
-                module_memory[x][y].reset_timer[c] += 1;
-                if (module_memory[x][y].reset_timer[c] >= MAX_RESET_TIMER) {
-                    module_memory[x][y].cell_op[c] = 0;
-                    module_memory[x][y].received_cell_op[c] = 0;
-                }
-            } else {
-                // sending status
-                if (module_memory[x][y].status_msg_counter >= MIN_TIME_BETWEEN_MSG) {
-                    module_memory[x][y].status_msg_counter = 0;
-                    module_memory[x][y].ir_message_tx->type = GRID_MSG;
-                    module_memory[x][y].ir_message_tx->crc = 0;
-                    module_memory[x][y].ir_message_tx->data[0] = module_memory[x][y].cell_x[c];
-                    module_memory[x][y].ir_message_tx->data[1] = module_memory[x][y].cell_y[c];
-                    module_memory[x][y].ir_message_tx->data[2] = module_memory[x][y].cell_colour[c];
-                    module_memory[x][y].ir_message_tx->data[3] = module_memory[x][y].cell_role[c];
-                    set_IR_message(x, y, *module_memory[x][y].ir_message_tx, cell_id[c]);
-                }
+        for (c = 0; c < 4; c++) {
+            // msg structure: robot_gps_x, robot_gps_y, robot_commitment, communication_range, msg_number_send, kilo_uid
+            if (module_memory[x][y].tmp_ir_data[c][2] != 0){  // commitment != 0
+                module_memory[x][y].received_x[c] = module_memory[x][y].tmp_ir_data[c][0];
+                module_memory[x][y].received_y[c] = module_memory[x][y].tmp_ir_data[c][1];
+                module_memory[x][y].received_commitment[c] = module_memory[x][y].tmp_ir_data[c][2];
+                module_memory[x][y].received_communication_range[c] = module_memory[x][y].tmp_ir_data[c][3];
+                module_memory[x][y].received_kilo_uid[c] = module_memory[x][y].tmp_ir_data[c][5];
+                // forward robot msg
+                module_memory[x][y].can_msg_to_send = true;
             }
-
-            // process the received IR messages
-            if (module_memory[x][y].received_IR_msg_cell == c) {
-                // fix parameters so they do not get overwritten while processing #callbackmagic
-                module_memory[x][y].com_range = module_memory[x][y].received_com_range;
-                module_memory[x][y].option = module_memory[x][y].received_option;
-                module_memory[x][y].my_x = module_memory[x][y].received_x;
-                module_memory[x][y].my_y = module_memory[x][y].received_y;
-                module_memory[x][y].kilo_uid = module_memory[x][y].received_kilo_uid;
-
-                // resetting the sending grid
-                for (uint8_t i_it = 0; i_it < 10; i_it++) {
-                    for (uint8_t k_it = 0; k_it < 20; k_it++) {
-                        for (uint8_t l_it = 0; l_it < 4; l_it++) {
-                            module_memory[x][y].sending_grid[i_it][k_it][l_it] = 0;
-                        }
-                    }
-                }
-
-                // calculate receiving cells
-                for (int x_it = module_memory[x][y].my_x - module_memory[x][y].com_range;
-                     x_it <= module_memory[x][y].my_x + module_memory[x][y].com_range; x_it++) {
-                    for (int y_it = module_memory[x][y].my_y - module_memory[x][y].com_range;
-                         y_it <= module_memory[x][y].my_y + module_memory[x][y].com_range; y_it++) {
-                        // check borders
-                        if (x_it >= 0 && x_it < 20 && y_it >= 0 && y_it < 40) {
-                            // check distance -> use L2/euclidean norm!
-                            if (sqrt(pow(fabs(x_it - module_memory[x][y].my_x), 2) +
-                                     pow(fabs(y_it - module_memory[x][y].my_y), 2)) <
-                                module_memory[x][y].com_range) {
-                                // which cells do we have to address
-                                if (y_it % 2 == 1 && x_it % 2 == 0) {
-                                    module_memory[x][y].sending_grid[(int) (x_it / 2)][(int) (y_it /
-                                                                                              2)][0] = module_memory[x][y].option;
-                                } else if (y_it % 2 == 1 && x_it % 2 == 1) {
-                                    module_memory[x][y].sending_grid[(int) (x_it / 2)][(int) (y_it /
-                                                                                              2)][1] = module_memory[x][y].option;
-                                } else if (y_it % 2 == 0 && x_it % 2 == 0) {
-                                    module_memory[x][y].sending_grid[(int) (x_it / 2)][(int) (y_it /
-                                                                                              2)][2] = module_memory[x][y].option;
-                                } else if (y_it % 2 == 0 && x_it % 2 == 1) {
-                                    module_memory[x][y].sending_grid[(int) (x_it / 2)][(int) (y_it /
-                                                                                              2)][3] = module_memory[x][y].option;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // iterate through all cells - to check if we need to send a msg to this cell
-                module_memory[x][y].com_range_module = (uint8_t) (
-                        module_memory[x][y].com_range / 2 + 1);
-                module_memory[x][y].send_success_sum = 0;
-                module_memory[x][y].my_x_module = (uint8_t) (module_memory[x][y].my_x / 2);
-                module_memory[x][y].my_y_module = (uint8_t) (module_memory[x][y].my_y / 2);
-                for (int x_it =
-                        module_memory[x][y].my_x_module - module_memory[x][y].com_range_module;
-                     x_it < module_memory[x][y].my_x_module +
-                            module_memory[x][y].com_range_module; x_it++) {
-                    for (int y_it =
-                            module_memory[x][y].my_y_module - module_memory[x][y].com_range_module;
-                         y_it < module_memory[x][y].my_y_module +
-                                module_memory[x][y].com_range_module; y_it++) {
-                        // check borders - modules
-                        if (x_it >= 0 && x_it < 10 && y_it >= 0 && y_it < 20) {
-                            module_memory[x][y].send_flag = 0;
-                            CAN_message_t tmp_can_msg;
-                            init_CAN_message(&tmp_can_msg);
-
-                            tmp_can_msg.id = 55;  // dont know if id is important - maybe to check if msg arrived twice or so - max 65,535
-                            tmp_can_msg.data[0] = 55; // maybe this is the msg type (must be larger than 25 to dont overwrite something and less than 64 see communication/CAN.h)
-                            for (uint8_t cell_it = 0; cell_it < 4; cell_it++) {
-                                tmp_can_msg.data[cell_it +
-                                                 1] = module_memory[x][y].sending_grid[x_it][y_it][cell_it];
-                                if (module_memory[x][y].sending_grid[x_it][y_it][cell_it] != 0) {
-                                    module_memory[x][y].send_flag = 1;
-                                }
-                            }
-                            tmp_can_msg.data[5] = module_memory[x][y].kilo_uid;
-
-                            module_memory[x][y].cell_address.type = ADDR_INDIVIDUAL; // see communication/kilogrid.h for further information
-                            module_memory[x][y].cell_address.x = x_it;  // is the position of a module imo??
-                            module_memory[x][y].cell_address.y = y_it;
-
-                            if (module_memory[x][y].send_flag == 1) {
-                                module_memory[x][y].send_success_sum =
-                                        module_memory[x][y].send_success_sum +
-                                        CAN_message_tx(&tmp_can_msg,
-                                                       module_memory[x][y].cell_address);
-#ifndef SIMULATION
-                                _delay_ms(10);  // probably needed for message transmission
-#endif
-                            }
-                        }
-                    }
-                }
-
-                // apperently the module cannot send itself a msg so we have to set the broad cast manualy
-                module_memory[x][y].cell_op[0] = module_memory[x][y].option;
-                module_memory[x][y].cell_op[1] = module_memory[x][y].option;
-                module_memory[x][y].cell_op[2] = module_memory[x][y].option;
-                module_memory[x][y].cell_op[3] = module_memory[x][y].option;
-
-                // also init reset timer
-                module_memory[x][y].reset_timer[0] = 0;
-                module_memory[x][y].reset_timer[1] = 0;
-                module_memory[x][y].reset_timer[2] = 0;
-                module_memory[x][y].reset_timer[3] = 0;
-
-                // reset after sending a msg
-                module_memory[x][y].received_IR_msg_cell = 10;
+            // clear
+            for(uint8_t  k_it = 0; k_it < 4; k_it++){
+                module_memory[x][y].tmp_ir_data[c][k_it] = 0;
             }
         }
     }
+    // send can message if needed...
+    if (module_memory[x][y].can_msg_to_send) {
+        module_memory[x][y].can_msg_to_send = false;
+        for (c = 0; c < 4; c++) {
+            // send for every cell
+            if (module_memory[x][y].received_commitment[c] != 0) {
+                CAN_message_t tmp_can_msg;
+                init_CAN_message(&tmp_can_msg);
+
+                module_memory[x][y].cell_address.type = ADDR_BROADCAST_TO_MODULE;
+                module_memory[x][y].cell_address.x = 0;  // is the position of a module imo??
+                module_memory[x][y].cell_address.y = 0;
+
+                tmp_can_msg.data[0] = CAN_USER_MESSAGE;  // type of user message
+                tmp_can_msg.data[1] = module_memory[x][y].received_x[c]; // x sender
+                tmp_can_msg.data[2] = module_memory[x][y].received_y[c]; // y sender
+                tmp_can_msg.data[3] = module_memory[x][y].received_communication_range[c]; // range
+                tmp_can_msg.data[4] = module_memory[x][y].received_commitment[c]; // information
+                tmp_can_msg.data[5] = module_memory[x][y].received_kilo_uid[c]; // space for additional info
+                tmp_can_msg.data[6] = 0;
+                tmp_can_msg.data[7] = 0;
+
+                CAN_message_tx(&tmp_can_msg, module_memory[x][y].cell_address);
+
+                // reset info
+                module_memory[x][y].received_commitment[c] = 0;
+            }
+        }
+    }
+    // process can messages
+    if (module_memory[x][y].received_can) {
+        module_memory[x][y].received_can = false;
+        // if cell is in range act
+        for(c = 0; c < 4; c++) {
+            if (sqrt(pow(fabs(module_memory[x][y].tmp_can_data[1] - module_memory[x][y].cell_x[c]), 2) + pow(fabs(module_memory[x][y].tmp_can_data[2] - module_memory[x][y].cell_y[c]), 2)) < module_memory[x][y].tmp_can_data[3]) {
+                module_memory[x][y].ir_msg_to_send[c] = true;
+                module_memory[x][y].opt_to_send_ir[c] = module_memory[x][y].tmp_can_data[4];
+                module_memory[x][y].received_can_kilo_uid[c] = module_memory[x][y].tmp_can_data[5];
+            } else{
+                module_memory[x][y].opt_to_send_ir[c] = module_memory[x][y].cell_colour[c];  // this should be nothing, only called for cells when receiving a can message, and it is not in range
+
+            }
+        }
+    }
+
+    // send ir message .. either forward message (if there is one) or send status
+    for (int c = 0; c < 4; c++) {
+        // send messages - forward before sending status
+        if (module_memory[x][y].ir_msg_to_send[c]) {
+            module_memory[x][y].ir_msg_to_send[c] = false;
+            module_memory[x][y].can_kilo_uid = module_memory[x][y].received_can_kilo_uid[c];
+
+            module_memory[x][y].ir_message_tx->type = VIRTUAL_AGENT_MSG;
+            module_memory[x][y].ir_message_tx->crc = 0;
+            module_memory[x][y].ir_message_tx->data[0] = module_memory[x][y].cell_x[c];
+            module_memory[x][y].ir_message_tx->data[1] = module_memory[x][y].cell_y[c];
+            module_memory[x][y].ir_message_tx->data[2] = module_memory[x][y].opt_to_send_ir[c];
+            module_memory[x][y].ir_message_tx->data[3] = module_memory[x][y].can_kilo_uid;
+            set_IR_message(x, y, *module_memory[x][y].ir_message_tx, cell_id[c]);
+        } else {
+            // sending status
+            if (module_memory[x][y].status_msg_counter >= MIN_TIME_BETWEEN_MSG) {
+                module_memory[x][y].status_msg_counter = 0;
+                module_memory[x][y].ir_message_tx->type = GRID_MSG;
+                module_memory[x][y].ir_message_tx->crc = 0;
+                module_memory[x][y].ir_message_tx->data[0] = module_memory[x][y].cell_x[c];
+                module_memory[x][y].ir_message_tx->data[1] = module_memory[x][y].cell_y[c];
+                module_memory[x][y].ir_message_tx->data[2] = module_memory[x][y].cell_colour[c];
+                module_memory[x][y].ir_message_tx->data[3] = module_memory[x][y].cell_role[c];
+                set_IR_message(x, y, *module_memory[x][y].ir_message_tx, cell_id[c]);
+            }
+        }
+    }
+
+    // increase counter
+    module_memory[x][y].status_msg_counter += 1;
 }
 
 
 void CKilogrid::IR_rx(int x, int y, IR_message_t *m, cell_num_t c, distance_measurement_t *d,
                       uint8_t CRC_error) {
     if (!CRC_error && m->type == MSG_T_VIRTUAL_ROBOT_MSG) {
-        // message from robot to kilogrid: broadcast
-        module_memory[x][y].msg_number_current = m->data[4];
-        if (module_memory[x][y].msg_number_current != module_memory[x][y].msg_number) {
-            // case new message
-            module_memory[x][y].msg_number = module_memory[x][y].msg_number_current;
-            // logic here
-            module_memory[x][y].received_x = m->data[0];
-            module_memory[x][y].received_y = m->data[1];
-            module_memory[x][y].received_option = m->data[2];
-            module_memory[x][y].received_com_range = m->data[3];
-            module_memory[x][y].received_kilo_uid = m->data[5];
-
-            // check which cell was addressed
-            for (int c = 0; c < 4; c++) {
-                if (module_memory[x][y].received_x == module_memory[x][y].cell_x[c] &&
-                    module_memory[x][y].received_y == module_memory[x][y].cell_y[c]) {
-                    module_memory[x][y].received_IR_msg_cell = c;
-                }
+        // check which cell -> normally handled by the kilogrid software
+        uint8_t c_tmp = 0;
+        for (int c_ir_it = 0; c_ir_it < 4; c_ir_it++) {
+            if (m->data[0] == module_memory[x][y].cell_x[c_ir_it] && m->data[1] == module_memory[x][y].cell_y[c_ir_it]) {
+                c_tmp = c_ir_it;
             }
-        } else {
-            // message already seen -> discard
-            //printf("msg received alrdy seen at %d %d from %d with option %d \n", x, y, m->data[5], m->data[2]);
-            return;
         }
+
+        // message from robot to kilogrid: broadcast
+        for (uint8_t tmp_it = 0; tmp_it < 8; tmp_it++){
+            module_memory[x][y].tmp_ir_data[c_tmp][tmp_it] = m->data[tmp_it];
+        }
+        module_memory[x][y].received_ir = true;
 #ifndef SIMULATION
         }else if(!CRC_error && m->type == TRACKING){ // here we have to write down the logging
             CAN_message_t *msg = next_CAN_message();
@@ -841,18 +790,16 @@ void CKilogrid::IR_rx(int x, int y, IR_message_t *m, cell_num_t c, distance_meas
     }
 }
 
+// just temporary store the data, because it is a callback
 void CKilogrid::CAN_rx(int x, int y, CAN_message_t *m) {
-    if (m->data[0] == 55) {  // set msg
-        module_memory[x][y].received_cell_op[0] = m->data[1];
-        module_memory[x][y].received_cell_op[1] = m->data[2];
-        module_memory[x][y].received_cell_op[2] = m->data[3];
-        module_memory[x][y].received_cell_op[3] = m->data[4];
-        module_memory[x][y].received_can_kilo_uid = m->data[5];
-//        printf("received can msg at %d %d from robot %d with content %d %d %d %d \n", x, y, m->data[5], module_memory[x][y].received_cell_op[0], module_memory[x][y].received_cell_op[1], module_memory[x][y].received_cell_op[2], module_memory[x][y].received_cell_op[3]);
-
-        for (uint8_t cell_it_cb = 0; cell_it_cb < 4; cell_it_cb++) {
-            if (module_memory[x][y].received_cell_op[cell_it_cb] != 0) {
-                module_memory[x][y].reset_timer[cell_it_cb] = 0;
+    if (m->data[0] == CAN_USER_MESSAGE) {  // set msg
+        for(uint8_t cell_can_it = 0; cell_can_it < 4; cell_can_it++){
+            if (sqrt(pow(fabs(m->data[1] - module_memory[x][y].cell_x[cell_can_it]), 2) + pow(fabs(m->data[2] - module_memory[x][y].cell_y[cell_can_it]), 2)) < m->data[3]) {
+                for (uint8_t tmp_it = 0; tmp_it < 8; tmp_it++) {
+                    module_memory[x][y].tmp_can_data[tmp_it] = m->data[tmp_it];
+                }
+                module_memory[x][y].received_can = true;
+                return;
             }
         }
     } else {
@@ -860,6 +807,5 @@ void CKilogrid::CAN_rx(int x, int y, CAN_message_t *m) {
     }
 }
 
-
-// ??
+// not needed for the real kilogrid
 REGISTER_LOOP_FUNCTIONS(CKilogrid, "kilogrid_loop_functions")

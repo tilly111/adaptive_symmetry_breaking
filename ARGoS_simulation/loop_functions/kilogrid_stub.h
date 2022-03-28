@@ -113,7 +113,8 @@ typedef enum{
     CAN_KILOBOT_DATA,
     CAN_MODULE_DATA,
     CAN_TRACKING_KILOBOT_START,
-    CAN_TRACKING_REQ
+    CAN_TRACKING_REQ,
+    CAN_USER_MESSAGE  // used for broadcasting inter module communication
 } CAN_message_type_t;
 
 typedef enum __attribute__ ((__packed__)) {
@@ -121,6 +122,7 @@ typedef enum __attribute__ ((__packed__)) {
     ADDR_ROW, ///< broadcast to all modules in a row
     ADDR_COLUMN, ///< broadcast to all modules in a column
     ADDR_INDIVIDUAL, ///< send to an individual module
+    ADDR_BROADCAST_TO_MODULE,
     ADDR_DISPATCHER = 0xFF ///< send to dispatcher
 } kilogrid_addressing_type_t;
 
@@ -219,11 +221,6 @@ private:
     struct module_mem{
         // tmp variables
         uint8_t received_option;
-        uint8_t received_com_range;
-        uint8_t received_x;
-        uint8_t received_y;
-        uint8_t received_kilo_uid;
-        uint8_t received_can_kilo_uid;
 
         // counters
         uint32_t msg_number_current;
@@ -258,6 +255,11 @@ private:
 
         // communication flags
         bool init_flag = false;
+        bool received_can = false;
+        bool received_ir = false;
+        bool can_msg_to_send = false;
+        bool ir_msg_to_send[4] = {false, false, false, false};
+
 
         // variables for processing the broadcast of a robot
         uint8_t com_range;
@@ -267,7 +269,21 @@ private:
         uint8_t kilo_uid;
         uint8_t can_kilo_uid;
 
-        uint8_t sending_grid[10][20][4];
+        // tmp data to store messages from the callbacks
+        uint8_t tmp_can_data[8];
+        uint8_t tmp_ir_data[4][8];
+
+        // to process received data
+        uint8_t received_commitment[4];  // received commitment from ir message
+        uint8_t received_x[4];
+        uint8_t received_y[4];
+        uint8_t received_communication_range[4];
+        uint8_t received_kilo_uid[4];
+
+        // for sending data
+        uint8_t opt_to_send_ir[4];
+        uint8_t received_can_kilo_uid[4];
+
 
         uint8_t com_range_module;
         uint8_t send_success_sum;
