@@ -90,7 +90,7 @@ else
     EXP_LENGTH=2400      #length of the experiment in secs
     DATA_FREQUENCY=1     # frequency of saving the experiment data
 
-    HRS=01 # hours the script takes
+    HRS=07 # hours the script takes
     MIN=00 # min the script takes
 
     #path to main directory
@@ -104,7 +104,8 @@ else
 
     # path to template
     EXP_TEMPLATE_SRC=${EXP_FOLDER}/ARGoS_simulation/experiment/3_op_template_kilogrid.argos
-    JOB_TEMPLATE_SRC=${EXP_FOLDER}/ARGoS_simulation/data_generation_scripts/runjob_template.sh
+    JOB_TEMPLATE_SRC=${EXP_FOLDER}/ARGoS_simulation/data_generation_scripts/runjob_template_master.sh
+    JOB_TEMPLATE_SRC_RUN=${EXP_FOLDER}/ARGoS_simulation/data_generation_scripts/runjob_template_run.sh
 
     EXP_DIR=${EXP_FOLDER}/experiments_cluster/${EXP_NAME}
     mkdir -p ${EXP_DIR}
@@ -117,6 +118,12 @@ else
 
     JOB_FILE=${JOB_DIR}/${EXP_NAME}.sh
     JOB_NAME=${EXP_NAME}
+    # creating header for new script
+    sed -e "s|jobname|${JOB_NAME}|" \
+      -e "s|min|${MIN}|" \
+      -e "s|hrs|${HRS}|" \
+      -e "s|logfile|${JOB_NAME}|" \
+      ${JOB_TEMPLATE_SRC} >${JOB_FILE}
     for i in $(seq 0 19); do
 
       EXP_FILE=${EXP_DIR}/${EXP_NAME}_${i}.argos # full path to the experiment configuration file
@@ -137,14 +144,11 @@ else
         -e "s|dynamicenvname|${CONFIG_FILE}|" \
         ${EXP_TEMPLATE_SRC} >${EXP_FILE}
 
-      sed -e "s|jobname|${JOB_NAME}|" \
-        -e "s|min|${MIN}|" \
-        -e "s|hrs|${HRS}|" \
-        -e "s|argosfile|${EXP_FILE}|" \
-        -e "s|logfile|${JOB_NAME}|" \
-        -e "s|savefile|${DATA_FILE}|" \
-        -e "s|wheresave|${DATA_DIR}/|" \
-        ${JOB_TEMPLATE_SRC} >>${JOB_FILE}
+
+        sed -e "s|argosfile|${EXP_FILE}|" \
+          -e "s|wheresave|${DATA_DIR}/|" \
+          -e "s|savefile|${DATA_FILE}|" \
+        ${JOB_TEMPLATE_SRC_RUN} >>${JOB_FILE}
     done
   done
 fi
