@@ -14,7 +14,7 @@ else
   cd ..
   ln -s ~/Programs/argos3-kilobot/src/ ARGoS_simulation/argos3
   rm -rf job_cluster/
-  nano ARGoS_simulation/behaviours/agent_stub.c
+  #nano ARGoS_simulation/behaviours/agent_stub.c
   cd build/
   make
   cd ..
