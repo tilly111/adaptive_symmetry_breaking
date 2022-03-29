@@ -129,6 +129,7 @@ else
       EXP_FILE=${EXP_DIR}/${EXP_NAME}_${i}.argos # full path to the experiment configuration file
       DATA_FILE=${EXP_NAME}_${i}.txt # Full path to the data file
 
+      # it is very important to keep this order in order to not overwrite stuff
       sed -e "s|exp_length|${EXP_LENGTH}|" \
         -e "s|randomseed|$(($i * 124))|" \
         -e "s|behaviourpath|${BEHAVIOUR_FILE}|" \
@@ -136,8 +137,8 @@ else
         -e "s|configfilename|${CONFIG_FILE}|" \
         -e "s|datafilename|${DATA_FILE}|" \
         -e "s|num_robots|${NUM_ROBOTS}|" \
-        -e "s|initialcommitment|${INITIAL_COMMITMENT}|" \
         -e "s|initialcommitmentquality|${INITIAL_COMMITMENT_QUALITY}|" \
+        -e "s|initialcommitment|${INITIAL_COMMITMENT}|" \
         -e "s|numberofoptions|${n}|" \
         -e "s|initialcommunicationrange|${INITIAL_COMMUNICATION_RANGE}|" \
         -e "s|maxcommunicationrange|${MAX_COMMUNICATION_RANGE}|" \
