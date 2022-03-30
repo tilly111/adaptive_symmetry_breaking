@@ -17,7 +17,7 @@ else
   tmp_counter=0
   MAX_COMMUNICATION_RANGE=30
   INITIAL_COMMUNICATION_RANGE=1
-  INITIAL_COMMITMENT=1 # initial commitment of the robots
+  INITIAL_COMMITMENT=2 # initial commitment of the robots
 
   # stuff needs to be adjusted
   ENVIRONMENT=${3}
