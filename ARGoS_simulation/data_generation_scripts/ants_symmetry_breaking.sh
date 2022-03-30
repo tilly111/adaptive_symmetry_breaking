@@ -33,37 +33,37 @@ else
       MAX_COMMUNICATION_RANGE=30
 
       # initial communication range = communication range
-      if (($((${tmp_counter} % 1)) == 1)); then
+      if (($((${tmp_counter} % 17)) == 1)); then
             INITIAL_COMMUNICATION_RANGE=2
-      elif (($((${tmp_counter} % 2)) == 2)); then
+      elif (($((${tmp_counter} % 17)) == 2)); then
             INITIAL_COMMUNICATION_RANGE=3
-      elif (($((${tmp_counter} % 3)) == 3)); then
+      elif (($((${tmp_counter} % 17)) == 3)); then
             INITIAL_COMMUNICATION_RANGE=4
-      elif (($((${tmp_counter} % 4)) == 4)); then
+      elif (($((${tmp_counter} % 17)) == 4)); then
             INITIAL_COMMUNICATION_RANGE=5
-      elif (($((${tmp_counter} % 5)) == 5)); then
+      elif (($((${tmp_counter} % 17)) == 5)); then
             INITIAL_COMMUNICATION_RANGE=6
-      elif (($((${tmp_counter} % 6)) == 6)); then
+      elif (($((${tmp_counter} % 17)) == 6)); then
             INITIAL_COMMUNICATION_RANGE=7
-      elif (($((${tmp_counter} % 7)) == 7)); then
+      elif (($((${tmp_counter} % 17)) == 7)); then
             INITIAL_COMMUNICATION_RANGE=8
-      elif (($((${tmp_counter} % 8)) == 8)); then
+      elif (($((${tmp_counter} % 17)) == 8)); then
             INITIAL_COMMUNICATION_RANGE=9
-      elif (($((${tmp_counter} % 9)) == 9)); then
+      elif (($((${tmp_counter} % 17)) == 9)); then
             INITIAL_COMMUNICATION_RANGE=10
-      elif (($((${tmp_counter} % 10)) == 10)); then
+      elif (($((${tmp_counter} % 17)) == 10)); then
             INITIAL_COMMUNICATION_RANGE=15
-      elif (($((${tmp_counter} % 11)) == 11)); then
+      elif (($((${tmp_counter} % 17)) == 11)); then
             INITIAL_COMMUNICATION_RANGE=20
-      elif (($((${tmp_counter} % 12)) == 12)); then
+      elif (($((${tmp_counter} % 17)) == 12)); then
             INITIAL_COMMUNICATION_RANGE=25
-      elif (($((${tmp_counter} % 13)) == 13)); then
+      elif (($((${tmp_counter} % 17)) == 13)); then
             INITIAL_COMMUNICATION_RANGE=30
-      elif (($((${tmp_counter} % 14)) == 14)); then
+      elif (($((${tmp_counter} % 17)) == 14)); then
             INITIAL_COMMUNICATION_RANGE=35
-      elif (($((${tmp_counter} % 15)) == 15)); then
+      elif (($((${tmp_counter} % 17)) == 15)); then
             INITIAL_COMMUNICATION_RANGE=40
-      elif (($((${tmp_counter} % 16)) == 16)); then
+      elif (($((${tmp_counter} % 17)) == 16)); then
             INITIAL_COMMUNICATION_RANGE=45
       fi
       EXP_NAME=experiment_cl_sym_break_cross_inhib_00_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_options_${n}_env_${ENVIRONMENT}

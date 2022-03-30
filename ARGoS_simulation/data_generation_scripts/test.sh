@@ -1,35 +1,44 @@
 #!/bin/bash
 tmp_counter=0
-com_range_counter=1
-for j in `seq 0 109`;
+INITIAL_COMMUNICATION_RANGE=1
+for j in `seq 0 16`;
     do
-      conf=ASB_experiment_$((11 + ${tmp_counter} % 11)).kconf
-      n=3
 
-      if ((${tmp_counter}  == 0)); then
-        MAX_COMMUNICATION_RANGE=2
-      elif ((${tmp_counter} == 11)); then
-        MAX_COMMUNICATION_RANGE=5
-      elif ((${tmp_counter} == 22)); then
-        MAX_COMMUNICATION_RANGE=10
-      elif ((${tmp_counter} == 33)); then
-        MAX_COMMUNICATION_RANGE=15
-      elif ((${tmp_counter} == 44)); then
-        MAX_COMMUNICATION_RANGE=20
-      elif ((${tmp_counter} == 55)); then
-        MAX_COMMUNICATION_RANGE=25
-      elif ((${tmp_counter} == 66)); then
-        MAX_COMMUNICATION_RANGE=30
-      elif ((${tmp_counter} == 77)); then
-        MAX_COMMUNICATION_RANGE=35
-      elif ((${tmp_counter} == 88)); then
-        MAX_COMMUNICATION_RANGE=40
-      elif ((${tmp_counter} == 99)); then
-        MAX_COMMUNICATION_RANGE=45
+      # initial communication range = communication range
+    if (($((${tmp_counter} % 17)) == 1)); then
+          INITIAL_COMMUNICATION_RANGE=2
+    elif (($((${tmp_counter} % 17)) == 2)); then
+          INITIAL_COMMUNICATION_RANGE=3
+    elif (($((${tmp_counter} % 17)) == 3)); then
+          INITIAL_COMMUNICATION_RANGE=4
+    elif (($((${tmp_counter} % 17)) == 4)); then
+          INITIAL_COMMUNICATION_RANGE=5
+    elif (($((${tmp_counter} % 17)) == 5)); then
+          INITIAL_COMMUNICATION_RANGE=6
+    elif (($((${tmp_counter} % 17)) == 6)); then
+          INITIAL_COMMUNICATION_RANGE=7
+    elif (($((${tmp_counter} % 17)) == 7)); then
+          INITIAL_COMMUNICATION_RANGE=8
+    elif (($((${tmp_counter} % 17)) == 8)); then
+          INITIAL_COMMUNICATION_RANGE=9
+    elif (($((${tmp_counter} % 17)) == 9)); then
+          INITIAL_COMMUNICATION_RANGE=10
+    elif (($((${tmp_counter} % 17)) == 10)); then
+          INITIAL_COMMUNICATION_RANGE=15
+    elif (($((${tmp_counter} % 17)) == 11)); then
+          INITIAL_COMMUNICATION_RANGE=20
+    elif (($((${tmp_counter} % 17)) == 12)); then
+          INITIAL_COMMUNICATION_RANGE=25
+    elif (($((${tmp_counter} % 17)) == 13)); then
+          INITIAL_COMMUNICATION_RANGE=30
+    elif (($((${tmp_counter} % 17)) == 14)); then
+          INITIAL_COMMUNICATION_RANGE=35
+    elif (($((${tmp_counter} % 17)) == 15)); then
+          INITIAL_COMMUNICATION_RANGE=40
+    elif (($((${tmp_counter} % 17)) == 16)); then
+          INITIAL_COMMUNICATION_RANGE=45
     fi
-    INITIAL_COMMUNICATION_RANGE=1
-    EXP_NAME=experiment_adaptation_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}
+    echo ${INITIAL_COMMUNICATION_RANGE}  ${tmp_counter}
 
-      tmp_counter=$(( ${tmp_counter} + 1 ))
-      echo ${EXP_NAME} ${conf} ${MAX_COMMUNICATION_RANGE}
+    tmp_counter=$(( ${tmp_counter} + 1 ))
     done
