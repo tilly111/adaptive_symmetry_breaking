@@ -9,18 +9,18 @@ if [ $# -lt ${EXPECTED_ARGS} ]; then
   exit
 
 else
-  cd ARGoS_simulation/
-  rm argos3
-  cd ..
-  ln -s ~/Programs/argos3-kilobot/src/ ARGoS_simulation/argos3
-  rm -rf job_cluster/
+  # cd ARGoS_simulation/
+#   rm argos3
+#   cd ..
+#   ln -s ~/Programs/argos3-kilobot/src/ ARGoS_simulation/argos3
+  # rm -rf job_cluster/
   #nano ARGoS_simulation/behaviours/agent_stub.c
   cd build/
   make
   cd ..
   # here you have to change the specific file you want to run
   # nano ARGoS_simulation/data_generation_scripts/ants_experiments.sh
-  sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh ${1} ${2} ${3} ${4}
+  sh ARGoS_simulation/data_generation_scripts/ants_dens_sym_break.sh ${1} ${2} ${3} ${4}
   #sh ARGoS_simulation/data_generation_scripts/runjobs.sh
   #watch squeue -u taust
 fi
