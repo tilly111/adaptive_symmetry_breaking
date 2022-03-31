@@ -17,7 +17,7 @@ else
   tmp_counter=0
   MAX_COMMUNICATION_RANGE=30
   INITIAL_COMMUNICATION_RANGE=3
-  INITIAL_COMMITMENT=1 # initial commitment of the robots
+  INITIAL_COMMITMENT=2 # initial commitment of the robots
 
   # stuff needs to be adjusted
   ENVIRONMENT=${3}
@@ -29,14 +29,14 @@ else
       NUM_ROBOTS=$(((25 * (tmp_counter+1))))        # number of robots
 
 
-      EXP_NAME=experiment_cl_dens_sym_break_cross_inhib_00_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_num_robots_${NUM_ROBOTS}_env_${ENVIRONMENT}
+      EXP_NAME=experiment_cl_dens_sym_break_cross_inhib_00_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_nr_${NUM_ROBOTS}_env_${ENVIRONMENT}
       tmp_counter=$(( ${tmp_counter} + 1 ))
 
       QUORUM=-1            # Quorum to stop experiment NOT USED ATM
       EXP_LENGTH=2400      #length of the experiment in secs
       DATA_FREQUENCY=1     # frequency of saving the experiment data
 
-      HRS=07 # hours the script takes
+      HRS=20 # hours the script takes
       MIN=00 # min the script takes
 
       #path to main directory
