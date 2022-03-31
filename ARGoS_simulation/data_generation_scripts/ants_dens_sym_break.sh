@@ -24,7 +24,7 @@ else
   INITIAL_COMMITMENT_QUALITY=${4}
   for j in $(seq ${1} ${2}); do
       conf=sym_break_${ENVIRONMENT}.kconf
-      n=2
+      n=$((ENVIRONMENT + 2))
 
       NUM_ROBOTS=$(((25 * (tmp_counter+1))))        # number of robots
 
