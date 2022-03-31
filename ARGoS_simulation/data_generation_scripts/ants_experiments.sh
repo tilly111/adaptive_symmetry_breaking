@@ -90,8 +90,8 @@ else
     EXP_LENGTH=2400      #length of the experiment in secs
     DATA_FREQUENCY=1     # frequency of saving the experiment data
 
-    HRS=07 # hours the script takes
-    MIN=00 # min the script takes
+    HRS=00 # hours the script takes
+    MIN=30 # min the script takes
 
     #path to main directory
     EXP_FOLDER=${HOME}/Programs/adaptive_symmetry_breaking
@@ -104,8 +104,9 @@ else
 
     # path to template
     EXP_TEMPLATE_SRC=${EXP_FOLDER}/ARGoS_simulation/experiment/3_op_template_kilogrid.argos
-    JOB_TEMPLATE_SRC=${EXP_FOLDER}/ARGoS_simulation/data_generation_scripts/runjob_template_master.sh
-    JOB_TEMPLATE_SRC_RUN=${EXP_FOLDER}/ARGoS_simulation/data_generation_scripts/runjob_template_run.sh
+    #JOB_TEMPLATE_SRC=${EXP_FOLDER}/ARGoS_simulation/data_generation_scripts/runjob_template_master.sh
+    #JOB_TEMPLATE_SRC_RUN=${EXP_FOLDER}/ARGoS_simulation/data_generation_scripts/runjob_template_run.sh
+    JOB_TEMPLATE=${EXP_FOLDER}/ARGoS_simulation/data_generation_scripts/runjob_template.sh
 
     EXP_DIR=${EXP_FOLDER}/experiments_cluster/${EXP_NAME}
     mkdir -p ${EXP_DIR}
@@ -116,18 +117,13 @@ else
     JOB_DIR=${EXP_FOLDER}/job_cluster
     mkdir -p ${JOB_DIR}
 
-    JOB_FILE=${JOB_DIR}/${EXP_NAME}.sh
-    JOB_NAME=${EXP_NAME}
-    # creating header for new script
-    sed -e "s|jobname|${JOB_NAME}|" \
-      -e "s|min|${MIN}|" \
-      -e "s|hrs|${HRS}|" \
-      -e "s|logfile|${JOB_NAME}|" \
-      ${JOB_TEMPLATE_SRC} >${JOB_FILE}
+
     for i in $(seq 0 19); do
 
       EXP_FILE=${EXP_DIR}/${EXP_NAME}_${i}.argos # full path to the experiment configuration file
       DATA_FILE=${EXP_NAME}_${i}.txt # Full path to the data file
+      JOB_FILE=${JOB_DIR}/${EXP_NAME}_${i}.sh
+      JOB_NAME=${EXP_NAME}_${i}
 
       # it is very important to keep this order in order to not overwrite stuff
       sed -e "s|exp_length|${EXP_LENGTH}|" \
@@ -146,10 +142,14 @@ else
         ${EXP_TEMPLATE_SRC} >${EXP_FILE}
 
 
-        sed -e "s|argosfile|${EXP_FILE}|" \
+        sed -e "s|jobname|${JOB_NAME}|" \
+          -e "s|min|${MIN}|" \
+          -e "s|hrs|${HRS}|" \
+          -e "s|logfile|${JOB_NAME}|" \
+          -e "s|argosfile|${EXP_FILE}|" \
           -e "s|wheresave|${DATA_DIR}/|" \
           -e "s|savefile|${DATA_FILE}|" \
-        ${JOB_TEMPLATE_SRC_RUN} >>${JOB_FILE}
+        ${JOB_TEMPLATE} >${JOB_FILE}
     done
   done
 fi
