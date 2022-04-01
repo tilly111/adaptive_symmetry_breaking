@@ -257,7 +257,7 @@ void sample(){
             // for shuffling up we set the max sample counter
             // TODO no noise on the sample time for ants - add some noise in order to make it work
             //  and that it is not a random switch at some point
-            sample_counter_max_noise = SAMPLE_COUNTER_MAX; // + ((GetRandomNumber(10000) % (uint8_t)(SAMPLE_COUNTER_MAX/10)) - (uint8_t)(SAMPLE_COUNTER_MAX/20));
+            sample_counter_max_noise = SAMPLE_COUNTER_MAX + ((GetRandomNumber(10000) % (uint8_t)(SAMPLE_COUNTER_MAX/10)) - (uint8_t)(SAMPLE_COUNTER_MAX/20));
         }
     }
 }

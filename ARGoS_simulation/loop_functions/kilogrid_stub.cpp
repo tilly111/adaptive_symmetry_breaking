@@ -62,11 +62,11 @@ void CKilogrid::Init(TConfigurationNode &t_tree) {
     }
     output_logg << std::endl;
 
-    for (unsigned int p = 0; p < 101; p++) {
-        for (unsigned int j = 0; j < 2; j++) {
-            sample[p][j] = 0;
-        }
-    }
+//    for (unsigned int p = 0; p < 101; p++) {
+//        for (unsigned int j = 0; j < 2; j++) {
+//            sample[p][j] = 0;
+//        }
+//    }
 }
 
 
@@ -159,12 +159,12 @@ void CKilogrid::PostStep() {
             logg_commitment_state[((unsigned int) debug_info_kilobots[i]->commitement)]++;
         }
         // counting sampling
-        if (((unsigned int) debug_info_kilobots[i]->sample_flag) == 1){
-            for (int g = 0; g < 101; g ++) {
-                if((int)(debug_info_kilobots[i]->sample*100) == g)
-                    sample[g][debug_info_kilobots[i]->commitement - 1]++;
-            }
-        }
+//        if (((unsigned int) debug_info_kilobots[i]->sample_flag) == 1){
+//            for (int g = 0; g < 101; g ++) {
+//                if((int)(debug_info_kilobots[i]->sample*100) == g)
+//                    sample[g][debug_info_kilobots[i]->commitement - 1]++;
+//            }
+//        }
     }
 
     // time to write something down, max time passed
@@ -189,21 +189,21 @@ void CKilogrid::PostStep() {
         }
     }
 
-    // for viz -> that i can see the progression
+    /// for viz -> that i can see the progression
     if (GetSpace().GetSimulationClock() % 1000 == 0) {
         printf("[LOOPFUNCTION] Clock at %d ... \n", GetSpace().GetSimulationClock());
     }
-    // print distribution of sampling
-    if (GetSpace().GetSimulationClock() == 76799){
-        for (int nicht_till = 0; nicht_till < 101;nicht_till++){
-            printf("%d ", sample[nicht_till][0]);
-        }
-        printf("\n");
-        for (int nicht_till = 0; nicht_till < 101;nicht_till++){
-            printf("%d ", sample[nicht_till][1]);
-        }
-        printf("\n");
-    }
+    /// print distribution of sampling
+//    if (GetSpace().GetSimulationClock() == 76799){
+//        for (int nicht_till = 0; nicht_till < 101;nicht_till++){
+//            printf("%d ", sample[nicht_till][0]);
+//        }
+//        printf("\n");
+//        for (int nicht_till = 0; nicht_till < 101;nicht_till++){
+//            printf("%d ", sample[nicht_till][1]);
+//        }
+//        printf("\n");
+//    }
 
     // quit simulation if quorum reached
 //    if(m_bQuorumReached==true){
