@@ -161,7 +161,7 @@ bool received_virtual_agent_msg_flag = false;
 // message content
 #ifdef SIMULATION
 bool broadcast_msg = false;
-bool sample_time_estimate_flag = false;
+//bool sample_time_estimate_flag = false;
 #else
 IR_message_t* message;
 uint32_t msg_counter = 0;
@@ -234,7 +234,7 @@ void sample(){
             // update discovered option
             discovered_option = op_to_sample;
             discovered_quality = (float)sample_op_counter/(float)sample_counter;
-            sample_time_estimate_flag = true;
+//            sample_time_estimate_flag = true;
             // printf("[%d] estimate %f \n", kilo_uid, discovered_quality);
 
             // set my quality to the measured quality if it's the robot commitment
@@ -257,7 +257,7 @@ void sample(){
             // for shuffling up we set the max sample counter
             // TODO no noise on the sample time for ants - add some noise in order to make it work
             //  and that it is not a random switch at some point
-            sample_counter_max_noise = SAMPLE_COUNTER_MAX + ((GetRandomNumber(10000) % (uint8_t)(SAMPLE_COUNTER_MAX/10)) - (uint8_t)(SAMPLE_COUNTER_MAX/20));
+            sample_counter_max_noise = SAMPLE_COUNTER_MAX; // + ((GetRandomNumber(10000) % (uint8_t)(SAMPLE_COUNTER_MAX/10)) - (uint8_t)(SAMPLE_COUNTER_MAX/20));
         }
     }
 }
@@ -947,14 +947,14 @@ void loop() {
     debug_info_set(commitement, robot_commitment);
     debug_info_set(x_pos, robot_gps_x);
     debug_info_set(y_pos, robot_gps_y);
-    if (sample_time_estimate_flag){
-        debug_info_set(sample, discovered_quality);
-        debug_info_set(sample_flag, true);
-        sample_time_estimate_flag = false;
-    }else{
-        debug_info_set(sample_flag, false);
-    }
-    debug_info_set(com_range, communication_range);
+//    if (sample_time_estimate_flag){
+//        debug_info_set(sample, discovered_quality);
+//        debug_info_set(sample_flag, true);
+//        sample_time_estimate_flag = false;
+//    }else{
+//        debug_info_set(sample_flag, false);
+//    }
+//    debug_info_set(com_range, communication_range);
 
     // debug prints
 //    if(kilo_uid == 0){
