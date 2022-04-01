@@ -6,7 +6,7 @@
 // macro if we are in sim or reality -> command out if on real robot
 #define SIMULATION
 #define CROSS_INHIBITION
-// #define RECRUITBACK
+#define RECRUITBACK
 
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -512,7 +512,7 @@ void broadcast() {
         // broadcast message if the robot is committed - with probability equal to commitment quality
         if (robot_commitment != UNCOMMITTED && robot_commitment_quality > 0 && random <= p_share_commitment_int){
             set_message();
-//            printf("[%d] sending... \n", kilo_uid);
+//            printf("[%d] sending option %d  \n", kilo_uid, robot_commitment);
         }
     }
 }
@@ -776,7 +776,7 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         received_option_msg = msg->data[2];
         received_kilo_uid = msg->data[3];
         received_virtual_agent_msg_flag = true;
-//        printf("[%d] received msg from %d \n", kilo_uid, received_kilo_uid);
+//        printf("[%d] received msg from %d with option %d  \n", kilo_uid, received_kilo_uid, received_option_msg);
     }
 }
 
