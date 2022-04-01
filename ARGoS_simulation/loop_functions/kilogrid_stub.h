@@ -208,6 +208,9 @@ private:
     // TODO this may need adjustment
     distance_measurement_t *d;
 
+    // debug stuff
+    int sample[101][2];
+
     // init stuff
     uint8_t initial_commitment = 1;
     uint8_t initial_commitment_quality = 70;

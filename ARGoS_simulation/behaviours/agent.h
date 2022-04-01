@@ -63,6 +63,9 @@ typedef struct {
     // used for adaptive approach to inform the kilogrid how wide the communication should be
     int com_range;
 
+    int sample_flag;
+    float sample;
+
     // imitate communication
     // used for addaptive approach in order to notify if robot wants to broadcast
     int broadcast_flag;

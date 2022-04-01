@@ -6,7 +6,7 @@
 // macro if we are in sim or reality -> command out if on real robot
 #define SIMULATION
 #define CROSS_INHIBITION
-//#define RECRUITBACK
+// #define RECRUITBACK
 
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -26,7 +26,7 @@
 
 #else
 
-#include "utils.h"  // TODO check if this is needed ?!?
+#include "utils.h"
 #include "kilob_tracking.h"
 #include "kilo_rand_lib.h"
 #include "../communication.h"
@@ -161,6 +161,7 @@ bool received_virtual_agent_msg_flag = false;
 // message content
 #ifdef SIMULATION
 bool broadcast_msg = false;
+bool sample_time_estimate_flag = false;
 #else
 IR_message_t* message;
 uint32_t msg_counter = 0;
@@ -233,6 +234,8 @@ void sample(){
             // update discovered option
             discovered_option = op_to_sample;
             discovered_quality = (float)sample_op_counter/(float)sample_counter;
+            sample_time_estimate_flag = true;
+            // printf("[%d] estimate %f \n", kilo_uid, discovered_quality);
 
             // set my quality to the measured quality if it's the robot commitment
             // also delete the last commitment, bc the robot can only store one!
@@ -254,7 +257,7 @@ void sample(){
             // for shuffling up we set the max sample counter
             // TODO no noise on the sample time for ants - add some noise in order to make it work
             //  and that it is not a random switch at some point
-            sample_counter_max_noise = SAMPLE_COUNTER_MAX;//+ GetRandomNumber(10000) % (uint8_t)(SAMPLE_COUNTER_MAX/10);
+            sample_counter_max_noise = SAMPLE_COUNTER_MAX + ((GetRandomNumber(10000) % (uint8_t)(SAMPLE_COUNTER_MAX/10)) - (uint8_t)(SAMPLE_COUNTER_MAX/20));
         }
     }
 }
@@ -504,11 +507,12 @@ void broadcast() {
         unsigned int range_rnd = 10000;
         unsigned int random = GetRandomNumber(range_rnd);
 
-        unsigned int p_share_commitment_int = (unsigned int)(robot_commitment_quality * range_rnd) + 1;
+        unsigned int p_share_commitment_int = (unsigned int)((2*robot_commitment_quality) * range_rnd) + 1;
 
         // broadcast message if the robot is committed - with probability equal to commitment quality
         if (robot_commitment != UNCOMMITTED && robot_commitment_quality > 0 && random <= p_share_commitment_int){
             set_message();
+//            printf("[%d] sending... \n", kilo_uid);
         }
     }
 }
@@ -772,6 +776,7 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         received_option_msg = msg->data[2];
         received_kilo_uid = msg->data[3];
         received_virtual_agent_msg_flag = true;
+//        printf("[%d] received msg from %d \n", kilo_uid, received_kilo_uid);
     }
 }
 
@@ -942,10 +947,12 @@ void loop() {
     debug_info_set(commitement, robot_commitment);
     debug_info_set(x_pos, robot_gps_x);
     debug_info_set(y_pos, robot_gps_y);
-    if (robot_commitment_quality == 0.0){
-        debug_info_set(inactive, 1);
+    if (sample_time_estimate_flag){
+        debug_info_set(sample, discovered_quality);
+        debug_info_set(sample_flag, true);
+        sample_time_estimate_flag = false;
     }else{
-        debug_info_set(inactive, 0);
+        debug_info_set(sample_flag, false);
     }
     debug_info_set(com_range, communication_range);
 

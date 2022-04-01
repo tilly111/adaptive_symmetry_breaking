@@ -61,6 +61,12 @@ void CKilogrid::Init(TConfigurationNode &t_tree) {
         output_logg << ";" << i;
     }
     output_logg << std::endl;
+
+    for (unsigned int p = 0; p < 101; p++) {
+        for (unsigned int j = 0; j < 2; j++) {
+            sample[p][j] = 0;
+        }
+    }
 }
 
 
@@ -115,10 +121,14 @@ void CKilogrid::PreStep() {
     // simulate reception of can messages
     for (int x_it = 0; x_it < 10; x_it++) {
         for (int y_it = 0; y_it < 20; y_it++) {
-            // forward all messages -> if they should be randomly shuffled by argos
+            // forward all messages, problem is, that it is the same order for all the nodes,
+            //  leading to the problem that all nodes receive the same message as last and thus
+            //  only forward this message to the Kilobots (result: all Kilobots receive the same
+            //  message). That is why we need to random shuffle here!
             while (module_memory[x_it][y_it].received_cell_messages.size() > 0) {
-                CAN_rx(x_it, y_it, &module_memory[x_it][y_it].received_cell_messages[0]);
-                module_memory[x_it][y_it].received_cell_messages.erase(module_memory[x_it][y_it].received_cell_messages.begin() + 0);
+                CAN_rx(x_it, y_it, &module_memory[x_it][y_it].received_cell_messages[m_pcRNG->Uniform(
+                        CRange<UInt32>(0, module_memory[x_it][y_it].received_cell_messages.size()))]);
+                module_memory[x_it][y_it].received_cell_messages.clear();
             }
         }
     }
@@ -139,19 +149,24 @@ void CKilogrid::PostStep() {
     // Save experiment data to the specified log file
     // check if quorum is reached
     bool wrong_init = false;
-//    int c_range = 0;
     std::fill(logg_commitment_state.begin(), logg_commitment_state.end(), 0);
     for (unsigned int i = 0; i < kilobot_entities.size(); i++) {
+        // reset if not initialised right
         if (((unsigned int) debug_info_kilobots[i]->commitement) == 20) {
             wrong_init = true;
             break;
         } else {
             logg_commitment_state[((unsigned int) debug_info_kilobots[i]->commitement)]++;
-//            c_range += (unsigned int) debug_info_kilobots[i]->com_range;
-//            printf("%d ", (unsigned int) debug_info_kilobots[i]->com_range);
+        }
+        // counting sampling
+        if (((unsigned int) debug_info_kilobots[i]->sample_flag) == 1){
+            for (int g = 0; g < 101; g ++) {
+                if((int)(debug_info_kilobots[i]->sample*100) == g)
+                    sample[g][debug_info_kilobots[i]->commitement - 1]++;
+            }
         }
     }
-//    printf("\n");
+
     // time to write something down, max time passed
     if ((data_saving_counter % DATA_SAVING_FREQUENCY == 0) ||
         (GetSpace().GetSimulationClock() >= GetSimulator().GetMaxSimulationClock())) {
@@ -159,7 +174,6 @@ void CKilogrid::PostStep() {
         for (unsigned int i = 0; i < logg_commitment_state.size(); i++) {
             output_logg << ";" << logg_commitment_state[i];
         }
-//        output_logg << ";" << (c_range / 50);  // for logging the avg communication range
         output_logg << std::endl;
     }
 
@@ -178,6 +192,17 @@ void CKilogrid::PostStep() {
     // for viz -> that i can see the progression
     if (GetSpace().GetSimulationClock() % 1000 == 0) {
         printf("[LOOPFUNCTION] Clock at %d ... \n", GetSpace().GetSimulationClock());
+    }
+    // print distribution of sampling
+    if (GetSpace().GetSimulationClock() == 76799){
+        for (int nicht_till = 0; nicht_till < 101;nicht_till++){
+            printf("%d ", sample[nicht_till][0]);
+        }
+        printf("\n");
+        for (int nicht_till = 0; nicht_till < 101;nicht_till++){
+            printf("%d ", sample[nicht_till][1]);
+        }
+        printf("\n");
     }
 
     // quit simulation if quorum reached
