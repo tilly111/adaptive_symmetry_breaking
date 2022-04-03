@@ -45,14 +45,14 @@
     label="kilogrid_loop_functions">
 
     <variables
-        config_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sample_18.kconf"
-        second_config="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sample_18.kconf"
-        data_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/step_adaptation_test_62.txt"
+        config_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sample_14.kconf"
+        second_config="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sample_14.kconf"
+        data_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/step_adaptation_test_65.txt"
         initial_commitment="1"
         initial_commitment_quality="204"
         number_of_options="2"
-        initial_communication_range="45"
-        max_communication_range="10"
+        initial_communication_range="15"
+        max_communication_range="5"
     />
 
 </loop_functions>
@@ -116,7 +116,7 @@
 <!-- ****************** -->
 <!-- * Visualization  * -->
 <!-- **************®**** -->
-<!--
+<!-- -->
 <visualization>
 
 <qt-opengl>
@@ -134,5 +134,5 @@
     </qt-opengl>
 
 </visualization>
- -->
+ <!-- -->
 </argos-configuration>
