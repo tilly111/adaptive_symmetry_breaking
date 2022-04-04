@@ -6,7 +6,7 @@
 // macro if we are in sim or reality -> command out if on real robot
 #define SIMULATION
 #define CROSS_INHIBITION
-#define RECRUITBACK
+//#define RECRUITBACK
 
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -123,7 +123,7 @@ bool commitment_switch_flag = false;
 uint8_t  step_size = 1;
 
 // sample variables
-const uint32_t SAMPLE_TICKS = 32;  // TODO change back to 32 or 160
+const uint32_t SAMPLE_TICKS = 32;
 uint32_t last_sample_ticks = 0;
 uint32_t sample_counter_max_noise = 0;
 
@@ -290,7 +290,6 @@ void update_commitment() {
         // Discovery and COMPARE: found a better option (in case of discovery robot is uncommitted
         // thus robot_commitment_quality should be 0
         // TODO maybe choose PARAM higher than 0.0 in order to improve stability
-        printf("[%d] %f \n", kilo_uid, robot_commitment_quality);
         if(quality > robot_commitment_quality + PARAM){
             individual = true;
         }
@@ -798,7 +797,6 @@ void tx_message_success() {
 /* have to send it multiple times. The when and how often to send a message should be            */
 /* implemented here!                                                                             */
 /*-----------------------------------------------------------------------------------------------*/
-// TODO check if this name is free, but should be - want to keep it close to the og kilobot
 void message_tx(){
     // implementation differs because in simulation we use the debugstruct - faster and easier to
     // understand
@@ -983,7 +981,7 @@ int main(){
     // create debug struct - mimics the communication with the kilogrid
     debug_info_create();
 #else
-    // initalize utils - TODO check if needed ?
+    // initalize utils
     utils_init();
 #endif
     // callback for received messages
