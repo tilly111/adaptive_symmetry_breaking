@@ -16,7 +16,7 @@ if [ $# -lt ${EXPECTED_ARGS} ]; then
 else
   tmp_counter=0
   MAX_COMMUNICATION_RANGE=30
-  INITIAL_COMMUNICATION_RANGE=3
+  INITIAL_COMMUNICATION_RANGE=5
   INITIAL_COMMITMENT=2 # initial commitment of the robots
 
   # stuff needs to be adjusted
