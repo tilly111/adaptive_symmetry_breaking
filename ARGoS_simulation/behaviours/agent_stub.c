@@ -289,8 +289,10 @@ void update_commitment() {
 
         // Discovery and COMPARE: found a better option (in case of discovery robot is uncommitted
         // thus robot_commitment_quality should be 0
-        // TODO maybe choose PARAM higher than 0.0 in order to improve stability
-        if(quality > robot_commitment_quality + PARAM){
+        // TODO does it makes sense to introduce this random variable?!??
+        unsigned int rand_number = GetRandomNumber(10000);
+        unsigned int quality_int = (unsigned int)(10000 * quality)+1;
+        if(quality > robot_commitment_quality + PARAM && rand_number <= quality_int){
             individual = true;
         }
         // RECRUITMENT and DIRECT-SWITCH: message with different option

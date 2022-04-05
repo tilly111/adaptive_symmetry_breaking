@@ -25,7 +25,7 @@ else
   for j in $(seq ${1} ${2}); do
       # parameters to choose
 
-      conf=sample_${ENVIRONMENT}.kconf
+      conf=sample_${ENVIRONMENT}
       n=2
 
       # max communication range = sampling number
@@ -124,17 +124,19 @@ else
       -e "s|hrs|${HRS}|" \
       -e "s|logfile|${JOB_NAME}|" \
       ${JOB_TEMPLATE_SRC} >${JOB_FILE}
-    for i in $(seq 0 19); do
+    # TODO change back to higher number
+    for i in $(seq 0 9); do
 
       EXP_FILE=${EXP_DIR}/${EXP_NAME}_${i}.argos # full path to the experiment configuration file
       DATA_FILE=${EXP_NAME}_${i}.txt # Full path to the data file
+      CONFIG_FILE_FINAL=${CONFIG_FILE}_${i}.kconf
 
       # it is very important to keep this order in order to not overwrite stuff
       sed -e "s|exp_length|${EXP_LENGTH}|" \
         -e "s|randomseed|$(($i * 124))|" \
         -e "s|behaviourpath|${BEHAVIOUR_FILE}|" \
         -e "s|loopfunctionpath|${LOOPFUNCTION_FILE}|" \
-        -e "s|configfilename|${CONFIG_FILE}|" \
+        -e "s|configfilename|${CONFIG_FILE_FINAL}|" \
         -e "s|datafilename|${DATA_FILE}|" \
         -e "s|num_robots|${NUM_ROBOTS}|" \
         -e "s|initialcommitmentquality|${INITIAL_COMMITMENT_QUALITY}|" \
@@ -142,7 +144,7 @@ else
         -e "s|numberofoptions|${n}|" \
         -e "s|initialcommunicationrange|${INITIAL_COMMUNICATION_RANGE}|" \
         -e "s|maxcommunicationrange|${MAX_COMMUNICATION_RANGE}|" \
-        -e "s|dynamicenvname|${CONFIG_FILE}|" \
+        -e "s|dynamicenvname|${CONFIG_FILE_FINAL}|" \
         ${EXP_TEMPLATE_SRC} >${EXP_FILE}
 
 

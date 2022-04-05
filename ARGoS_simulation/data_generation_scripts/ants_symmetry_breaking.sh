@@ -108,6 +108,7 @@ else
         -e "s|hrs|${HRS}|" \
         -e "s|logfile|${JOB_NAME}|" \
         ${JOB_TEMPLATE_SRC} >${JOB_FILE}
+
       for i in $(seq 0 19); do
 
           EXP_FILE=${EXP_DIR}/${EXP_NAME}_${i}.argos # full path to the experiment configuration file
