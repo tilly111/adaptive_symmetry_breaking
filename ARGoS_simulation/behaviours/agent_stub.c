@@ -56,7 +56,7 @@
 // #define SAMPLE_COUNTER_MAX 30
 // TODO made dynaic for ants paper
 uint8_t SAMPLE_COUNTER_MAX = 0;
-#define SAMPLE_TICKS 150
+#define SAMPLE_TICKS 32
 #define UPDATE_TICKS 60
 #define BROADCAST_TICKS 15
 #define MIN_COMMUNICATION_RANGE 1  // is used in dynamic com update
