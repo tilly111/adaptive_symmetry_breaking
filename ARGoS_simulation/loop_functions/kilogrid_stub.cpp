@@ -148,6 +148,7 @@ void CKilogrid::PreStep() {
 void CKilogrid::PostStep() {
     // Save experiment data to the specified log file
     // check if quorum is reached
+    int counter_q = 0;
     bool wrong_init = false;
     std::fill(logg_commitment_state.begin(), logg_commitment_state.end(), 0);
     for (unsigned int i = 0; i < kilobot_entities.size(); i++) {
@@ -159,12 +160,14 @@ void CKilogrid::PostStep() {
             logg_commitment_state[((unsigned int) debug_info_kilobots[i]->commitement)]++;
         }
         // counting sampling
-//        if (((unsigned int) debug_info_kilobots[i]->sample_flag) == 1){
-//            for (int g = 0; g < 101; g ++) {
-//                if((int)(debug_info_kilobots[i]->sample*100) == g)
-//                    sample[g][debug_info_kilobots[i]->commitement - 1]++;
-//            }
+        if (debug_info_kilobots[i]->quality < 0.01) {
+            counter_q++;
+        }
+//        for (int g = 0; g < 101; g ++) {
+//            if((int)(debug_info_kilobots[i]->quality*100) == g)
+//                sample[g][debug_info_kilobots[i]->commitement - 1]++;
 //        }
+
     }
 
     // time to write something down, max time passed
@@ -204,6 +207,7 @@ void CKilogrid::PostStep() {
 //        }
 //        printf("\n");
 //    }
+//    LOG << counter_q << std::endl;
 
     // quit simulation if quorum reached
 //    if(m_bQuorumReached==true){

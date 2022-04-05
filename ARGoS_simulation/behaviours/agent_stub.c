@@ -7,6 +7,7 @@
 #define SIMULATION
 #define CROSS_INHIBITION
 //#define RECRUITBACK
+//#define COMPARE_PROB
 
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -53,6 +54,7 @@
 
 // parameters
 // #define SAMPLE_COUNTER_MAX 30
+#define SAMPLE_TICKS 150
 // TODO made dynaic for ants paper
 uint8_t SAMPLE_COUNTER_MAX = 0;
 #define UPDATE_TICKS 60
@@ -123,7 +125,6 @@ bool commitment_switch_flag = false;
 uint8_t  step_size = 1;
 
 // sample variables
-const uint32_t SAMPLE_TICKS = 32;
 uint32_t last_sample_ticks = 0;
 uint32_t sample_counter_max_noise = 0;
 
@@ -235,7 +236,7 @@ void sample(){
             discovered_option = op_to_sample;
             discovered_quality = (float)sample_op_counter/(float)sample_counter;
 //            sample_time_estimate_flag = true;
-            // printf("[%d] estimate %f \n", kilo_uid, discovered_quality);
+//             printf("[%d] estimate %f for option %d \n", kilo_uid, discovered_quality, discovered_option);
 
             // set my quality to the measured quality if it's the robot commitment
             // also delete the last commitment, bc the robot can only store one!
@@ -290,9 +291,13 @@ void update_commitment() {
         // Discovery and COMPARE: found a better option (in case of discovery robot is uncommitted
         // thus robot_commitment_quality should be 0
         // TODO does it makes sense to introduce this random variable?!??
+#ifdef COMPARE_PROB
         unsigned int rand_number = GetRandomNumber(10000);
         unsigned int quality_int = (unsigned int)(10000 * quality)+1;
         if(quality > robot_commitment_quality + PARAM && rand_number <= quality_int){
+#else
+        if(quality > robot_commitment_quality + PARAM){
+#endif
             individual = true;
         }
         // RECRUITMENT and DIRECT-SWITCH: message with different option
@@ -315,9 +320,11 @@ void update_commitment() {
             /// set new commitment
             robot_commitment = discovered_option;
             robot_commitment_quality = discovered_quality;
+#ifdef RECRUITBACK
             // reset last robot commitment
             last_robot_commitment = UNINITIALISED;
             last_robot_commitment_quality = 0.0;
+#endif
             /// set last commitment switch - trigger for updating the communication range dynamically
             last_commitment_switch = kilo_ticks;
             commitment_switch_flag = true;
@@ -332,8 +339,8 @@ void update_commitment() {
                 robot_commitment = received_option;
                 // set new option the robot should sample
                 op_to_sample = received_option;
-                /// Depending on the storage set commitment quality
 #ifdef RECRUITBACK
+                /// Depending on the storage set commitment quality
                 if (last_robot_commitment == received_option){
                     robot_commitment_quality = last_robot_commitment_quality;
                     // reset last robot commitment
@@ -342,9 +349,6 @@ void update_commitment() {
                 } else {  // no information -> start form 0
 #endif
                     robot_commitment_quality = 0.0;
-                    // todo here we do not need to reset last_robot commitment bc
-                    //  red -> uncom -> blue -> uncom -> red never finished sampling;
-                    //  robot can immediately speak
 #ifdef RECRUITBACK
                 }
 #endif
@@ -949,6 +953,7 @@ void loop() {
     debug_info_set(commitement, robot_commitment);
     debug_info_set(x_pos, robot_gps_x);
     debug_info_set(y_pos, robot_gps_y);
+    debug_info_set(quality, robot_commitment_quality);
 //    if (sample_time_estimate_flag){
 //        debug_info_set(sample, discovered_quality);
 //        debug_info_set(sample_flag, true);
