@@ -25,8 +25,8 @@ else
   for j in $(seq ${1} ${2}); do
       # parameters to choose
 
-      conf=sample_${ENVIRONMENT}
-      n=2
+      conf=giovanni_${ENVIRONMENT}
+      n=4
 
       # max communication range = sampling number
       if ((${tmp_counter}  == 0)); then
