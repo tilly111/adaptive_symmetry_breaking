@@ -302,7 +302,7 @@ void update_commitment() {
             individual = true;
         }
         // RECRUITMENT and DIRECT-SWITCH: message with different option
-        if(new_robot_msg && robot_commitment != received_option && received_option != UNCOMMITTED){
+        if(new_robot_msg && robot_commitment != received_option && received_option != UNCOMMITTED && !(robot_commitment_quality <= 0.001 && robot_commitment != UNCOMMITTED)){
             social = true;
         }
 
@@ -336,7 +336,7 @@ void update_commitment() {
         /// CROSS-INHIBITION MODEL
         }else if(social){
             // basically the robot is recruited when it finishes sampling
-            if (robot_commitment == UNCOMMITTED || robot_commitment_quality <= 0.001){
+            if (robot_commitment == UNCOMMITTED){
                 // set new commitment
                 robot_commitment = received_option;
                 // set new option the robot should sample
@@ -350,7 +350,7 @@ void update_commitment() {
                     last_robot_commitment_quality = 0.0;
                 } else {  // no information -> start form 0
 #endif
-                    robot_commitment_quality = 0.1;
+                    robot_commitment_quality = 0.0;
 #ifdef RECRUITBACK
                 }
 #endif
