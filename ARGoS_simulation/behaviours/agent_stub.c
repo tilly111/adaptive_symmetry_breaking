@@ -271,7 +271,8 @@ void update_commitment() {
     if(kilo_ticks > last_update_ticks + update_ticks_noise){
         // set next update
         last_update_ticks = kilo_ticks;
-        update_ticks_noise = UPDATE_TICKS + GetRandomNumber(10000) % 5;
+        // noise +- 5%
+        update_ticks_noise = UPDATE_TICKS + ((GetRandomNumber(10000) % ((uint8_t)(UPDATE_TICKS/10) + 1)) - (uint8_t)(UPDATE_TICKS/20));;
 
         // drawing a random number
 //        unsigned int range_rnd = 10000;
@@ -334,7 +335,8 @@ void update_commitment() {
 #ifdef CROSS_INHIBITION
         /// CROSS-INHIBITION MODEL
         }else if(social){
-            if (robot_commitment == UNCOMMITTED){
+            // basically the robot is recruited when it finishes sampling
+            if (robot_commitment == UNCOMMITTED || robot_commitment_quality <= 0.001){
                 // set new commitment
                 robot_commitment = received_option;
                 // set new option the robot should sample
@@ -348,7 +350,7 @@ void update_commitment() {
                     last_robot_commitment_quality = 0.0;
                 } else {  // no information -> start form 0
 #endif
-                    robot_commitment_quality = 0.0;
+                    robot_commitment_quality = 0.1;
 #ifdef RECRUITBACK
                 }
 #endif
@@ -868,9 +870,12 @@ void setup(){
     // init some counters
     // TODO: is commented out due to experiments for ants paper with different sampling numbers
     //sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);
-    update_ticks_noise = UPDATE_TICKS + (GetRandomNumber(10000) % UPDATE_TICKS);
+    // TODO: does this makes sense? -> update is only for shuffleing so you do not have to wait
+    //  a full cycle
+    update_ticks_noise = (GetRandomNumber(10000) % UPDATE_TICKS + 1);
 
     last_broadcast_ticks = GetRandomNumber(10000) % BROADCAST_TICKS + 1;
+    last_sample_ticks = GetRandomNumber(10000) % SAMPLE_TICKS + 1;
 
     // Initialise time to 0
     kilo_ticks = 0;

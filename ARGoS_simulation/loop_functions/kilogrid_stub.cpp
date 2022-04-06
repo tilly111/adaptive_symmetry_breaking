@@ -148,7 +148,7 @@ void CKilogrid::PreStep() {
 void CKilogrid::PostStep() {
     // Save experiment data to the specified log file
     // check if quorum is reached
-    int counter_q = 0;
+//    int counter_q = 0;
     bool wrong_init = false;
     std::fill(logg_commitment_state.begin(), logg_commitment_state.end(), 0);
     for (unsigned int i = 0; i < kilobot_entities.size(); i++) {
@@ -160,12 +160,13 @@ void CKilogrid::PostStep() {
             logg_commitment_state[((unsigned int) debug_info_kilobots[i]->commitement)]++;
         }
         // counting sampling
-        if (debug_info_kilobots[i]->quality < 0.01) {
-            counter_q++;
-        }
+//        if (debug_info_kilobots[i]->quality < 0.001) {
+//            counter_q++;
+//        }
 //        for (int g = 0; g < 101; g ++) {
-//            if((int)(debug_info_kilobots[i]->quality*100) == g)
+//            if((int)(debug_info_kilobots[i]->quality*100) == g && debug_info_kilobots[i]->commitement != 0){
 //                sample[g][debug_info_kilobots[i]->commitement - 1]++;
+//            }
 //        }
 
     }
@@ -195,6 +196,14 @@ void CKilogrid::PostStep() {
     /// for viz -> that i can see the progression
     if (GetSpace().GetSimulationClock() % 1000 == 0) {
         printf("[LOOPFUNCTION] Clock at %d ... \n", GetSpace().GetSimulationClock());
+//        for (int nicht_till = 0; nicht_till < 101;nicht_till++){
+//            printf("%d ", sample[nicht_till][0]);
+//        }
+//        printf("\n");
+//        for (int nicht_till = 0; nicht_till < 101;nicht_till++){
+//            printf("%d ", sample[nicht_till][1]);
+//        }
+//        printf("\n");
     }
     /// print distribution of sampling
 //    if (GetSpace().GetSimulationClock() == 76799){
@@ -683,7 +692,7 @@ void CKilogrid::loop(int x, int y) {
             module_memory[x][y].ir_message_tx->data[4] = number_of_options;
             module_memory[x][y].ir_message_tx->data[5] = module_memory[x][y].cell_colour[f];  // tested cast to unit_8 not needed
             module_memory[x][y].ir_message_tx->data[6] = initial_communication_range;
-                module_memory[x][y].ir_message_tx->data[7] = max_communication_range;
+            module_memory[x][y].ir_message_tx->data[7] = max_communication_range;
 
             set_IR_message(x, y, *module_memory[x][y].ir_message_tx, cell_id[f]);
         }

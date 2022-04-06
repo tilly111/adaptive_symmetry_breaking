@@ -25,8 +25,8 @@ else
   for j in $(seq ${1} ${2}); do
       # parameters to choose
 
-      conf=giovanni_${ENVIRONMENT}
-      n=4
+      conf=sample_${ENVIRONMENT}
+      n=2
 
       # max communication range = sampling number
       if ((${tmp_counter}  == 0)); then
@@ -82,7 +82,7 @@ else
     elif (($((${tmp_counter} % 17)) == 16)); then
           INITIAL_COMMUNICATION_RANGE=45
     fi
-    EXP_NAME=experiment_cl_sampling_cross_inhib_04_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_samples_${MAX_COMMUNICATION_RANGE}_env_${ENVIRONMENT}
+    EXP_NAME=experiment_cl_sampling_cross_inhib_05_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_samples_${MAX_COMMUNICATION_RANGE}_env_${ENVIRONMENT}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots
@@ -90,7 +90,7 @@ else
     EXP_LENGTH=2400      #length of the experiment in secs
     DATA_FREQUENCY=1     # frequency of saving the experiment data
 
-    HRS=07 # hours the script takes
+    HRS=03 # hours the script takes
     MIN=00 # min the script takes
 
     #path to main directory
@@ -125,7 +125,7 @@ else
       -e "s|logfile|${JOB_NAME}|" \
       ${JOB_TEMPLATE_SRC} >${JOB_FILE}
     # TODO change back to higher number
-    for i in $(seq 0 19); do
+    for i in $(seq 0 4); do
 
       EXP_FILE=${EXP_DIR}/${EXP_NAME}_${i}.argos # full path to the experiment configuration file
       DATA_FILE=${EXP_NAME}_${i}.txt # Full path to the data file
