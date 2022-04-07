@@ -8,7 +8,7 @@
 <system threads="1" />
 <experiment length="2400"
     ticks_per_second="32"
-    random_seed="367" />
+    random_seed="0" />
 </framework>
 
 <!-- *************** -->
@@ -45,14 +45,14 @@
     label="kilogrid_loop_functions">
 
     <variables
-        config_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sym_break_0.kconf"
-        second_config="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sym_break_0.kconf"
-        data_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/step_adaptation_test_126.txt"
+        config_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sample_16_12.kconf"
+        second_config="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sample_16_12.kconf"
+        data_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/step_adaptation_test_148.txt"
         initial_commitment="1"
         initial_commitment_quality="204"
         number_of_options="2"
         initial_communication_range="45"
-        max_communication_range="5"
+        max_communication_range="10"
     />
 </loop_functions>
 

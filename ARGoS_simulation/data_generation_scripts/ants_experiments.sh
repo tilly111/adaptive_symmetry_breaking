@@ -90,7 +90,7 @@ else
     EXP_LENGTH=2400      #length of the experiment in secs
     DATA_FREQUENCY=1     # frequency of saving the experiment data
 
-    HRS=03 # hours the script takes
+    HRS=04 # hours the script takes
     MIN=00 # min the script takes
 
     #path to main directory
@@ -125,7 +125,7 @@ else
       -e "s|logfile|${JOB_NAME}|" \
       ${JOB_TEMPLATE_SRC} >${JOB_FILE}
     # TODO change back to higher number
-    for i in $(seq 0 19); do
+    for i in $(seq 0 9); do
 
       EXP_FILE=${EXP_DIR}/${EXP_NAME}_${i}.argos # full path to the experiment configuration file
       DATA_FILE=${EXP_NAME}_${i}.txt # Full path to the data file
