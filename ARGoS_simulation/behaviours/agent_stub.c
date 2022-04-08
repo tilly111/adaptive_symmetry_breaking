@@ -302,7 +302,7 @@ void update_commitment() {
             individual = true;
         }
         // RECRUITMENT and DIRECT-SWITCH: message with different option
-        if(new_robot_msg && robot_commitment != received_option && received_option != UNCOMMITTED && !(robot_commitment_quality <= 0.001 && robot_commitment != UNCOMMITTED)){
+        if(new_robot_msg && robot_commitment != received_option && received_option != UNCOMMITTED){  // && !(robot_commitment_quality <= 0.001 && robot_commitment != UNCOMMITTED)
             social = true;
         }
 
@@ -350,7 +350,7 @@ void update_commitment() {
                     last_robot_commitment_quality = 0.0;
                 } else {  // no information -> start form 0
 #endif
-                    robot_commitment_quality = 0.0;
+                    robot_commitment_quality = 0.2;
 #ifdef RECRUITBACK
                 }
 #endif
@@ -766,6 +766,7 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         if (robot_commitment != 1){
             robot_commitment = (kilo_uid % (NUMBER_OF_OPTIONS)) + 1;
         }
+//        robot_commitment = 2; // TODO delete
         current_ground = msg->data[5];
         op_to_sample = current_ground;
         communication_range = msg->data[6];
