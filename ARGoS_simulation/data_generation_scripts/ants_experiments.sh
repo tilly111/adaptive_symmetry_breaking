@@ -25,9 +25,9 @@ else
   for j in $(seq ${1} ${2}); do
       # parameters to choose
 
-      # TODO adjust world name!
-      conf=sample_${ENVIRONMENT}
-      n=2
+      # TODO adjust world name + and number of options
+      conf=sample_3_${ENVIRONMENT}
+      n=3
 
       # max communication range = sampling number
       if ((${tmp_counter}  == 0)); then
