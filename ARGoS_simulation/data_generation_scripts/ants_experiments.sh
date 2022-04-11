@@ -25,61 +25,62 @@ else
   for j in $(seq ${1} ${2}); do
       # parameters to choose
 
+      # TODO adjust world name!
       conf=sample_${ENVIRONMENT}
       n=2
 
       # max communication range = sampling number
       if ((${tmp_counter}  == 0)); then
         MAX_COMMUNICATION_RANGE=5
-      elif ((${tmp_counter} == 17)); then
+      elif ((${tmp_counter} == 11)); then
         MAX_COMMUNICATION_RANGE=10
-      elif ((${tmp_counter} == 34)); then
+      elif ((${tmp_counter} == 22)); then
         MAX_COMMUNICATION_RANGE=15
-      elif ((${tmp_counter} == 51)); then
+      elif ((${tmp_counter} == 33)); then
         MAX_COMMUNICATION_RANGE=20
-      elif ((${tmp_counter} == 68)); then
+      elif ((${tmp_counter} == 44)); then
         MAX_COMMUNICATION_RANGE=25
-      elif ((${tmp_counter} == 85)); then
+      elif ((${tmp_counter} == 55)); then
         MAX_COMMUNICATION_RANGE=30
-      elif ((${tmp_counter} == 102)); then
+      elif ((${tmp_counter} == 66)); then
         MAX_COMMUNICATION_RANGE=45
-      elif ((${tmp_counter} == 119)); then
+      elif ((${tmp_counter} == 77)); then
         MAX_COMMUNICATION_RANGE=60
       fi
     # initial communication range = communication range
-    if (($((${tmp_counter} % 17)) == 0)); then
+    if (($((${tmp_counter} % 11)) == 0)); then  # change back to 17 ..
           INITIAL_COMMUNICATION_RANGE=1
-    elif (($((${tmp_counter} % 17)) == 1)); then
+    elif (($((${tmp_counter} % 11)) == 1)); then
           INITIAL_COMMUNICATION_RANGE=2
-    elif (($((${tmp_counter} % 17)) == 2)); then
+    elif (($((${tmp_counter} % 11)) == 2)); then
           INITIAL_COMMUNICATION_RANGE=3
-    elif (($((${tmp_counter} % 17)) == 3)); then
+    elif (($((${tmp_counter} % 11)) == 3)); then
           INITIAL_COMMUNICATION_RANGE=4
-    elif (($((${tmp_counter} % 17)) == 4)); then
+    elif (($((${tmp_counter} % 11)) == 4)); then
           INITIAL_COMMUNICATION_RANGE=5
-    elif (($((${tmp_counter} % 17)) == 5)); then
+    elif (($((${tmp_counter} % 11)) == 5)); then
           INITIAL_COMMUNICATION_RANGE=6
-    elif (($((${tmp_counter} % 17)) == 6)); then
+    elif (($((${tmp_counter} % 11)) == 6)); then
           INITIAL_COMMUNICATION_RANGE=7
-    elif (($((${tmp_counter} % 17)) == 7)); then
+    elif (($((${tmp_counter} % 11)) == 7)); then
           INITIAL_COMMUNICATION_RANGE=8
-    elif (($((${tmp_counter} % 17)) == 8)); then
+    elif (($((${tmp_counter} % 11)) == 8)); then
           INITIAL_COMMUNICATION_RANGE=9
-    elif (($((${tmp_counter} % 17)) == 9)); then
-          INITIAL_COMMUNICATION_RANGE=10
-    elif (($((${tmp_counter} % 17)) == 10)); then
-          INITIAL_COMMUNICATION_RANGE=15
-    elif (($((${tmp_counter} % 17)) == 11)); then
-          INITIAL_COMMUNICATION_RANGE=20
-    elif (($((${tmp_counter} % 17)) == 12)); then
+#    elif (($((${tmp_counter} % 17)) == 9)); then
+#          INITIAL_COMMUNICATION_RANGE=10
+#    elif (($((${tmp_counter} % 17)) == 10)); then
+#          INITIAL_COMMUNICATION_RANGE=15
+#    elif (($((${tmp_counter} % 17)) == 11)); then
+#          INITIAL_COMMUNICATION_RANGE=20
+    elif (($((${tmp_counter} % 11)) == 9)); then
           INITIAL_COMMUNICATION_RANGE=25
-    elif (($((${tmp_counter} % 17)) == 13)); then
-          INITIAL_COMMUNICATION_RANGE=30
-    elif (($((${tmp_counter} % 17)) == 14)); then
-          INITIAL_COMMUNICATION_RANGE=35
-    elif (($((${tmp_counter} % 17)) == 15)); then
-          INITIAL_COMMUNICATION_RANGE=40
-    elif (($((${tmp_counter} % 17)) == 16)); then
+#    elif (($((${tmp_counter} % 17)) == 13)); then
+#          INITIAL_COMMUNICATION_RANGE=30
+#    elif (($((${tmp_counter} % 17)) == 14)); then
+#          INITIAL_COMMUNICATION_RANGE=35
+#    elif (($((${tmp_counter} % 17)) == 15)); then
+#          INITIAL_COMMUNICATION_RANGE=40
+    elif (($((${tmp_counter} % 11)) == 10)); then
           INITIAL_COMMUNICATION_RANGE=45
     fi
     EXP_NAME=experiment_cl_sampling_cross_inhib_05_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_samples_${MAX_COMMUNICATION_RANGE}_env_${ENVIRONMENT}

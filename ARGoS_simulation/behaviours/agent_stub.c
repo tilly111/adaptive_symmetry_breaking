@@ -103,9 +103,12 @@ bool calculated_orientation = false;
 
 uint8_t robot_commitment = UNINITIALISED;
 float robot_commitment_quality = 0.0;
+float robot_commitment_quality_tmp = 0.0;
 
+#ifdef RECRUITBACK
 uint8_t last_robot_commitment = UNINITIALISED;
 float last_robot_commitment_quality = 0.0;
+#endif
 
 uint8_t communication_range = 0;  // communication range in cells
 uint8_t max_communication_range = 0;  // for dynamic setting
@@ -231,6 +234,7 @@ void sample(){
             if (current_ground == op_to_sample){
                 sample_op_counter++;
             }
+            robot_commitment_quality_tmp = (float)sample_op_counter/(float)sample_counter_max_noise;
         }else{ // sampling finished
             // update discovered option
             discovered_option = op_to_sample;
@@ -244,8 +248,10 @@ void sample(){
                 last_commitment_switch = kilo_ticks;
                 commitment_switch_flag = true;
                 robot_commitment_quality = discovered_quality;
+#ifdef RECRUITBACK
                 last_robot_commitment = UNINITIALISED;
                 last_robot_commitment_quality = 0.0;
+#endif
             }else{
                 // set discovery flag if we discovered something new!
                 discovered = true;
@@ -350,7 +356,7 @@ void update_commitment() {
                     last_robot_commitment_quality = 0.0;
                 } else {  // no information -> start form 0
 #endif
-                    robot_commitment_quality = 0.2;
+                    robot_commitment_quality = 0.0;
 #ifdef RECRUITBACK
                 }
 #endif
@@ -516,10 +522,17 @@ void broadcast() {
         unsigned int range_rnd = 10000;
         unsigned int random = GetRandomNumber(range_rnd);
 
-        unsigned int p_share_commitment_int = (unsigned int)((2*robot_commitment_quality) * range_rnd) + 1;
+        unsigned int p_share_commitment_int;
+        if (robot_commitment_quality == 0.0){
+            p_share_commitment_int =
+                    (unsigned int) ((2 * robot_commitment_quality_tmp) * range_rnd) + 1;
+        } else {
+            p_share_commitment_int =
+                    (unsigned int) ((2 * robot_commitment_quality) * range_rnd) + 1;
+        }
 
         // broadcast message if the robot is committed - with probability equal to commitment quality
-        if (robot_commitment != UNCOMMITTED && robot_commitment_quality > 0 && random <= p_share_commitment_int){
+        if (robot_commitment != UNCOMMITTED && random <= p_share_commitment_int){
             set_message();
 //            printf("[%d] sending option %d  \n", kilo_uid, robot_commitment);
         }
