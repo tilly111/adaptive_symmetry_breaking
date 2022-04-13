@@ -281,11 +281,11 @@ private:
         uint8_t received_x[4];
         uint8_t received_y[4];
         uint8_t received_communication_range[4];
-        uint8_t received_kilo_uid[4];
+        int received_kilo_uid[4];
 
         // for sending data
         uint8_t opt_to_send_ir[4];
-        uint8_t received_can_kilo_uid[4];
+        int received_can_kilo_uid[4];
 
 
         uint8_t com_range_module;

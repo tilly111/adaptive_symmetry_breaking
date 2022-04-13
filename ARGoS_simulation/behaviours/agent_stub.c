@@ -53,10 +53,11 @@
 #define ROTATION_SPEED 38
 
 // parameters
-// #define SAMPLE_COUNTER_MAX 30
 // TODO made dynaic for ants paper
-uint8_t SAMPLE_COUNTER_MAX = 0;
-#define SAMPLE_TICKS 32
+#define SAMPLE_COUNTER_MAX 10
+//uint8_t SAMPLE_COUNTER_MAX = 0;
+//#define SAMPLE_TICKS 32
+uint32_t SAMPLE_TICKS =0;
 #define UPDATE_TICKS 60
 #define BROADCAST_TICKS 15
 #define MIN_COMMUNICATION_RANGE 1  // is used in dynamic com update
@@ -173,7 +174,7 @@ uint32_t msg_counter = 0;
 
 // tmp variables for saving in callback function
 uint8_t received_option_msg = 0;
-uint8_t received_kilo_uid = 0;
+int32_t received_kilo_uid = 0;
 
 uint8_t received_x = 0;
 uint8_t received_y = 0;
@@ -418,9 +419,6 @@ void update_commitment() {
 
 
 void update_communication_range(){
-    // TODO clean up when we exactly know what we want to do
-    // @giovanni this is very messy at the moment and is still under construction so does not need
-    // to be checked
 //    uint32_t tmp_communication_range;
 //    uint32_t threshold_1 = COMMUNICATION_THRESHOLD_TIMER;
 ////    uint32_t threshold_2 = 2 * threshold_1;  // TODO maybe we need to do this dynamic as well
@@ -445,11 +443,11 @@ void update_communication_range(){
 ////        tmp_communication_range = 45;
 ////    }
 //    /// adaptive by changing its opinion - step
-////    if (kilo_ticks - last_commitment_switch < threshold_1 && commitment_switch_flag) {
-////        tmp_communication_range = max_communication_range;
-////    }else {
-////        tmp_communication_range = MIN_COMMUNICATION_RANGE;
-////    }
+//    if (kilo_ticks - last_commitment_switch < 7500 && commitment_switch_flag) { // 938 haben funktioniert...
+//        tmp_communication_range = 45;
+//    }else {
+//        tmp_communication_range = 3;
+//    }
 //
 //    /// linear decrease
 //    //tmp_communication_range = max_communication_range - ((kilo_ticks-last_commitment_switch)*max_communication_range/COMMUNICATION_THRESHOLD_TIMER);
@@ -494,8 +492,17 @@ void set_message(){
     debug_info_set(data2, robot_commitment);
     debug_info_set(data3, communication_range);
     debug_info_set(data4, msg_number_send);
-    debug_info_set(data5, kilo_uid);
-    debug_info_set(data6, 7);
+    uint8_t tmp_kilo_uid_1;  // TODO: does this work
+    uint8_t tmp_kilo_uid_2;
+    if (kilo_uid > 255){
+        tmp_kilo_uid_1 = 255;
+        tmp_kilo_uid_2 = kilo_uid - 255;
+    }else{
+        tmp_kilo_uid_1 = kilo_uid;
+        tmp_kilo_uid_2 = 0;
+    }
+    debug_info_set(data5, tmp_kilo_uid_1);
+    debug_info_set(data6, tmp_kilo_uid_2);
     debug_info_set(data7, 8);
 #else
     /*
@@ -785,8 +792,8 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         communication_range = msg->data[6];
         // TODO: changed for experiment for ants paper -> init
         // max_communication_range = msg->data[7];
-         SAMPLE_COUNTER_MAX = msg->data[7];
-         sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);  // to ensure that no robot makes random estimate with only one
+        SAMPLE_TICKS = 16 * msg->data[7]; // NEEDS TO BE IN 0.5 SEC
+        //sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);  // to ensure that no robot makes random estimate with only one
         init_flag = true;
     }else if(msg->type == GRID_MSG && init_flag){
         received_x = msg->data[0];
@@ -797,7 +804,7 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
     }else if(msg->type == VIRTUAL_AGENT_MSG  && init_flag){
         // in the processing method we check that it is not our own msg
         received_option_msg = msg->data[2];
-        received_kilo_uid = msg->data[3];
+        received_kilo_uid = msg->data[3] + msg->data[4];  // TODO: does this work
         received_virtual_agent_msg_flag = true;
 //        printf("[%d] received msg from %d with option %d  \n", kilo_uid, received_kilo_uid, received_option_msg);
     }
@@ -880,16 +887,15 @@ void setup(){
     set_motors(0,0);
 
     received_kilo_uid = kilo_uid;
-
     // init some counters
     // TODO: is commented out due to experiments for ants paper with different sampling numbers
-    //sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);
+    SAMPLE_COUNTER_MAX + ((GetRandomNumber(10000) % ((uint8_t)(SAMPLE_COUNTER_MAX/10) + 1)) - (uint8_t)(SAMPLE_COUNTER_MAX/20));
     // TODO: does this makes sense? -> update is only for shuffleing so you do not have to wait
     //  a full cycle
     update_ticks_noise = (GetRandomNumber(10000) % UPDATE_TICKS + 1);
 
     last_broadcast_ticks = GetRandomNumber(10000) % BROADCAST_TICKS + 1;
-    last_sample_ticks = GetRandomNumber(10000) % SAMPLE_TICKS + 1;
+    last_sample_ticks = GetRandomNumber(10000) % 32 + 1;
 
     // Initialise time to 0
     kilo_ticks = 0;

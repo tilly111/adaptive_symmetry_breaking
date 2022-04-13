@@ -26,26 +26,26 @@ else
       # parameters to choose
 
       # TODO adjust world name + and number of options
-      conf=sample_3_${ENVIRONMENT}
-      n=3
+      conf=sample_${ENVIRONMENT}
+      n=2
 
       # max communication range = sampling number
       if ((${tmp_counter}  == 0)); then
-        MAX_COMMUNICATION_RANGE=5
+        MAX_COMMUNICATION_RANGE=1
       elif ((${tmp_counter} == 11)); then
-        MAX_COMMUNICATION_RANGE=10
+        MAX_COMMUNICATION_RANGE=2
       elif ((${tmp_counter} == 22)); then
-        MAX_COMMUNICATION_RANGE=15
+        MAX_COMMUNICATION_RANGE=4
       elif ((${tmp_counter} == 33)); then
-        MAX_COMMUNICATION_RANGE=20
+        MAX_COMMUNICATION_RANGE=6
       elif ((${tmp_counter} == 44)); then
-        MAX_COMMUNICATION_RANGE=25
+        MAX_COMMUNICATION_RANGE=8
       elif ((${tmp_counter} == 55)); then
-        MAX_COMMUNICATION_RANGE=30
-      elif ((${tmp_counter} == 66)); then
-        MAX_COMMUNICATION_RANGE=45
-      elif ((${tmp_counter} == 77)); then
-        MAX_COMMUNICATION_RANGE=60
+        MAX_COMMUNICATION_RANGE=10
+#      elif ((${tmp_counter} == 66)); then
+#        MAX_COMMUNICATION_RANGE=45
+#      elif ((${tmp_counter} == 77)); then
+#        MAX_COMMUNICATION_RANGE=60
       fi
     # initial communication range = communication range
     if (($((${tmp_counter} % 11)) == 0)); then  # change back to 17 ..
@@ -83,7 +83,7 @@ else
     elif (($((${tmp_counter} % 11)) == 10)); then
           INITIAL_COMMUNICATION_RANGE=45
     fi
-    EXP_NAME=experiment_cl_sampling_cross_inhib_05_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_samples_${MAX_COMMUNICATION_RANGE}_env_${ENVIRONMENT}
+    EXP_NAME=cl_sampling_ticks_cross_inhib_00_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_sample_ticks_${MAX_COMMUNICATION_RANGE}_env_${ENVIRONMENT}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots

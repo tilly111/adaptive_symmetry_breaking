@@ -61,8 +61,7 @@ void CKilogrid::Init(TConfigurationNode &t_tree) {
         output_logg << ";" << i;
     }
     output_logg << std::endl;
-
-//    for (unsigned int p = 0; p < 101; p++) {
+//      for (unsigned int p = 0; p < 101; p++) {
 //        for (unsigned int j = 0; j < 2; j++) {
 //            sample[p][j] = 0;
 //        }
@@ -542,7 +541,7 @@ void CKilogrid::set_IR_message(int x, int y, IR_message_t &m, cell_num_t cn) {
     // get kilobots on this cell
     kilobot_entities_vector current_robots;
 
-    for (uint8_t it = 0; it < kilobot_entities.size(); it++) {
+    for (uint16_t it = 0; it < kilobot_entities.size(); it++) {
         if (robot_positions[GetKilobotId(*kilobot_entities[it])].GetX() == cell_pos.GetX()
             and robot_positions[GetKilobotId(*kilobot_entities[it])].GetY() == cell_pos.GetY()) {
             current_robots.push_back(kilobot_entities[it]);
@@ -711,7 +710,7 @@ void CKilogrid::loop(int x, int y) {
                 module_memory[x][y].received_y[c] = module_memory[x][y].tmp_ir_data[c][1];
                 module_memory[x][y].received_commitment[c] = module_memory[x][y].tmp_ir_data[c][2];
                 module_memory[x][y].received_communication_range[c] = module_memory[x][y].tmp_ir_data[c][3];
-                module_memory[x][y].received_kilo_uid[c] = module_memory[x][y].tmp_ir_data[c][5];
+                module_memory[x][y].received_kilo_uid[c] = module_memory[x][y].tmp_ir_data[c][5] + module_memory[x][y].tmp_ir_data[c][6];  // TODO: does this work
                 // forward robot msg
                 module_memory[x][y].can_msg_to_send = true;
             }
@@ -739,8 +738,17 @@ void CKilogrid::loop(int x, int y) {
                 tmp_can_msg.data[2] = module_memory[x][y].received_y[c]; // y sender
                 tmp_can_msg.data[3] = module_memory[x][y].received_communication_range[c]; // range
                 tmp_can_msg.data[4] = module_memory[x][y].received_commitment[c]; // information
-                tmp_can_msg.data[5] = module_memory[x][y].received_kilo_uid[c]; // space for additional info
-                tmp_can_msg.data[6] = 0;
+                uint8_t tmp_kilo_uid_1;
+                uint8_t tmp_kilo_uid_2;
+                if (module_memory[x][y].received_kilo_uid[c] > 255){
+                    tmp_kilo_uid_1 = 255;
+                    tmp_kilo_uid_2 = module_memory[x][y].received_kilo_uid[c] - 255;
+                } else {
+                    tmp_kilo_uid_1 = module_memory[x][y].received_kilo_uid[c];
+                    tmp_kilo_uid_2 = 0;
+                }
+                tmp_can_msg.data[5] = tmp_kilo_uid_1; // TODO: does this work
+                tmp_can_msg.data[6] = tmp_kilo_uid_2;
                 tmp_can_msg.data[7] = 0;
 
                 CAN_message_tx(&tmp_can_msg, module_memory[x][y].cell_address);
@@ -758,7 +766,7 @@ void CKilogrid::loop(int x, int y) {
             if (sqrt(pow(fabs(module_memory[x][y].tmp_can_data[1] - module_memory[x][y].cell_x[c]), 2) + pow(fabs(module_memory[x][y].tmp_can_data[2] - module_memory[x][y].cell_y[c]), 2)) < module_memory[x][y].tmp_can_data[3]) {
                 module_memory[x][y].ir_msg_to_send[c] = true;
                 module_memory[x][y].opt_to_send_ir[c] = module_memory[x][y].tmp_can_data[4];
-                module_memory[x][y].received_can_kilo_uid[c] = module_memory[x][y].tmp_can_data[5];
+                module_memory[x][y].received_can_kilo_uid[c] = module_memory[x][y].tmp_can_data[5] + module_memory[x][y].tmp_can_data[6];
             } else{
                 module_memory[x][y].opt_to_send_ir[c] = module_memory[x][y].cell_colour[c];  // this should be nothing, only called for cells when receiving a can message, and it is not in range
 
@@ -771,14 +779,24 @@ void CKilogrid::loop(int x, int y) {
         // send messages - forward before sending status
         if (module_memory[x][y].ir_msg_to_send[c]) {
             module_memory[x][y].ir_msg_to_send[c] = false;
-            module_memory[x][y].can_kilo_uid = module_memory[x][y].received_can_kilo_uid[c];
+            // module_memory[x][y].can_kilo_uid = module_memory[x][y].received_can_kilo_uid[c];
 
             module_memory[x][y].ir_message_tx->type = VIRTUAL_AGENT_MSG;
             module_memory[x][y].ir_message_tx->crc = 0;
             module_memory[x][y].ir_message_tx->data[0] = module_memory[x][y].cell_x[c];
             module_memory[x][y].ir_message_tx->data[1] = module_memory[x][y].cell_y[c];
             module_memory[x][y].ir_message_tx->data[2] = module_memory[x][y].opt_to_send_ir[c];
-            module_memory[x][y].ir_message_tx->data[3] = module_memory[x][y].can_kilo_uid;
+            uint8_t tmp_kilo_uid_1;  // TODO: does this work
+            uint8_t tmp_kilo_uid_2;
+            if (module_memory[x][y].received_can_kilo_uid[c] > 255){
+                tmp_kilo_uid_1 = 255;
+                tmp_kilo_uid_2 = module_memory[x][y].received_kilo_uid[c] - 255;
+            } else {
+                tmp_kilo_uid_1 = module_memory[x][y].received_kilo_uid[c];
+                tmp_kilo_uid_2 = 0;
+            }
+            module_memory[x][y].ir_message_tx->data[3] = tmp_kilo_uid_1;
+            module_memory[x][y].ir_message_tx->data[4] = tmp_kilo_uid_2;
             set_IR_message(x, y, *module_memory[x][y].ir_message_tx, cell_id[c]);
         } else {
             // sending status
