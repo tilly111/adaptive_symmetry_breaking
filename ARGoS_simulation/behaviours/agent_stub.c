@@ -889,7 +889,7 @@ void setup(){
     received_kilo_uid = kilo_uid;
     // init some counters
     // TODO: is commented out due to experiments for ants paper with different sampling numbers
-    SAMPLE_COUNTER_MAX + ((GetRandomNumber(10000) % ((uint8_t)(SAMPLE_COUNTER_MAX/10) + 1)) - (uint8_t)(SAMPLE_COUNTER_MAX/20));
+    sample_counter_max_noise = SAMPLE_COUNTER_MAX + ((GetRandomNumber(10000) % ((uint8_t)(SAMPLE_COUNTER_MAX/10) + 1)) - (uint8_t)(SAMPLE_COUNTER_MAX/20));
     // TODO: does this makes sense? -> update is only for shuffleing so you do not have to wait
     //  a full cycle
     update_ticks_noise = (GetRandomNumber(10000) % UPDATE_TICKS + 1);
