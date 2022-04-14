@@ -19,6 +19,7 @@ else
   INITIAL_COMMUNICATION_RANGE=1
   INITIAL_COMMITMENT=10 # currently Sample counter max
 
+  # 66 needed!
   # stuff needs to be adjusted
   ENVIRONMENT=${3}
   INITIAL_COMMITMENT_QUALITY=${4}

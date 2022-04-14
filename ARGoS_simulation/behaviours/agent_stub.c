@@ -6,6 +6,7 @@
 // macro if we are in sim or reality -> command out if on real robot
 #define SIMULATION
 #define CROSS_INHIBITION
+//#define DYNAMICRANGE
 //#define RECRUITBACK
 //#define COMPARE_PROB
 
@@ -54,10 +55,10 @@
 
 // parameters
 // TODO made dynaic for ants paper
-#define SAMPLE_COUNTER_MAX 10
-//uint8_t SAMPLE_COUNTER_MAX = 0;
+//#define SAMPLE_COUNTER_MAX 30  // set to 15 and 5 ?
+uint8_t SAMPLE_COUNTER_MAX = 30;
 //#define SAMPLE_TICKS 32
-uint32_t SAMPLE_TICKS =0;
+uint32_t SAMPLE_TICKS = 32;
 #define UPDATE_TICKS 60
 #define BROADCAST_TICKS 15
 #define MIN_COMMUNICATION_RANGE 1  // is used in dynamic com update
@@ -124,9 +125,11 @@ uint32_t state_counter = 0;
 state current_state = MOVE_STRAIGHT;
 state last_state = STOP;
 
+#ifdef DYNAMICRANGE
 uint32_t last_commitment_switch = 0;
 bool commitment_switch_flag = false;
 uint8_t  step_size = 1;
+#endif
 
 // sample variables
 uint32_t last_sample_ticks = 0;
@@ -246,8 +249,13 @@ void sample(){
             // set my quality to the measured quality if it's the robot commitment
             // also delete the last commitment, bc the robot can only store one!
             if (op_to_sample == robot_commitment){
-                last_commitment_switch = kilo_ticks;
-                commitment_switch_flag = true;
+#ifdef DYNAMICRANGE
+                if (robot_commitment_quality != 0.0 && robot_commitment_quality < discovered_quality) {  // ensure that the robot only broadcast, iff it thinks its option is really better compared to an existing opinion
+                    last_commitment_switch = kilo_ticks;
+                    commitment_switch_flag = true;
+                    step_size = (int)(20.0*(discovered_quality/(discovered_quality + robot_commitment_quality + 0.00001))); // this should be between 1 and 0.5
+                }
+#endif
                 robot_commitment_quality = discovered_quality;
 #ifdef RECRUITBACK
                 last_robot_commitment = UNINITIALISED;
@@ -325,6 +333,13 @@ void update_commitment() {
         }
 
         if(individual){
+#ifdef DYNAMICRANGE
+            /// set last commitment switch - trigger for updating the communication range dynamically
+            last_commitment_switch = kilo_ticks;
+            commitment_switch_flag = true;
+            // in case we want to try communication range based on how large the change is
+            step_size = (int)(45.0*(discovered_quality/(discovered_quality + robot_commitment_quality + 0.00001))); // this should be between 1 and 0.5
+#endif
             /// set new commitment
             robot_commitment = discovered_option;
             robot_commitment_quality = discovered_quality;
@@ -333,12 +348,6 @@ void update_commitment() {
             last_robot_commitment = UNINITIALISED;
             last_robot_commitment_quality = 0.0;
 #endif
-            /// set last commitment switch - trigger for updating the communication range dynamically
-            last_commitment_switch = kilo_ticks;
-            commitment_switch_flag = true;
-            // in case we want to try communication range based on how large the change is
-//            step_size = (int)(20.0*(robot_commitment_quality/(last_robot_commitment_quality + robot_commitment_quality))); // this should be between 1 and 0.5
-
 #ifdef CROSS_INHIBITION
         /// CROSS-INHIBITION MODEL
         }else if(social){
@@ -377,8 +386,10 @@ void update_commitment() {
             /// reset sampling to make a new estimate on current commitment
             sample_op_counter = 0;
             sample_counter = 0;
+#ifdef DYNAMICRANGE
             /// set last commitment switch - if we switch based on social information it is only second hand, thus we do not want to tell everybody
             commitment_switch_flag = false;
+#endif
         }
 #else
         /// DIRECT-SWITCHING MODEL
@@ -419,11 +430,12 @@ void update_commitment() {
 
 
 void update_communication_range(){
-//    uint32_t tmp_communication_range;
+#ifdef DYNAMICRANGE
+    uint32_t tmp_communication_range;
 //    uint32_t threshold_1 = COMMUNICATION_THRESHOLD_TIMER;
 ////    uint32_t threshold_2 = 2 * threshold_1;  // TODO maybe we need to do this dynamic as well
 //
-//    tmp_communication_range = communication_range;
+    //tmp_communication_range = communication_range;
 //
 //    /// different update rules
 //    /// exponential increase
@@ -443,11 +455,11 @@ void update_communication_range(){
 ////        tmp_communication_range = 45;
 ////    }
 //    /// adaptive by changing its opinion - step
-//    if (kilo_ticks - last_commitment_switch < 7500 && commitment_switch_flag) { // 938 haben funktioniert...
-//        tmp_communication_range = 45;
-//    }else {
-//        tmp_communication_range = 3;
-//    }
+    if (kilo_ticks - last_commitment_switch < 1876 && commitment_switch_flag) { // 938 haben funktioniert...
+        tmp_communication_range = step_size;
+    }else {
+        tmp_communication_range = 2;
+    }
 //
 //    /// linear decrease
 //    //tmp_communication_range = max_communication_range - ((kilo_ticks-last_commitment_switch)*max_communication_range/COMMUNICATION_THRESHOLD_TIMER);
@@ -469,13 +481,14 @@ void update_communication_range(){
 ////    }
 //
 //    // check for bounds
-//    if (tmp_communication_range > 45) {
-//        tmp_communication_range = 45;
-//    } else if (tmp_communication_range < 1) {
-//        tmp_communication_range = 1;
-//    }
-//
-//    communication_range = tmp_communication_range;
+    if (tmp_communication_range > 45) {
+        tmp_communication_range = 45;
+    } else if (tmp_communication_range < 1) {
+        tmp_communication_range = 1;
+    }
+
+    communication_range = tmp_communication_range;
+#endif
 }
 
 
@@ -777,7 +790,8 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         robot_gps_x = msg->data[0];
         robot_gps_y = msg->data[1];
         random_walk_waypoint_model();  // select first goal
-        robot_commitment = msg->data[2];
+        // TODO change back -> not needed bc we only do adaptation studies atm for ants
+        robot_commitment = 1;//msg->data[2];
         robot_commitment_quality = (msg->data[3])/255.0;
         NUMBER_OF_OPTIONS = msg->data[4];
         // how to init the robot
@@ -793,6 +807,7 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         // TODO: changed for experiment for ants paper -> init
         // max_communication_range = msg->data[7];
         SAMPLE_TICKS = 16 * msg->data[7]; // NEEDS TO BE IN 0.5 SEC
+        SAMPLE_COUNTER_MAX = msg->data[2];
         //sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);  // to ensure that no robot makes random estimate with only one
         init_flag = true;
     }else if(msg->type == GRID_MSG && init_flag){
@@ -990,7 +1005,7 @@ void loop() {
 
     // debug prints
 //    if(kilo_uid == 0){
-//        printf("[%d] %d \n", kilo_uid, SAMPLE_COUNTER_MAX);
+//        printf("[%d] %d %d \n", kilo_uid, SAMPLE_COUNTER_MAX, SAMPLE_TICKS);
 //    }
 #else
     tracking_data.byte[1] = received_x;

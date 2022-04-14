@@ -45,10 +45,10 @@
     label="kilogrid_loop_functions">
 
     <variables
-        config_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sample_16.kconf"
-        second_config="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sample_16.kconf"
+        config_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sample_16_2.kconf"
+        second_config="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sample_16_2.kconf"
         data_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/step_adaptation_test_165.txt"
-        initial_commitment="1"
+        initial_commitment="10"
         initial_commitment_quality="204"
         number_of_options="2"
         initial_communication_range="9"

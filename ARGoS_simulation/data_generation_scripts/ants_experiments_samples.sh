@@ -15,7 +15,7 @@ if [ $# -lt ${EXPECTED_ARGS} ]; then
 
 else
   tmp_counter=0
-  MAX_COMMUNICATION_RANGE=30
+  MAX_COMMUNICATION_RANGE=2
   INITIAL_COMMUNICATION_RANGE=1
   INITIAL_COMMITMENT=10 # currently Sample counter max
 
@@ -31,21 +31,21 @@ else
 
       # max communication range = sampling number
       if ((${tmp_counter}  == 0)); then
-        MAX_COMMUNICATION_RANGE=1
+        INITIAL_COMMITMENT=5
       elif ((${tmp_counter} == 11)); then
-        MAX_COMMUNICATION_RANGE=2
+        INITIAL_COMMITMENT=10
       elif ((${tmp_counter} == 22)); then
-        MAX_COMMUNICATION_RANGE=4
+        INITIAL_COMMITMENT=15
       elif ((${tmp_counter} == 33)); then
-        MAX_COMMUNICATION_RANGE=6
+        INITIAL_COMMITMENT=20
       elif ((${tmp_counter} == 44)); then
-        MAX_COMMUNICATION_RANGE=8
+        INITIAL_COMMITMENT=25
       elif ((${tmp_counter} == 55)); then
-        MAX_COMMUNICATION_RANGE=10
-#      elif ((${tmp_counter} == 66)); then
-#        MAX_COMMUNICATION_RANGE=45
-#      elif ((${tmp_counter} == 77)); then
-#        MAX_COMMUNICATION_RANGE=60
+        INITIAL_COMMITMENT=30
+      elif ((${tmp_counter} == 66)); then
+        INITIAL_COMMITMENT=45
+      elif ((${tmp_counter} == 77)); then
+        INITIAL_COMMITMENT=60
       fi
     # initial communication range = communication range
     if (($((${tmp_counter} % 11)) == 0)); then  # change back to 17 ..
@@ -83,7 +83,7 @@ else
     elif (($((${tmp_counter} % 11)) == 10)); then
           INITIAL_COMMUNICATION_RANGE=45
     fi
-    EXP_NAME=cl_sampling_ticks_cross_inhib_00_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_sample_ticks_${MAX_COMMUNICATION_RANGE}_env_${ENVIRONMENT}
+    EXP_NAME=cl_sample_cross_inhib_00_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_samples_${INITIAL_COMMITMENT}_env_${ENVIRONMENT}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots
