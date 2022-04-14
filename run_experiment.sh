@@ -20,12 +20,12 @@ else
   cd ..
   # here you have to change the specific file you want to run
   # nano ARGoS_simulation/data_generation_scripts/ants_experiments.sh
-  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks 9215 9280 16 204
+  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 9215 9280 16 204
   echo "change initial commitment to 15"
   nano ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh
-  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks 9281 9346 16 204
+  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 9281 9346 16 204
 
-  sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples 9347 9434 16 204
+  sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 9347 9434 16 204
   #sh ARGoS_simulation/data_generation_scripts/ants_experiments.sh ${1} ${2} ${3} ${4}
   #sh ARGoS_simulation/data_generation_scripts/runjobs.sh
   #watch squeue -u taust
