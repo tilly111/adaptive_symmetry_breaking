@@ -22,7 +22,7 @@ else
   # nano ARGoS_simulation/data_generation_scripts/ants_experiments.sh
   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks 9215 9280 16 204
   echo "change initial commitment to 15"
-  nano ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks
+  nano ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh
   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks 9281 9346 16 204
 
   sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples 9347 9434 16 204
