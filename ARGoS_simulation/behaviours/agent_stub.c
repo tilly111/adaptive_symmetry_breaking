@@ -7,6 +7,8 @@
 #define SIMULATION
 #define CROSS_INHIBITION
 //#define DYNAMICRANGE
+//#define OPTIMALSAMPLE
+
 //#define RECRUITBACK
 //#define COMPARE_PROB
 
@@ -223,6 +225,23 @@ unsigned int GetRandomNumber(unsigned int range_rnd){
 
 
 /*-----------------------------------------------------------------------------------------------*/
+/* This method artificially does the sampling, for testing if there is any correlation between   */
+/* time and number of samples idk ask giovanni                                                   */
+/*-----------------------------------------------------------------------------------------------*/
+uint8_t get_artificial_sample(){
+    unsigned int range_rnd = 10000;
+    unsigned int random = GetRandomNumber(10000);
+    // TODO: 2 options - kappa = 0.85
+    if (random < (float)range_rnd * (314.0/684.0)) {
+        return 1;
+    }else {
+        return 2;
+    }
+
+}
+
+
+/*-----------------------------------------------------------------------------------------------*/
 /* Sample function for the ground - sampling should take 30 sec                                  */
 /*-----------------------------------------------------------------------------------------------*/
 void sample(){
@@ -235,9 +254,15 @@ void sample(){
         // check if we reached our sampling time
         if(sample_counter < sample_counter_max_noise){
             sample_counter++;
+#ifdef OPTIMALSAMPLE
+            if (get_artificial_sample() == op_to_sample) {
+                sample_op_counter++;
+            }
+#else
             if (current_ground == op_to_sample){
                 sample_op_counter++;
             }
+#endif
             robot_commitment_quality_tmp = (float)sample_op_counter/(float)sample_counter_max_noise;
         }else{ // sampling finished
             // update discovered option
@@ -250,10 +275,10 @@ void sample(){
             // also delete the last commitment, bc the robot can only store one!
             if (op_to_sample == robot_commitment){
 #ifdef DYNAMICRANGE
-                if (robot_commitment_quality != 0.0 && robot_commitment_quality < discovered_quality) {  // ensure that the robot only broadcast, iff it thinks its option is really better compared to an existing opinion
+                if (robot_commitment_quality != 0 && robot_commitment_quality < discovered_quality) {  // ensure that the robot only broadcast, iff it thinks its option is really better compared to an existing opinion
                     last_commitment_switch = kilo_ticks;
                     commitment_switch_flag = true;
-                    step_size = (int)(20.0*(discovered_quality/(discovered_quality + robot_commitment_quality + 0.00001))); // this should be between 1 and 0.5
+                    step_size = (int)(45.0); // * (discovered_quality - robot_commitment_quality)
                 }
 #endif
                 robot_commitment_quality = discovered_quality;
@@ -267,7 +292,11 @@ void sample(){
             }
 
             // reset sampling
+#ifdef OPTIMALSAMPLE
+            op_to_sample = get_artificial_sample();
+#else
             op_to_sample = current_ground;
+#endif
             sample_counter = 0;
             sample_op_counter = 0;
             // for shuffling up we set the max sample counter
@@ -338,7 +367,7 @@ void update_commitment() {
             last_commitment_switch = kilo_ticks;
             commitment_switch_flag = true;
             // in case we want to try communication range based on how large the change is
-            step_size = (int)(45.0*(discovered_quality/(discovered_quality + robot_commitment_quality + 0.00001))); // this should be between 1 and 0.5
+            step_size = (int)(45.0 * (discovered_quality - robot_commitment_quality));
 #endif
             /// set new commitment
             robot_commitment = discovered_option;
@@ -381,7 +410,11 @@ void update_commitment() {
                 /// CROSS-INHIBITION - becomes uncommitted
                 robot_commitment = UNCOMMITTED;
                 robot_commitment_quality = 0.0;
+#ifdef OPTIMALSAMPLE
+                op_to_sample = get_artificial_sample();
+#else
                 op_to_sample = current_ground;
+#endif
             }
             /// reset sampling to make a new estimate on current commitment
             sample_op_counter = 0;
@@ -455,10 +488,10 @@ void update_communication_range(){
 ////        tmp_communication_range = 45;
 ////    }
 //    /// adaptive by changing its opinion - step
-    if (kilo_ticks - last_commitment_switch < 1876 && commitment_switch_flag) { // 938 haben funktioniert...
+    if (kilo_ticks - last_commitment_switch < 938 && commitment_switch_flag) { // 938 haben funktioniert... 7500
         tmp_communication_range = step_size;
     }else {
-        tmp_communication_range = 2;
+        tmp_communication_range = 3;
     }
 //
 //    /// linear decrease
@@ -802,7 +835,11 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         }
 //        robot_commitment = 2; // TODO delete
         current_ground = msg->data[5];
+#ifdef OPTIMALSAMPLE
+        op_to_sample = get_artificial_sample();
+#else
         op_to_sample = current_ground;
+#endif
         communication_range = msg->data[6];
         // TODO: changed for experiment for ants paper -> init
         // max_communication_range = msg->data[7];

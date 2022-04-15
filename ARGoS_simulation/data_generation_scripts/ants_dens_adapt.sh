@@ -15,29 +15,68 @@ if [ $# -lt ${EXPECTED_ARGS} ]; then
 
 else
   tmp_counter=0
-  MAX_COMMUNICATION_RANGE=30
+  MAX_COMMUNICATION_RANGE=2 # sample ticks in 0.5 steps
   INITIAL_COMMUNICATION_RANGE=3
-  INITIAL_COMMITMENT=1 # initial commitment of the robots
+  INITIAL_COMMITMENT=30 # currently Sample counter max
 
-  # stuff needs to be adjusted
+  # WE NEED 80 runs
   ENVIRONMENT=${3}
   INITIAL_COMMITMENT_QUALITY=${4}
   for j in $(seq ${1} ${2}); do
       conf=sample_${ENVIRONMENT}.kconf
       n=2
 
-      NUM_ROBOTS=$(((25 * (tmp_counter+1))))        # number of robots
+    # sample counter max
+    if ((${tmp_counter}  == 0)); then
+      INITIAL_COMMITMENT=5
+    elif ((${tmp_counter} == 10)); then
+      INITIAL_COMMITMENT=10
+    elif ((${tmp_counter} == 20)); then
+      INITIAL_COMMITMENT=15
+    elif ((${tmp_counter} == 30)); then
+      INITIAL_COMMITMENT=20
+    elif ((${tmp_counter} == 40)); then
+      INITIAL_COMMITMENT=25
+    elif ((${tmp_counter} == 50)); then
+      INITIAL_COMMITMENT=30
+    elif ((${tmp_counter} == 60)); then
+      INITIAL_COMMITMENT=45
+    elif ((${tmp_counter} == 70)); then
+      INITIAL_COMMITMENT=60
+    fi
+
+    if (($((${tmp_counter} % 10)) == 0)); then
+          NUM_ROBOTS=50
+    elif (($((${tmp_counter} % 10)) == 1)); then
+          NUM_ROBOTS=100
+    elif (($((${tmp_counter} % 10)) == 2)); then
+          NUM_ROBOTS=150
+    elif (($((${tmp_counter} % 10)) == 3)); then
+          NUM_ROBOTS=200
+    elif (($((${tmp_counter} % 10)) == 4)); then
+          NUM_ROBOTS=250
+    elif (($((${tmp_counter} % 10)) == 5)); then
+          NUM_ROBOTS=300
+    elif (($((${tmp_counter} % 10)) == 6)); then
+          NUM_ROBOTS=350
+    elif (($((${tmp_counter} % 10)) == 7)); then
+          NUM_ROBOTS=400
+    elif (($((${tmp_counter} % 10)) == 8)); then
+          NUM_ROBOTS=450
+    elif (($((${tmp_counter} % 10)) == 9)); then
+          NUM_ROBOTS=500
+    fi
 
 
-      EXP_NAME=experiment_cl_dens_adapt_cross_inhib_00_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_nr_${NUM_ROBOTS}_env_${ENVIRONMENT}
+      EXP_NAME=cl_dens_adapt_cross_inhib_01_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_nr_${NUM_ROBOTS}_samples_${INITIAL_COMMITMENT}_env_${ENVIRONMENT}
       tmp_counter=$(( ${tmp_counter} + 1 ))
 
       QUORUM=-1            # Quorum to stop experiment NOT USED ATM
       EXP_LENGTH=2400      #length of the experiment in secs
       DATA_FREQUENCY=1     # frequency of saving the experiment data
 
-      HRS=20 # hours the script takes
-      MIN=00 # min the script takes
+      HRS=23 # hours the script takes
+      MIN=30 # min the script takes
 
       #path to main directory
       EXP_FOLDER=${HOME}/Programs/adaptive_symmetry_breaking
@@ -70,7 +109,7 @@ else
         -e "s|hrs|${HRS}|" \
         -e "s|logfile|${JOB_NAME}|" \
         ${JOB_TEMPLATE_SRC} >${JOB_FILE}
-      for i in $(seq 0 19); do
+      for i in $(seq 0 9); do
 
           EXP_FILE=${EXP_DIR}/${EXP_NAME}_${i}.argos # full path to the experiment configuration file
           DATA_FILE=${EXP_NAME}_${i}.txt # Full path to the data file
