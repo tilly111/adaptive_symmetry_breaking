@@ -3,7 +3,7 @@
 ###################################
 # script for ants paper - sample time vs problem difficulty
 ###################################
-EXPECTED_ARGS=4
+EXPECTED_ARGS=5
 if [ $# -lt ${EXPECTED_ARGS} ]; then
   echo "This script creates N argos files for the cluster!"
   echo "Usage $0 <start> <end> "
@@ -17,7 +17,7 @@ else
   tmp_counter=0
   MAX_COMMUNICATION_RANGE=30
   INITIAL_COMMUNICATION_RANGE=1
-  INITIAL_COMMITMENT=10 # currently Sample counter max
+  INITIAL_COMMITMENT=${5} # currently Sample counter max
 
   # 66 needed!
   # stuff needs to be adjusted

@@ -747,7 +747,7 @@ void CKilogrid::loop(int x, int y) {
                     tmp_kilo_uid_1 = module_memory[x][y].received_kilo_uid[c];
                     tmp_kilo_uid_2 = 0;
                 }
-                tmp_can_msg.data[5] = tmp_kilo_uid_1; // TODO: does this work
+                tmp_can_msg.data[5] = tmp_kilo_uid_1;
                 tmp_can_msg.data[6] = tmp_kilo_uid_2;
                 tmp_can_msg.data[7] = 0;
 
@@ -786,7 +786,7 @@ void CKilogrid::loop(int x, int y) {
             module_memory[x][y].ir_message_tx->data[0] = module_memory[x][y].cell_x[c];
             module_memory[x][y].ir_message_tx->data[1] = module_memory[x][y].cell_y[c];
             module_memory[x][y].ir_message_tx->data[2] = module_memory[x][y].opt_to_send_ir[c];
-            uint8_t tmp_kilo_uid_1;  // TODO: does this work
+            uint8_t tmp_kilo_uid_1;
             uint8_t tmp_kilo_uid_2;
             if (module_memory[x][y].received_can_kilo_uid[c] > 255){
                 tmp_kilo_uid_1 = 255;
