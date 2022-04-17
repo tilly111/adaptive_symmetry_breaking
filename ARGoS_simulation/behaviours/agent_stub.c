@@ -275,7 +275,7 @@ void sample(){
             // also delete the last commitment, bc the robot can only store one!
             if (op_to_sample == robot_commitment){
 #ifdef DYNAMICRANGE
-                if (robot_commitment_quality != 0 && robot_commitment_quality < discovered_quality) {  // ensure that the robot only broadcast, iff it thinks its option is really better compared to an existing opinion
+                if (robot_commitment_quality != 0.0 && robot_commitment_quality < discovered_quality) {  // ensure that the robot only broadcast, iff it thinks its option is really better compared to an existing opinion
                     last_commitment_switch = kilo_ticks;
                     commitment_switch_flag = true;
                     step_size = (int)(45.0); // * (discovered_quality - robot_commitment_quality)
