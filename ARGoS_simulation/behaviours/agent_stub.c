@@ -7,7 +7,7 @@
 #define SIMULATION
 #define CROSS_INHIBITION
 //#define DYNAMICRANGE
-#define OPTIMALSAMPLE
+//#define OPTIMALSAMPLE
 
 //#define RECRUITBACK
 //#define COMPARE_PROB
