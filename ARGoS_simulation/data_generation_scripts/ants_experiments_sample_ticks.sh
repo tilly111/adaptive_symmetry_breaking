@@ -99,7 +99,8 @@ else
     EXP_FOLDER=${HOME}/Programs/adaptive_symmetry_breaking
 
     # full path to the compiled robot behaviour/loopfunction
-    BEHAVIOUR_FILE=${EXP_FOLDER}/build/behaviours/agent_stub
+    # TODO change back
+    BEHAVIOUR_FILE=${EXP_FOLDER}/build/behaviours/agent_perfect_sample
     LOOPFUNCTION_FILE=${EXP_FOLDER}/build/loop_functions/libkilogrid_stub
 
     CONFIG_FILE=${EXP_FOLDER}/ARGoS_simulation/loop_functions/kilogrid_conf_files/${conf}

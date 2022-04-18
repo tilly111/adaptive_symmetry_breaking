@@ -5,3 +5,5 @@
 #SBATCH --time=hrs:min:00             # Time limit
 #SBATCH -q short
 #SBATCH --output=/home/taust/log/logfile.txt
+#SBATCH --qos=special
+#SBATCH --partition=Xeon6138

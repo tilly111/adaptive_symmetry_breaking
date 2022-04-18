@@ -29,4 +29,11 @@ else(UNIX AND NOT APPLE)
   target_link_libraries(agent_stub  argos3plugin_simulator_kilolib)
 endif()
 
+add_executable(agent_perfect_sample agent.h agent_perfect_sample.c)
+if(UNIX AND NOT APPLE)
+  target_link_libraries(agent_perfect_sample  argos3plugin_simulator_kilolib rt m)
+else(UNIX AND NOT APPLE)
+  target_link_libraries(agent_perfect_sample  argos3plugin_simulator_kilolib)
+endif()
+
 endif(ARGOS_BUILD_FOR_SIMULATOR)
