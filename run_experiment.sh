@@ -41,8 +41,3 @@ else
   #sh ARGoS_simulation/data_generation_scripts/runjobs.sh
   #watch squeue -u taust
 fi
-
-
-source run_experiment.sh 10715 10802 15 204 TODO // samples with 1 sec time
-source run_experiment.sh 10803 10868 15 204 TODO // sample ticks; 10 samples
-source run_experiment.sh 10869 10934 15 204 TODO // sample ticks; 15 samples

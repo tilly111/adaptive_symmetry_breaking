@@ -1,6 +1,6 @@
 #!/bin/sh
 
-for FILE in ${HOME}/Programs/adaptive_symmetry_breaking/job_cluster/*;
+for FILE in ${HOME}/Programs/adaptive_symmetry_breaking/job_cluster/cl_s*;
 do
 
     COMMAND="sbatch $FILE &> /dev/null"
