@@ -21,11 +21,19 @@ else
   # here you have to change the specific file you want to run
   # nano ARGoS_simulation/data_generation_scripts/ants_experiments.sh
 
-  # perfect distribution
-  sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 10935 11022 17 204
 
-  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 11023 11088 17 204 10
-  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 11089 11154 17 204 15
+  # symmetry breaking
+  # check for setted to distributed initial commitment
+  nano ARGoS_simulation/behaviours/agent_stub.c
+  sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 11155 11242 2 2
+  sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 11243 11330 3 3
+  sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 11331 11418 4 4
+  sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 11419 11506 5 5
+
+  # perfect distribution
+#   sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 10935 11022 17 204
+#   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 11023 11088 17 204 10
+#   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 11089 11154 17 204 15
 
 
 
