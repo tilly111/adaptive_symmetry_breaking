@@ -92,8 +92,8 @@ else
     EXP_LENGTH=2400      #length of the experiment in secs
     DATA_FREQUENCY=1     # frequency of saving the experiment data
 
-    HRS=48 # hours the script takes
-    MIN=00 # min the script takes
+    HRS=23 # hours the script takes
+    MIN=59 # min the script takes
 
     #path to main directory
     EXP_FOLDER=${HOME}/Programs/adaptive_symmetry_breaking
