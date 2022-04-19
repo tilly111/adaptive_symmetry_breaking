@@ -231,10 +231,12 @@ unsigned int GetRandomNumber(unsigned int range_rnd){
 uint8_t get_artificial_sample(){
     unsigned int range_rnd = 10000;
     unsigned int random = GetRandomNumber(10000);
-    // TODO: 2 options - kappa = 0.8
-    if (random < (float)range_rnd * (304.0/684.0)) {
+    // TODO: 2 options - kappa = 0.9
+    if (random < (float)range_rnd * (324.0/684.0)) {
+        printf("sampled 1 \n");
         return 1;
     }else {
+        printf("sampled 2 \n");
         return 2;
     }
 

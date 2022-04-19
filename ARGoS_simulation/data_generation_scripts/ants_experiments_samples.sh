@@ -91,7 +91,7 @@ else
     EXP_LENGTH=2400      #length of the experiment in secs
     DATA_FREQUENCY=1     # frequency of saving the experiment data
 
-    HRS=10 # hours the script takes
+    HRS=48 # hours the script takes
     MIN=00 # min the script takes
 
     #path to main directory

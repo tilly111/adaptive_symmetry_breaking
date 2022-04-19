@@ -254,15 +254,9 @@ void sample(){
         // check if we reached our sampling time
         if(sample_counter < sample_counter_max_noise){
             sample_counter++;
-//#ifdef OPTIMALSAMPLE
-//            if (get_artificial_sample() == op_to_sample) {
-//                sample_op_counter++;
-//            }
-//#else
             if (current_ground == op_to_sample){
                 sample_op_counter++;
             }
-//#endif
             robot_commitment_quality_tmp = (float)sample_op_counter/(float)sample_counter_max_noise;
         }else{ // sampling finished
             // update discovered option
@@ -292,11 +286,7 @@ void sample(){
             }
 
             // reset sampling
-//#ifdef OPTIMALSAMPLE
-//            op_to_sample = get_artificial_sample();
-//#else
             op_to_sample = current_ground;
-//#endif
             sample_counter = 0;
             sample_op_counter = 0;
             // for shuffling up we set the max sample counter
@@ -410,11 +400,7 @@ void update_commitment() {
                 /// CROSS-INHIBITION - becomes uncommitted
                 robot_commitment = UNCOMMITTED;
                 robot_commitment_quality = 0.0;
-//#ifdef OPTIMALSAMPLE
-//                op_to_sample = get_artificial_sample();
-//#else
                 op_to_sample = current_ground;
-//#endif
             }
             /// reset sampling to make a new estimate on current commitment
             sample_op_counter = 0;

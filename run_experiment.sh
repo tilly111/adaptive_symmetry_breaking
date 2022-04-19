@@ -22,10 +22,10 @@ else
   # nano ARGoS_simulation/data_generation_scripts/ants_experiments.sh
 
   # perfect distribution
-  sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 10715 10802 15 204
+  sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 10935 11022 17 204
 
-  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 10803 10868 15 204 10
-  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 10869 10934 15 204 15
+  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 11023 11088 17 204 10
+  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 11089 11154 17 204 15
 
 
 
