@@ -5,7 +5,7 @@ do
   # from here
     JOBNAME="$(basename "${FILE}" | sed 's/\(.*\)\..*/\1/')"
     USERNAME="taust"
-    TMPDIR=/tmp/$USERNAME/${JOBNAME}
+    TMPDIR=/tmp/
     JOBDIR=/home/$USERNAME/Programs/adaptive_symmetry_breaking/
     mkdir -p $TMPDIR
     #mv * $TMPDIR
