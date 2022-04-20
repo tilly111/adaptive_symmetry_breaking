@@ -2,4 +2,4 @@
 
 argos3 -c argosfile
 
-mv savefile wheresave
+mv /tmp/taust/jobname/savefile wheresave
