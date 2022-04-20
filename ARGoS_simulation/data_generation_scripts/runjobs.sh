@@ -21,7 +21,7 @@ do
     echo "$FILE" scheduled...
 # from here
   RET=$?
-  mv * $JOBDIR
+  #mv * $JOBDIR
   cd $JOBDIR
   rmdir -p $TMPDIR &> /dev/null
   exit $RET
