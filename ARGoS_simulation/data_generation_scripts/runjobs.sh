@@ -8,7 +8,7 @@ do
     TMPDIR=/tmp/$USERNAME/jobname
     JOBDIR=/home/$USERNAME/Programs/adaptive_symmetry_breaking/
     mkdir -p $TMPDIR
-    mv * $TMPDIR
+    #mv * $TMPDIR
     cd $TMPDIR
     # till here
 
