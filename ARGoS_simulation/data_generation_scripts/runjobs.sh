@@ -20,10 +20,10 @@ do
 
     echo "$FILE" scheduled...
 # from here
-  RET=$?
+  #RET=$?
   #mv * $JOBDIR
   cd $JOBDIR
-  rmdir -p $TMPDIR &> /dev/null
-  exit $RET
+  #rmdir -p $TMPDIR &> /dev/null
+  #exit $RET
   # till here
 done
