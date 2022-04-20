@@ -194,7 +194,7 @@ void CKilogrid::PostStep() {
 
     /// for viz -> that i can see the progression
     if (GetSpace().GetSimulationClock() % 1000 == 0) {
-        printf("[LOOPFUNCTION] Clock at %d ... \n", GetSpace().GetSimulationClock());
+//        printf("[LOOPFUNCTION] Clock at %d ... \n", GetSpace().GetSimulationClock());
 //        for (int nicht_till = 0; nicht_till < 101;nicht_till++){
 //            printf("%d ", sample[nicht_till][0]);
 //        }

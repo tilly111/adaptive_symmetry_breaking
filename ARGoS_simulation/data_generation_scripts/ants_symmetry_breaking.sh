@@ -15,7 +15,7 @@ if [ $# -lt ${EXPECTED_ARGS} ]; then
 
 else
   tmp_counter=0
-  MAX_COMMUNICATION_RANGE=30
+  MAX_COMMUNICATION_RANGE=2
   INITIAL_COMMUNICATION_RANGE=1
   INITIAL_COMMITMENT=2 # initial commitment of the robots
 
@@ -152,6 +152,7 @@ else
 
 
             sed -e "s|argosfile|${EXP_FILE}|" \
+              -e "s|jobname|${JOB_NAME}|" \
               -e "s|wheresave|${DATA_DIR}/|" \
               -e "s|savefile|${DATA_FILE}|" \
             ${JOB_TEMPLATE_SRC_RUN} >>${JOB_FILE}
