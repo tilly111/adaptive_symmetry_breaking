@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###################################
-# script for ants paper - sample time vs problem difficulty
+# script needs 88 slots
 ###################################
 EXPECTED_ARGS=4
 if [ $# -lt ${EXPECTED_ARGS} ]; then

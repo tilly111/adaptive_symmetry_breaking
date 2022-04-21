@@ -231,12 +231,10 @@ unsigned int GetRandomNumber(unsigned int range_rnd){
 uint8_t get_artificial_sample(){
     unsigned int range_rnd = 10000;
     unsigned int random = GetRandomNumber(10000);
-    // TODO: 2 options - kappa = 0.9
+    // TODO: 2 options - kappa = 0.95
     if (random < (float)range_rnd * (324.0/684.0)) {
-        printf("sampled 1 \n");
         return 1;
     }else {
-        printf("sampled 2 \n");
         return 2;
     }
 
@@ -256,14 +254,35 @@ void sample(){
         // check if we reached our sampling time
         if(sample_counter < sample_counter_max_noise){
             sample_counter++;
+#ifdef OPTIMALSAMPLE
+            if (op_to_sample == 1){
+                robot_commitment_quality_tmp = ((float)sample_counter/(float)sample_counter_max_noise) * (324.0/684.0);
+            }else if (op_to_sample == 2){
+                robot_commitment_quality_tmp = ((float)sample_counter/(float)sample_counter_max_noise) * (360.0/684.0);
+            }else{
+                printf("[%d] ERROR IN OPTIMAL SAMPLING TEMPORARY ESTIMATE! \n");
+            }
+
+#else
             if (current_ground == op_to_sample){
                 sample_op_counter++;
             }
             robot_commitment_quality_tmp = (float)sample_op_counter/(float)sample_counter_max_noise;
+#endif
         }else{ // sampling finished
             // update discovered option
             discovered_option = op_to_sample;
+#ifdef OPTIMALSAMPLE
+            if (op_to_sample == 1){
+                discovered_quality = (324.0/684.0);
+            }else if (op_to_sample == 2){
+                discovered_quality = (360.0/684.0);
+            }else{
+                printf("[%d] ERROR IN OPTIMAL SAMPLING QUALITY ESTIMATE! \n");
+            }
+#else
             discovered_quality = (float)sample_op_counter/(float)sample_counter;
+#endif
 //            sample_time_estimate_flag = true;
 //             printf("[%d] estimate %f for option %d \n", kilo_uid, discovered_quality, discovered_option);
 
@@ -370,7 +389,7 @@ void update_commitment() {
             last_robot_commitment_quality = 0.0;
 #endif
 #ifdef CROSS_INHIBITION
-        /// CROSS-INHIBITION MODEL
+            /// CROSS-INHIBITION MODEL
         }else if(social){
             // basically the robot is recruited when it finishes sampling
             if (robot_commitment == UNCOMMITTED){
@@ -387,7 +406,7 @@ void update_commitment() {
                     last_robot_commitment_quality = 0.0;
                 } else {  // no information -> start form 0
 #endif
-                    robot_commitment_quality = 0.0;
+                robot_commitment_quality = 0.0;
 #ifdef RECRUITBACK
                 }
 #endif
@@ -718,7 +737,7 @@ void move(){
                     right_direction = true;
                 } else {
                     // in this case the robot needs to turn
-    //                printf("[%d] ERROR: robot orientation is of \n", kilo_uid);
+                    //                printf("[%d] ERROR: robot orientation is of \n", kilo_uid);
                 }
 
                 // if we are not in the right direction -> turn
@@ -806,7 +825,7 @@ void update_virtual_agent_msg() {
 #ifdef SIMULATION
 void message_rx( message_t *msg, distance_measurement_t *d ) {
 #else
-void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
+    void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
 #endif
     // check the messages
     // all data should be stored in temporary variables and then be written in the loop
@@ -826,8 +845,6 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         if (robot_commitment != 1){
             robot_commitment = (kilo_uid % (NUMBER_OF_OPTIONS)) + 1;
         }
-//        robot_commitment = 2; // TODO delete
-
 #ifdef OPTIMALSAMPLE
         current_ground = get_artificial_sample();
 #else
@@ -1036,7 +1053,7 @@ void loop() {
 
     // debug prints
 //    if(kilo_uid == 0){
-//        printf("[%d] %d %d \n", kilo_uid, SAMPLE_COUNTER_MAX, SAMPLE_TICKS);
+//        printf("[%d] %d %d  perfect sample controller \n", kilo_uid, SAMPLE_COUNTER_MAX, SAMPLE_TICKS);
 //    }
 #else
     tracking_data.byte[1] = received_x;

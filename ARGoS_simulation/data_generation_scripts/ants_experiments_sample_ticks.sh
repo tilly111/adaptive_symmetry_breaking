@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###################################
-# script for ants paper - sample time vs problem difficulty
+# script needs 66 slots
 ###################################
 EXPECTED_ARGS=5
 if [ $# -lt ${EXPECTED_ARGS} ]; then
@@ -19,7 +19,6 @@ else
   INITIAL_COMMUNICATION_RANGE=1
   INITIAL_COMMITMENT=${5} # currently Sample counter max
 
-  # 66 needed!
   # stuff needs to be adjusted
   ENVIRONMENT=${3}
   INITIAL_COMMITMENT_QUALITY=${4}
