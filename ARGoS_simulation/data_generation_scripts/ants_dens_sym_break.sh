@@ -14,30 +14,70 @@ if [ $# -lt ${EXPECTED_ARGS} ]; then
   exit
 
 else
+  # 80 runs needed!
   tmp_counter=0
-  MAX_COMMUNICATION_RANGE=30
-  INITIAL_COMMUNICATION_RANGE=5
+  MAX_COMMUNICATION_RANGE=2
+  INITIAL_COMMUNICATION_RANGE=3
   INITIAL_COMMITMENT=2 # initial commitment of the robots
 
   # stuff needs to be adjusted
   ENVIRONMENT=${3}
+  n=${4}
+  INITIAL_COMMITMENT_QUALITY=$((255/n))
   for j in $(seq ${1} ${2}); do
-      conf=sym_break_${ENVIRONMENT}.kconf
-      n=${4}
-      INITIAL_COMMITMENT_QUALITY=$((255/n))
+      conf=sym_break_${ENVIRONMENT}
 
-      NUM_ROBOTS=$(((25 * (tmp_counter+1))))        # number of robots
+      # sample counter max
+      if ((${tmp_counter}  == 0)); then
+        INITIAL_COMMITMENT=5
+      elif ((${tmp_counter} == 10)); then
+        INITIAL_COMMITMENT=10
+      elif ((${tmp_counter} == 20)); then
+        INITIAL_COMMITMENT=15
+      elif ((${tmp_counter} == 30)); then
+        INITIAL_COMMITMENT=20
+      elif ((${tmp_counter} == 40)); then
+        INITIAL_COMMITMENT=25
+      elif ((${tmp_counter} == 50)); then
+        INITIAL_COMMITMENT=30
+      elif ((${tmp_counter} == 60)); then
+        INITIAL_COMMITMENT=45
+      elif ((${tmp_counter} == 70)); then
+        INITIAL_COMMITMENT=60
+      fi
+
+      if (($((${tmp_counter} % 10)) == 0)); then
+            NUM_ROBOTS=50
+      elif (($((${tmp_counter} % 10)) == 1)); then
+            NUM_ROBOTS=100
+      elif (($((${tmp_counter} % 10)) == 2)); then
+            NUM_ROBOTS=150
+      elif (($((${tmp_counter} % 10)) == 3)); then
+            NUM_ROBOTS=200
+      elif (($((${tmp_counter} % 10)) == 4)); then
+            NUM_ROBOTS=250
+      elif (($((${tmp_counter} % 10)) == 5)); then
+            NUM_ROBOTS=300
+      elif (($((${tmp_counter} % 10)) == 6)); then
+            NUM_ROBOTS=350
+      elif (($((${tmp_counter} % 10)) == 7)); then
+            NUM_ROBOTS=400
+      elif (($((${tmp_counter} % 10)) == 8)); then
+            NUM_ROBOTS=450
+      elif (($((${tmp_counter} % 10)) == 9)); then
+            NUM_ROBOTS=500
+      fi
 
 
-      EXP_NAME=experiment_cl_dens_sym_break_cross_inhib_00_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_nr_${NUM_ROBOTS}_env_${ENVIRONMENT}
+      EXP_NAME=cl_dens_sym_break_cross_inhib_01_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_nr_${NUM_ROBOTS}_env_${ENVIRONMENT}
       tmp_counter=$(( ${tmp_counter} + 1 ))
 
       QUORUM=-1            # Quorum to stop experiment NOT USED ATM
       EXP_LENGTH=2400      #length of the experiment in secs
       DATA_FREQUENCY=1     # frequency of saving the experiment data
 
-      HRS=20 # hours the script takes
-      MIN=00 # min the script takes
+      HRS=23 # hours the script takes
+      MIN=59 # min the script takes
       QUEUE=special # queue can eihter be short/special (max 1 day) or long (max 7 days)
 
       #path to main directory
@@ -76,13 +116,14 @@ else
 
           EXP_FILE=${EXP_DIR}/${EXP_NAME}_${i}.argos # full path to the experiment configuration file
           DATA_FILE=${EXP_NAME}_${i}.txt # Full path to the data file
+          CONFIG_FILE_FINAL=${CONFIG_FILE}_${i}.kconf
 
           # it is very important to keep this order in order to not overwrite stuff
           sed -e "s|exp_length|${EXP_LENGTH}|" \
             -e "s|randomseed|$(($i * 124))|" \
             -e "s|behaviourpath|${BEHAVIOUR_FILE}|" \
             -e "s|loopfunctionpath|${LOOPFUNCTION_FILE}|" \
-            -e "s|configfilename|${CONFIG_FILE}|" \
+            -e "s|configfilename|${CONFIG_FILE_FINAL}|" \
             -e "s|datafilename|${DATA_FILE}|" \
             -e "s|num_robots|${NUM_ROBOTS}|" \
             -e "s|initialcommitmentquality|${INITIAL_COMMITMENT_QUALITY}|" \
@@ -90,11 +131,12 @@ else
             -e "s|numberofoptions|${n}|" \
             -e "s|initialcommunicationrange|${INITIAL_COMMUNICATION_RANGE}|" \
             -e "s|maxcommunicationrange|${MAX_COMMUNICATION_RANGE}|" \
-            -e "s|dynamicenvname|${CONFIG_FILE}|" \
+            -e "s|dynamicenvname|${CONFIG_FILE_FINAL}|" \
             ${EXP_TEMPLATE_SRC} >${EXP_FILE}
 
 
             sed -e "s|argosfile|${EXP_FILE}|" \
+              -e "s|jobname|${JOB_NAME}|" \
               -e "s|wheresave|${DATA_DIR}/|" \
               -e "s|savefile|${DATA_FILE}|" \
             ${JOB_TEMPLATE_SRC_RUN} >>${JOB_FILE}

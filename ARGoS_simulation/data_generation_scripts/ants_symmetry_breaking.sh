@@ -147,7 +147,7 @@ else
             -e "s|numberofoptions|${n}|" \
             -e "s|initialcommunicationrange|${INITIAL_COMMUNICATION_RANGE}|" \
             -e "s|maxcommunicationrange|${MAX_COMMUNICATION_RANGE}|" \
-            -e "s|dynamicenvname|${CONFIG_FILE}|" \
+            -e "s|dynamicenvname|${CONFIG_FILE_FINAL}|" \
             ${EXP_TEMPLATE_SRC} >${EXP_FILE}
 
 

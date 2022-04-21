@@ -24,11 +24,16 @@ else
 
   # symmetry breaking
   # check for setted to distributed initial commitment
-  # nano ARGoS_simulation/behaviours/agent_stub.c
-  sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 11155 11242 2 2
-  sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 11243 11330 3 3
-  sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 11331 11418 4 4
-  sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 11419 11506 5 5
+#   sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 11155 11242 2 2
+#   sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 11243 11330 3 3
+#   sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 11331 11418 4 4
+#   sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 11419 11506 5 5
+
+  # symmetry breaking - density
+  sh ARGoS_simulation/data_generation_scripts/ants_dens_sym_break.sh 11507 11586 2 2
+  sh ARGoS_simulation/data_generation_scripts/ants_dens_sym_break.sh 11587 11666 3 3
+  sh ARGoS_simulation/data_generation_scripts/ants_dens_sym_break.sh 11667 11746 4 4
+  sh ARGoS_simulation/data_generation_scripts/ants_dens_sym_break.sh 11747 11826 5 5
 
   # perfect distribution
 #   sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 10935 11022 17 204
