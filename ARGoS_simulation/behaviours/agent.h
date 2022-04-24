@@ -57,6 +57,11 @@ typedef struct {
     int y_pos;
     int inactive;
 
+    // used for tracking quality
+    int quality_option;
+    float quality_quality;
+    int quality_flag;
+
     // this is only needed for global communication, in order to check if robot is allowed to
     // broadcast
     double quality;

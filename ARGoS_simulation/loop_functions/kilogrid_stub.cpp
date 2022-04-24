@@ -61,11 +61,10 @@ void CKilogrid::Init(TConfigurationNode &t_tree) {
         output_logg << ";" << i;
     }
     output_logg << std::endl;
-//      for (unsigned int p = 0; p < 101; p++) {
-//        for (unsigned int j = 0; j < 2; j++) {
-//            sample[p][j] = 0;
-//        }
-//    }
+
+    //init logging of quality estimate
+    option1_quality_logg.open("/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/env_17/op1_samples_" + std::to_string(initial_commitment) + "_1.txt", std::ios_base::trunc | std::ios_base::out);
+    option2_quality_logg.open("/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/env_17/op2_samples_" + std::to_string(initial_commitment) + "_1.txt", std::ios_base::trunc | std::ios_base::out);
 }
 
 
@@ -75,6 +74,8 @@ void CKilogrid::Init(TConfigurationNode &t_tree) {
 void CKilogrid::Reset() {
     // Close data file
     output_logg.close();
+    option1_quality_logg.close();
+    option2_quality_logg.close();
 
     // Reopen the file, erasing its contents
     output_logg.open(data_file_name, std::ios_base::trunc | std::ios_base::out);
@@ -84,6 +85,9 @@ void CKilogrid::Reset() {
         output_logg << ";" << i;
     }
     output_logg << std::endl;
+
+    option1_quality_logg.open("/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/env_17/op1_samples_" + std::to_string(initial_commitment) + "_1.txt", std::ios_base::trunc | std::ios_base::out);
+    option2_quality_logg.open("/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/env_17/op2_samples_" + std::to_string(initial_commitment) + "_1.txt", std::ios_base::trunc | std::ios_base::out);
 }
 
 
@@ -92,6 +96,8 @@ void CKilogrid::Reset() {
 /*-----------------------------------------------------------------------------------------------*/
 void CKilogrid::Destroy() {
     output_logg.close();
+    option1_quality_logg.close();
+    option2_quality_logg.close();
 
 }
 
@@ -147,7 +153,7 @@ void CKilogrid::PreStep() {
 void CKilogrid::PostStep() {
     // Save experiment data to the specified log file
     // check if quorum is reached
-//    int counter_q = 0;
+//    float avg_neighbours = 0;
     bool wrong_init = false;
     std::fill(logg_commitment_state.begin(), logg_commitment_state.end(), 0);
     for (unsigned int i = 0; i < kilobot_entities.size(); i++) {
@@ -155,19 +161,33 @@ void CKilogrid::PostStep() {
         if (((unsigned int) debug_info_kilobots[i]->commitement) == 20) {
             wrong_init = true;
             break;
-        } else {
+        } else {  // track commitment
             logg_commitment_state[((unsigned int) debug_info_kilobots[i]->commitement)]++;
         }
-        // counting sampling
-//        if (debug_info_kilobots[i]->quality < 0.001) {
-//            counter_q++;
-//        }
-//        for (int g = 0; g < 101; g ++) {
-//            if((int)(debug_info_kilobots[i]->quality*100) == g && debug_info_kilobots[i]->commitement != 0){
-//                sample[g][debug_info_kilobots[i]->commitement - 1]++;
+        // track avg number of neighbours
+        //  ATTENTION: only applies to static communication range
+        //  ATTENTION: also breaks for N != 50
+//        for (unsigned int j = 0; j < kilobot_entities.size(); j++) {
+//            // dont count yourself
+//            if (j != i) {
+//                // in communication range
+//                if (sqrt(pow(fabs(debug_info_kilobots[i]->x_pos - debug_info_kilobots[j]->x_pos),
+//                             2) +
+//                         pow(fabs(debug_info_kilobots[i]->y_pos - debug_info_kilobots[j]->y_pos),
+//                             2)) < initial_communication_range) {
+//                    avg_neighbours += 1;
+//                }
 //            }
 //        }
-
+//        // track quality estimates of the robots
+//        // discovered new quality
+//        if (((unsigned int) debug_info_kilobots[i]->quality_flag) == 1) {
+//            if (((unsigned int) debug_info_kilobots[i]->quality_option) == 1){ // option 1
+//                option1_quality_logg << debug_info_kilobots[i]->quality_quality << std::endl;
+//            }else if (((unsigned int) debug_info_kilobots[i]->quality_option) == 2) { // option 2
+//                option2_quality_logg << debug_info_kilobots[i]->quality_quality << std::endl;
+//            }
+//        }
     }
 
     // time to write something down, max time passed
@@ -177,6 +197,7 @@ void CKilogrid::PostStep() {
         for (unsigned int i = 0; i < logg_commitment_state.size(); i++) {
             output_logg << ";" << logg_commitment_state[i];
         }
+//        output_logg << ";" << avg_neighbours/50;
         output_logg << std::endl;
     }
 

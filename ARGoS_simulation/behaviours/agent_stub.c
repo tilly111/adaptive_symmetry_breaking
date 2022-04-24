@@ -8,6 +8,7 @@
 #define CROSS_INHIBITION
 //#define DYNAMICRANGE
 //#define OPTIMALSAMPLE
+#define TRACKQUALITY
 
 //#define RECRUITBACK
 //#define COMPARE_PROB
@@ -133,6 +134,13 @@ bool commitment_switch_flag = false;
 uint8_t  step_size = 1;
 #endif
 
+#ifdef TRACKQUALITY
+uint8_t quality_option = 0;
+float quality_quality = 0.0;
+bool quality_flag = false;
+bool quality_first_reading = false;
+#endif
+
 // sample variables
 uint32_t last_sample_ticks = 0;
 uint32_t sample_counter_max_noise = 0;
@@ -245,6 +253,9 @@ uint8_t get_artificial_sample(){
 /* Sample function for the ground - sampling should take 30 sec                                  */
 /*-----------------------------------------------------------------------------------------------*/
 void sample(){
+#ifdef TRACKQUALITY
+    quality_flag = false;
+#endif
     // sample every second
     if(kilo_ticks > last_sample_ticks + SAMPLE_TICKS) {
         last_sample_ticks = kilo_ticks;
@@ -284,6 +295,18 @@ void sample(){
                 // set discovery flag if we discovered something new!
                 discovered = true;
             }
+#ifdef TRACKQUALITY
+            quality_option = discovered_option;
+            quality_quality = discovered_quality;
+            // skip first reading
+            if (quality_first_reading){
+                quality_flag = true;
+            }else{
+                quality_first_reading = true;
+            }
+
+
+#endif
 
             // reset sampling
             op_to_sample = current_ground;
@@ -293,7 +316,11 @@ void sample(){
             // TODO no noise on the sample time for ants - add some noise in order to make it work
             //  and that it is not a random switch at some point
             //  +1 needed at modulo bc otherwise it is undefined for 5 samples
+#ifdef TRACKQUALITY
+            sample_counter_max_noise = SAMPLE_COUNTER_MAX;
+#else
             sample_counter_max_noise = SAMPLE_COUNTER_MAX + ((GetRandomNumber(10000) % ((uint8_t)(SAMPLE_COUNTER_MAX/10) + 1)) - (uint8_t)(SAMPLE_COUNTER_MAX/20));
+#endif
         }
     }
 }
@@ -815,7 +842,7 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         robot_gps_y = msg->data[1];
         random_walk_waypoint_model();  // select first goal
         // TODO change back -> not needed bc we only do adaptation studies atm for ants
-        robot_commitment = 2;//msg->data[2];
+        robot_commitment = 1;//msg->data[2];
         robot_commitment_quality = (msg->data[3])/255.0;
         NUMBER_OF_OPTIONS = msg->data[4];
         // how to init the robot
@@ -1021,14 +1048,13 @@ void loop() {
     debug_info_set(x_pos, robot_gps_x);
     debug_info_set(y_pos, robot_gps_y);
     debug_info_set(quality, robot_commitment_quality);
-//    if (sample_time_estimate_flag){
-//        debug_info_set(sample, discovered_quality);
-//        debug_info_set(sample_flag, true);
-//        sample_time_estimate_flag = false;
-//    }else{
-//        debug_info_set(sample_flag, false);
-//    }
-//    debug_info_set(com_range, communication_range);
+#ifdef TRACKQUALITY
+    debug_info_set(quality_option, quality_option);
+    debug_info_set(quality_quality, quality_quality);
+    debug_info_set(quality_flag, quality_flag);
+
+
+#endif
 
     // debug prints
 //    if(kilo_uid == 0){

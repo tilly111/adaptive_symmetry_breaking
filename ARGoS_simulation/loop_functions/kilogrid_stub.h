@@ -313,6 +313,8 @@ private:
     std::vector<debug_info_t*> debug_info_kilobots;
     // for logging
     std::ofstream output_logg;
+    std::ofstream option1_quality_logg;
+    std::ofstream option2_quality_logg;
     std::string data_file_name;
     std::vector<unsigned int> logg_commitment_state;
     uint32_t data_saving_counter = 0;

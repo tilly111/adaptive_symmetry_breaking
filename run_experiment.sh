@@ -39,8 +39,8 @@ else
 #   sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 10935 11022 17 204
 #   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 11023 11088 17 204 10
 #   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 11089 11154 17 204 15
-    sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 10935 11022 17 204
-    sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 11023 11088 17 204 5
+    sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 11827 11914 17 204
+    sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 11915 11980 17 204 5
 
 
 
