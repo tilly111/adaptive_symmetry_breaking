@@ -133,7 +133,7 @@ else
 
       EXP_FILE=${EXP_DIR}/${EXP_NAME}_${i}.argos # full path to the experiment configuration file
       DATA_FILE=${EXP_NAME}_${i}.txt # Full path to the data file
-      CONFIG_FILE_FINAL=${CONFIG_FILE}_${i}.kconf
+      CONFIG_FILE_FINAL=${CONFIG_FILE}_${i % 20}.kconf
 
       # it is very important to keep this order in order to not overwrite stuff
       sed -e "s|exp_length|${EXP_LENGTH}|" \
