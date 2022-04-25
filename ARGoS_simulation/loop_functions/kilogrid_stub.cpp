@@ -3,6 +3,8 @@
 //
 // in case of simulation set flag
 #define SIMULATION
+//#define TRACINGSAMPLES
+//#define VIZ
 
 #ifdef SIMULATION
 #define MSG_SEND_TRIES 1
@@ -62,9 +64,11 @@ void CKilogrid::Init(TConfigurationNode &t_tree) {
     }
     output_logg << std::endl;
 
+#ifdef TRACINGSAMPLES
     //init logging of quality estimate
     option1_quality_logg.open("/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/env_17/op1_samples_" + std::to_string(initial_commitment) + "_1.txt", std::ios_base::trunc | std::ios_base::out);
     option2_quality_logg.open("/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/env_17/op2_samples_" + std::to_string(initial_commitment) + "_1.txt", std::ios_base::trunc | std::ios_base::out);
+#endif
 }
 
 
@@ -74,8 +78,10 @@ void CKilogrid::Init(TConfigurationNode &t_tree) {
 void CKilogrid::Reset() {
     // Close data file
     output_logg.close();
+#ifdef TRACINGSAMPLES
     option1_quality_logg.close();
     option2_quality_logg.close();
+#endif
 
     // Reopen the file, erasing its contents
     output_logg.open(data_file_name, std::ios_base::trunc | std::ios_base::out);
@@ -86,8 +92,10 @@ void CKilogrid::Reset() {
     }
     output_logg << std::endl;
 
+#ifdef TRACINGSAMPLES
     option1_quality_logg.open("/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/env_17/op1_samples_" + std::to_string(initial_commitment) + "_1.txt", std::ios_base::trunc | std::ios_base::out);
     option2_quality_logg.open("/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/env_17/op2_samples_" + std::to_string(initial_commitment) + "_1.txt", std::ios_base::trunc | std::ios_base::out);
+#endif
 }
 
 
@@ -96,9 +104,10 @@ void CKilogrid::Reset() {
 /*-----------------------------------------------------------------------------------------------*/
 void CKilogrid::Destroy() {
     output_logg.close();
+#ifdef TRACINGSAMPLES
     option1_quality_logg.close();
     option2_quality_logg.close();
-
+#endif
 }
 
 
@@ -153,7 +162,9 @@ void CKilogrid::PreStep() {
 void CKilogrid::PostStep() {
     // Save experiment data to the specified log file
     // check if quorum is reached
-//    float avg_neighbours = 0;
+#ifdef TRACINGSAMPLES
+    float avg_neighbours = 0;
+#endif
     bool wrong_init = false;
     std::fill(logg_commitment_state.begin(), logg_commitment_state.end(), 0);
     for (unsigned int i = 0; i < kilobot_entities.size(); i++) {
@@ -164,30 +175,32 @@ void CKilogrid::PostStep() {
         } else {  // track commitment
             logg_commitment_state[((unsigned int) debug_info_kilobots[i]->commitement)]++;
         }
+#ifdef TRACINGSAMPLES
         // track avg number of neighbours
         //  ATTENTION: only applies to static communication range
         //  ATTENTION: also breaks for N != 50
-//        for (unsigned int j = 0; j < kilobot_entities.size(); j++) {
-//            // dont count yourself
-//            if (j != i) {
-//                // in communication range
-//                if (sqrt(pow(fabs(debug_info_kilobots[i]->x_pos - debug_info_kilobots[j]->x_pos),
-//                             2) +
-//                         pow(fabs(debug_info_kilobots[i]->y_pos - debug_info_kilobots[j]->y_pos),
-//                             2)) < initial_communication_range) {
-//                    avg_neighbours += 1;
-//                }
-//            }
-//        }
-//        // track quality estimates of the robots
-//        // discovered new quality
-//        if (((unsigned int) debug_info_kilobots[i]->quality_flag) == 1) {
-//            if (((unsigned int) debug_info_kilobots[i]->quality_option) == 1){ // option 1
-//                option1_quality_logg << debug_info_kilobots[i]->quality_quality << std::endl;
-//            }else if (((unsigned int) debug_info_kilobots[i]->quality_option) == 2) { // option 2
-//                option2_quality_logg << debug_info_kilobots[i]->quality_quality << std::endl;
-//            }
-//        }
+        for (unsigned int j = 0; j < kilobot_entities.size(); j++) {
+            // dont count yourself
+            if (j != i) {
+                // in communication range
+                if (sqrt(pow(fabs(debug_info_kilobots[i]->x_pos - debug_info_kilobots[j]->x_pos),
+                             2) +
+                         pow(fabs(debug_info_kilobots[i]->y_pos - debug_info_kilobots[j]->y_pos),
+                             2)) < initial_communication_range) {
+                    avg_neighbours += 1;
+                }
+            }
+        }
+        // track quality estimates of the robots
+        // discovered new quality
+        if (((unsigned int) debug_info_kilobots[i]->quality_flag) == 1) {
+            if (((unsigned int) debug_info_kilobots[i]->quality_option) == 1){ // option 1
+                option1_quality_logg << debug_info_kilobots[i]->quality_quality << std::endl;
+            }else if (((unsigned int) debug_info_kilobots[i]->quality_option) == 2) { // option 2
+                option2_quality_logg << debug_info_kilobots[i]->quality_quality << std::endl;
+            }
+        }
+#endif
     }
 
     // time to write something down, max time passed
@@ -212,30 +225,14 @@ void CKilogrid::PostStep() {
             }
         }
     }
-
+#ifdef VIZ
     /// for viz -> that i can see the progression
     if (GetSpace().GetSimulationClock() % 1000 == 0) {
         printf("[LOOPFUNCTION] Clock at %d ... \n", GetSpace().GetSimulationClock());
-//        for (int nicht_till = 0; nicht_till < 101;nicht_till++){
-//            printf("%d ", sample[nicht_till][0]);
-//        }
-//        printf("\n");
-//        for (int nicht_till = 0; nicht_till < 101;nicht_till++){
-//            printf("%d ", sample[nicht_till][1]);
-//        }
-//        printf("\n");
     }
-    /// print distribution of sampling
-//    if (GetSpace().GetSimulationClock() == 76799){
-//        for (int nicht_till = 0; nicht_till < 101;nicht_till++){
-//            printf("%d ", sample[nicht_till][0]);
-//        }
-//        printf("\n");
-//        for (int nicht_till = 0; nicht_till < 101;nicht_till++){
-//            printf("%d ", sample[nicht_till][1]);
-//        }
-//        printf("\n");
-//    }
+#endif
+
+    // HOW TO LOG
 //    LOG << counter_q << std::endl;
 
     // quit simulation if quorum reached

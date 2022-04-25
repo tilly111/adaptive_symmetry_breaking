@@ -145,6 +145,12 @@ bool discovered = false;
 uint8_t discovered_option = 0;
 double discovered_quality = 0.0;
 
+#ifdef OPTIMALSAMPLE
+float noisy_estimate = 0.0;
+float sigma_const = 0;
+#endif
+
+
 // commitment update variables
 uint32_t last_update_ticks = 0;
 uint32_t update_ticks_noise = 0;
@@ -231,13 +237,41 @@ unsigned int GetRandomNumber(unsigned int range_rnd){
 uint8_t get_artificial_sample(){
     unsigned int range_rnd = 10000;
     unsigned int random = GetRandomNumber(10000);
-    // TODO: 2 options - kappa = 0.95
-    if (random < (float)range_rnd * (324.0/684.0)) {
+    // TODO: 2 options - kappa = 0.8
+    if (random < (float)range_rnd * (304.0/684.0)) {
         return 1;
     }else {
         return 2;
     }
+}
 
+double gauss(double mu, double sigma){
+    // we use the box muller transform to generate gaussian noise
+    //  for explanation see: https://en.wikipedia.org/wiki/Box–Muller_transform
+    unsigned int range_rnd = 10000;
+    double x = (double)GetRandomNumber(range_rnd) / (double)range_rnd;
+    double y = (double)GetRandomNumber(range_rnd) / (double)range_rnd;
+    double mag = sigma * sqrt(-2.0 * log(x));
+    double z = mag * cos(2 * PI * y) + mu;
+    return z;
+}
+
+float get_noisy_estimate(uint8_t option){
+    float tmp = 2.0;
+    if (option == 1){
+        while (tmp <= 0.0 || tmp >= 1.0){
+            tmp = (304.0/684.0) + gauss(0.0, sigma_const);
+        }
+        return tmp;
+    }else if (option == 2){
+        while (tmp <= 0.0 || tmp >= 1.0) {
+            tmp = (380.0 / 684.0) + gauss(0.0, sigma_const);
+        }
+        return tmp;
+    }else{
+        printf("[%d] WRONG NOISY ESTIMATE! \n", kilo_uid);
+        return 0.0;
+    }
 }
 
 
@@ -256,9 +290,9 @@ void sample(){
             sample_counter++;
 #ifdef OPTIMALSAMPLE
             if (op_to_sample == 1){
-                robot_commitment_quality_tmp = ((float)sample_counter/(float)sample_counter_max_noise) * (324.0/684.0);
+                robot_commitment_quality_tmp = ((float)sample_counter/(float)sample_counter_max_noise) * noisy_estimate;
             }else if (op_to_sample == 2){
-                robot_commitment_quality_tmp = ((float)sample_counter/(float)sample_counter_max_noise) * (360.0/684.0);
+                robot_commitment_quality_tmp = ((float)sample_counter/(float)sample_counter_max_noise) * noisy_estimate;
             }else{
                 printf("[%d] ERROR IN OPTIMAL SAMPLING TEMPORARY ESTIMATE! \n");
             }
@@ -273,13 +307,7 @@ void sample(){
             // update discovered option
             discovered_option = op_to_sample;
 #ifdef OPTIMALSAMPLE
-            if (op_to_sample == 1){
-                discovered_quality = (324.0/684.0);
-            }else if (op_to_sample == 2){
-                discovered_quality = (360.0/684.0);
-            }else{
-                printf("[%d] ERROR IN OPTIMAL SAMPLING QUALITY ESTIMATE! \n");
-            }
+            discovered_quality = noisy_estimate;
 #else
             discovered_quality = (float)sample_op_counter/(float)sample_counter;
 #endif
@@ -308,13 +336,13 @@ void sample(){
 
             // reset sampling
             op_to_sample = current_ground;
+#ifdef OPTIMALSAMPLE
+            noisy_estimate = get_noisy_estimate(op_to_sample);
+#endif
             sample_counter = 0;
             sample_op_counter = 0;
             // for shuffling up we set the max sample counter
-            // TODO no noise on the sample time for ants - add some noise in order to make it work
-            //  and that it is not a random switch at some point
-            //  +1 needed at modulo bc otherwise it is undefined for 5 samples
-            sample_counter_max_noise = SAMPLE_COUNTER_MAX + ((GetRandomNumber(10000) % ((uint8_t)(SAMPLE_COUNTER_MAX/10) + 1)) - (uint8_t)(SAMPLE_COUNTER_MAX/20));
+            sample_counter_max_noise = SAMPLE_COUNTER_MAX;
         }
     }
 }
@@ -422,6 +450,9 @@ void update_commitment() {
                 robot_commitment = UNCOMMITTED;
                 robot_commitment_quality = 0.0;
                 op_to_sample = current_ground;
+#ifdef OPTIMALSAMPLE
+                noisy_estimate = get_noisy_estimate(op_to_sample);
+#endif
             }
             /// reset sampling to make a new estimate on current commitment
             sample_op_counter = 0;
@@ -838,7 +869,14 @@ void message_rx( message_t *msg, distance_measurement_t *d ) {
         // TODO change back -> not needed bc we only do adaptation studies atm for ants
         robot_commitment = 1;//msg->data[2];
         robot_commitment_quality = (msg->data[3])/255.0;
+        // TODO change back to msg->data[4];
+#ifdef OPTIMALSAMPLE
+        NUMBER_OF_OPTIONS = 2;
+        sigma_const = (float)msg->data[4]/20.0;
+#else
         NUMBER_OF_OPTIONS = msg->data[4];
+#endif
+
         // how to init the robot
         // 1 -> start at option one
         // else start uniform distributed over all options
@@ -847,6 +885,7 @@ void message_rx( message_t *msg, distance_measurement_t *d ) {
         }
 #ifdef OPTIMALSAMPLE
         current_ground = get_artificial_sample();
+        noisy_estimate = get_noisy_estimate(current_ground);
 #else
         current_ground = msg->data[5];
 #endif
@@ -959,6 +998,7 @@ void setup(){
 
     last_broadcast_ticks = GetRandomNumber(10000) % BROADCAST_TICKS + 1;
     last_sample_ticks = GetRandomNumber(10000) % 32 + 1;
+
 
     // Initialise time to 0
     kilo_ticks = 0;

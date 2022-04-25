@@ -8,7 +8,7 @@
 #define CROSS_INHIBITION
 //#define DYNAMICRANGE
 //#define OPTIMALSAMPLE
-#define TRACKQUALITY
+// #define TRACKQUALITY
 
 //#define RECRUITBACK
 //#define COMPARE_PROB
@@ -304,8 +304,6 @@ void sample(){
             }else{
                 quality_first_reading = true;
             }
-
-
 #endif
 
             // reset sampling
@@ -319,7 +317,7 @@ void sample(){
 #ifdef TRACKQUALITY
             sample_counter_max_noise = SAMPLE_COUNTER_MAX;
 #else
-            sample_counter_max_noise = SAMPLE_COUNTER_MAX + ((GetRandomNumber(10000) % ((uint8_t)(SAMPLE_COUNTER_MAX/10) + 1)) - (uint8_t)(SAMPLE_COUNTER_MAX/20));
+            sample_counter_max_noise = SAMPLE_COUNTER_MAX;// + ((GetRandomNumber(10000) % ((uint8_t)(SAMPLE_COUNTER_MAX/10) + 1)) - (uint8_t)(SAMPLE_COUNTER_MAX/20));
 #endif
         }
     }

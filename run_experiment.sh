@@ -39,10 +39,25 @@ else
 #   sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 10935 11022 17 204
 #   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 11023 11088 17 204 10
 #   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 11089 11154 17 204 15
-    sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 11827 11914 17 204
-    sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 11915 11980 17 204 5
+  # no noise
+#   sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 11827 11914 17 204
+#   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 11915 11980 17 204 5
+  # noise sigma = 0.1, last value is sigma
+  sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples_ps.sh 11981 12068 15 204 2
+  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks_ps.sh 12069 12134 15 204 5 2
+  # noise sigma = 0.2, last value is sigma
+  sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples_ps.sh 12135 12222 15 204 4
+  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks_ps.sh 12223 12288 15 204 5 4
+  # noise sigma = 0.3, last value is sigma
+  sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples_ps.sh 12289 12376 15 204 6
+  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks_ps.sh 12377 12442 15 204 5 6
 
-
+  # normal with 15 ticks and denser results map
+#   sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples_ps.sh 12443 12578 15 204  # need 136 slots
+  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 12579 12680 15 204 15  # need to be 102
+  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 12681 12782 13 204 15  # need to be 102
+  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 12783 12884 17 204 15  # need to be 102
+  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 12885 12986 18 204 15  # need to be 102
 
   # density experiment
 #   sh ARGoS_simulation/data_generation_scripts/ants_dens_adapt.sh 10315 10394 14 204
