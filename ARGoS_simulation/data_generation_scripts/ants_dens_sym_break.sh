@@ -76,9 +76,9 @@ else
       EXP_LENGTH=2400      #length of the experiment in secs
       DATA_FREQUENCY=1     # frequency of saving the experiment data
 
-      HRS=23 # hours the script takes
-      MIN=59 # min the script takes
-      QUEUE=special # queue can eihter be short/special (max 1 day) or long (max 7 days)
+      HRS=50 # hours the script takes
+      MIN=0 # min the script takes
+      QUEUE=long # queue can eihter be short/special (max 1 day) or long (max 7 days)
 
       #path to main directory
       EXP_FOLDER=${HOME}/Programs/adaptive_symmetry_breaking
@@ -112,7 +112,7 @@ else
         -e "s|queue|${QUEUE}|" \
         -e "s|logfile|${JOB_NAME}|" \
         ${JOB_TEMPLATE_SRC} >${JOB_FILE}
-      for i in $(seq 0 19); do
+      for i in $(seq 0 9); do
 
           EXP_FILE=${EXP_DIR}/${EXP_NAME}_${i}.argos # full path to the experiment configuration file
           DATA_FILE=${EXP_NAME}_${i}.txt # Full path to the data file

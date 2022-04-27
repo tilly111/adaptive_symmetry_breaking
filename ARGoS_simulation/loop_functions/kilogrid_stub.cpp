@@ -395,11 +395,11 @@ CColor CKilogrid::GetFloorColor(const CVector2 &vec_position_on_plane) {
         // this is wall
         cColor = CColor::WHITE;
     } else if (id == 1) {
-        cColor = CColor::RED;
-    } else if (id == 2) {
-        cColor = CColor::GREEN;
-    } else if (id == 3) {
         cColor = CColor::BLUE;
+    } else if (id == 2) {
+        cColor = CColor::YELLOW;
+    } else if (id == 3) {
+        cColor = CColor::GREEN;
     } else if (id == 4) {
         cColor = CColor::BROWN;
     } else if (id == 5) {

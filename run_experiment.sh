@@ -49,12 +49,12 @@ else
 #   sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples_ps.sh 12135 12222 15 204 4
 #   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks_ps.sh 12223 12288 15 204 5 4
   # extension 6 and 7 sec
-  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks_ps.sh 12223 12288 15 204 5 4
+#   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks_ps.sh 12223 12288 15 204 5 4
   # noise sigma = 0.3, last value is sigma
 #   sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples_ps.sh 12289 12376 15 204 6
 #   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks_ps.sh 12377 12442 15 204 5 6
   # extension 6 and 7 sec
-  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks_ps.sh 13009 13030 15 204 5 6
+#   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks_ps.sh 13009 13030 15 204 5 6
 
   # normal with 15 ticks and denser results map
 #   sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples_ps.sh 12443 12578 15 204  # need 136 slots
@@ -69,6 +69,13 @@ else
 #   sh ARGoS_simulation/data_generation_scripts/ants_dens_adapt.sh 10475 10554 16 204
 #   sh ARGoS_simulation/data_generation_scripts/ants_dens_adapt.sh 10555 10634 17 204
 #   sh ARGoS_simulation/data_generation_scripts/ants_dens_adapt.sh 10635 10714 18 204
+
+  # SYMMETRY BREAKING FINAL EXPERIMENTS
+  sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 13031 13166 2 2
+  sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 13167 13302 3 3
+  sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 13303 13438 4 4
+  sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 13439 13574 5 5
+
 
 
   #sh ARGoS_simulation/data_generation_scripts/ants_experiments.sh ${1} ${2} ${3} ${4}

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###################################
-# script for ants paper - sample time vs problem difficulty
+# slots needed 136
 ###################################
 EXPECTED_ARGS=4
 if [ $# -lt ${EXPECTED_ARGS} ]; then
@@ -32,58 +32,58 @@ else
       # max communication range = sampling number
       if ((${tmp_counter}  == 0)); then
         INITIAL_COMMITMENT=5
-      elif ((${tmp_counter} == 11)); then
+      elif ((${tmp_counter} == 17)); then
         INITIAL_COMMITMENT=10
-      elif ((${tmp_counter} == 22)); then
+      elif ((${tmp_counter} == 34)); then
         INITIAL_COMMITMENT=15
-      elif ((${tmp_counter} == 33)); then
+      elif ((${tmp_counter} == 51)); then
         INITIAL_COMMITMENT=20
-      elif ((${tmp_counter} == 44)); then
+      elif ((${tmp_counter} == 68)); then
         INITIAL_COMMITMENT=25
-      elif ((${tmp_counter} == 55)); then
+      elif ((${tmp_counter} == 85)); then
         INITIAL_COMMITMENT=30
-      elif ((${tmp_counter} == 66)); then
+      elif ((${tmp_counter} == 102)); then
         INITIAL_COMMITMENT=45
-      elif ((${tmp_counter} == 77)); then
+      elif ((${tmp_counter} == 119)); then
         INITIAL_COMMITMENT=60
       fi
       # initial communication range = communication range
-      if (($((${tmp_counter} % 11)) == 0)); then  # change back to 17 ..
+      if (($((${tmp_counter} % 17)) == 0)); then  # change back to 17 ..
             INITIAL_COMMUNICATION_RANGE=1
-      elif (($((${tmp_counter} % 11)) == 1)); then
+      elif (($((${tmp_counter} % 17)) == 1)); then
             INITIAL_COMMUNICATION_RANGE=2
-      elif (($((${tmp_counter} % 11)) == 2)); then
+      elif (($((${tmp_counter} % 17)) == 2)); then
             INITIAL_COMMUNICATION_RANGE=3
-      elif (($((${tmp_counter} % 11)) == 3)); then
+      elif (($((${tmp_counter} % 17)) == 3)); then
             INITIAL_COMMUNICATION_RANGE=4
-      elif (($((${tmp_counter} % 11)) == 4)); then
+      elif (($((${tmp_counter} % 17)) == 4)); then
             INITIAL_COMMUNICATION_RANGE=5
-      elif (($((${tmp_counter} % 11)) == 5)); then
+      elif (($((${tmp_counter} % 17)) == 5)); then
             INITIAL_COMMUNICATION_RANGE=6
-      elif (($((${tmp_counter} % 11)) == 6)); then
+      elif (($((${tmp_counter} % 17)) == 6)); then
             INITIAL_COMMUNICATION_RANGE=7
-      elif (($((${tmp_counter} % 11)) == 7)); then
+      elif (($((${tmp_counter} % 17)) == 7)); then
             INITIAL_COMMUNICATION_RANGE=8
-      elif (($((${tmp_counter} % 11)) == 8)); then
+      elif (($((${tmp_counter} % 17)) == 8)); then
             INITIAL_COMMUNICATION_RANGE=9
-  #    elif (($((${tmp_counter} % 17)) == 9)); then
-  #          INITIAL_COMMUNICATION_RANGE=10
-  #    elif (($((${tmp_counter} % 17)) == 10)); then
-  #          INITIAL_COMMUNICATION_RANGE=15
-  #    elif (($((${tmp_counter} % 17)) == 11)); then
-  #          INITIAL_COMMUNICATION_RANGE=20
-      elif (($((${tmp_counter} % 11)) == 9)); then
+      elif (($((${tmp_counter} % 17)) == 9)); then
+            INITIAL_COMMUNICATION_RANGE=10
+      elif (($((${tmp_counter} % 17)) == 10)); then
+            INITIAL_COMMUNICATION_RANGE=15
+      elif (($((${tmp_counter} % 17)) == 11)); then
+            INITIAL_COMMUNICATION_RANGE=20
+      elif (($((${tmp_counter} % 17)) == 12)); then
             INITIAL_COMMUNICATION_RANGE=25
-  #    elif (($((${tmp_counter} % 17)) == 13)); then
-  #          INITIAL_COMMUNICATION_RANGE=30
-  #    elif (($((${tmp_counter} % 17)) == 14)); then
-  #          INITIAL_COMMUNICATION_RANGE=35
-  #    elif (($((${tmp_counter} % 17)) == 15)); then
-  #          INITIAL_COMMUNICATION_RANGE=40
-      elif (($((${tmp_counter} % 11)) == 10)); then
+      elif (($((${tmp_counter} % 17)) == 13)); then
+            INITIAL_COMMUNICATION_RANGE=30
+      elif (($((${tmp_counter} % 17)) == 14)); then
+            INITIAL_COMMUNICATION_RANGE=35
+      elif (($((${tmp_counter} % 17)) == 15)); then
+            INITIAL_COMMUNICATION_RANGE=40
+      elif (($((${tmp_counter} % 17)) == 16)); then
             INITIAL_COMMUNICATION_RANGE=45
       fi
-      EXP_NAME=cl_sym_break_cross_inhib_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_samples_${INITIAL_COMMITMENT}_options_${n}
+      EXP_NAME=cl_sym_break_cross_inhib_final_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_samples_${INITIAL_COMMITMENT}_options_${n}
       tmp_counter=$(( ${tmp_counter} + 1 ))
 
       NUM_ROBOTS=50        # number of robots
@@ -91,9 +91,9 @@ else
       EXP_LENGTH=2400      #length of the experiment in secs
       DATA_FREQUENCY=1     # frequency of saving the experiment data
 
-      HRS=23 # hours the script takes
-      MIN=59 # min the script takes
-      QUEUE=special # queue can eihter be short/special (max 1 day) or long (max 7 days)
+      HRS=72 # hours the script takes
+      MIN=00 # min the script takes
+      QUEUE=long # queue can eihter be short/special (max 1 day) or long (max 7 days)
 
       #path to main directory
       EXP_FOLDER=${HOME}/Programs/adaptive_symmetry_breaking
@@ -128,11 +128,11 @@ else
         -e "s|logfile|${JOB_NAME}|" \
         ${JOB_TEMPLATE_SRC} >${JOB_FILE}
 
-      for i in $(seq 0 19); do
+      for i in $(seq 0 39); do
 
           EXP_FILE=${EXP_DIR}/${EXP_NAME}_${i}.argos # full path to the experiment configuration file
           DATA_FILE=${EXP_NAME}_${i}.txt # Full path to the data file
-          CONFIG_FILE_FINAL=${CONFIG_FILE}_${i}.kconf
+          CONFIG_FILE_FINAL=${CONFIG_FILE}_$((${i} % 20)).kconf
 
           # it is very important to keep this order in order to not overwrite stuff
           sed -e "s|exp_length|${EXP_LENGTH}|" \

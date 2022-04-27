@@ -45,8 +45,8 @@
     label="kilogrid_loop_functions">
 
     <variables
-        config_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sample_17_5.kconf"
-        second_config="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sample_17_5.kconf"
+        config_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sample_13_5.kconf"
+        second_config="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sample_13_5.kconf"
         data_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/step_adaptation_test_165.txt"
         initial_commitment="25"
         initial_commitment_quality="204"
@@ -115,23 +115,41 @@
 <!-- ****************** -->
 <!-- * Visualization  * -->
 <!-- **************®**** -->
-<!--
+<!-- -->
 <visualization>
 
 <qt-opengl>
+
+<camera>
+          <placements>
+            <placement index="0" position="0.5,1.0,3.8" look_at="0.5,1.0,2.84" up="0.0,1.0,0.0" lens_focal_length="50" />
+          </placements>
+        </camera>
         <camera>
           <placements>
-            <placement index="0" position="0.543348,-1.64842,1.67276" look_at="0.528236,-0.825479,1.10484" up="-0.0104278,0.56783,0.82308" lens_focal_length="53.75" />
+            <placement index="4" position="0.543348,-1.64842,1.67276" look_at="0.528236,-0.825479,1.10484" up="-0.0104278,0.56783,0.82308" lens_focal_length="53.75" />
           </placements>
         </camera>
 
         <camera>
           <placements>
-            <placement index="1" position="0.919574,3.81777,2.34657" look_at="0.881784,3.06057,1.69448" up="-0.0325027,-0.651275,0.758145" lens_focal_length="53.75" />
+            <placement index="1" position="0.5,1.5,3" look_at="0.5,1.5,0" up="-0.0325027,-0.651275,0.758145" lens_focal_length="53.75" />
           </placements>
         </camera>
+
+        <camera>
+          <placements>
+            <placement index="2" position="0.537036,1.56434,4.22272" look_at="0.537844,1.44246,3.23018" up="0.00657934,-0.992522,0.121889" lens_focal_length="53.75" />
+          </placements>
+        </camera>
+        <camera>
+          <placements>
+            <placement index="3" position="0.54417,0.241556,3.82951" look_at="0.544362,0.424898,2.84646" up="0.00102981,0.983049,0.183342" lens_focal_length="50" />
+          </placements>
+        </camera>
+
     </qt-opengl>
 
 </visualization>
- -->
+<!--  -->
 </argos-configuration>
