@@ -237,8 +237,8 @@ unsigned int GetRandomNumber(unsigned int range_rnd){
 uint8_t get_artificial_sample(){
     unsigned int range_rnd = 10000;
     unsigned int random = GetRandomNumber(10000);
-    // TODO: 2 options - kappa = 0.8
-    if (random < (float)range_rnd * (304.0/684.0)) {
+    // TODO: 2 options - kappa = 0.9
+    if (random < (float)range_rnd * (324.0/684.0)) {
         return 1;
     }else {
         return 2;
@@ -260,12 +260,12 @@ float get_noisy_estimate(uint8_t option){
     float tmp = 2.0;
     if (option == 1){
         while (tmp <= 0.0 || tmp >= 1.0){
-            tmp = (304.0/684.0) + gauss(0.0, sigma_const);
+            tmp = (324.0/684.0) + gauss(0.0, sigma_const);
         }
         return tmp;
     }else if (option == 2){
         while (tmp <= 0.0 || tmp >= 1.0) {
-            tmp = (380.0 / 684.0) + gauss(0.0, sigma_const);
+            tmp = (360.0 / 684.0) + gauss(0.0, sigma_const);
         }
         return tmp;
     }else{

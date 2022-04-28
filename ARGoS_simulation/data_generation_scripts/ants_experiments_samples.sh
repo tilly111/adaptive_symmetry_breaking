@@ -83,7 +83,7 @@ else
     elif (($((${tmp_counter} % 17)) == 16)); then
           INITIAL_COMMUNICATION_RANGE=45
     fi
-    EXP_NAME=cl_sample_cross_inhib_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_samples_${INITIAL_COMMITMENT}_env_${ENVIRONMENT}
+    EXP_NAME=ants_sample_cross_inhib_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_samples_${INITIAL_COMMITMENT}_env_${ENVIRONMENT}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots
@@ -91,8 +91,8 @@ else
     EXP_LENGTH=2400      #length of the experiment in secs
     DATA_FREQUENCY=1     # frequency of saving the experiment data
 
-    HRS=23 # hours the script takes
-    MIN=59 # min the script takes
+    HRS=72 # hours the script takes
+    MIN=00 # min the script takes
     QUEUE=special # queue can eihter be short/special (max 1 day) or long (max 7 days)
 
     #path to main directory
@@ -129,7 +129,7 @@ else
       -e "s|logfile|${JOB_NAME}|" \
       ${JOB_TEMPLATE_SRC} >${JOB_FILE}
     # TODO change back to higher number
-    for i in $(seq 0 39); do
+    for i in $(seq 0 29); do
 
       EXP_FILE=${EXP_DIR}/${EXP_NAME}_${i}.argos # full path to the experiment configuration file
       DATA_FILE=${EXP_NAME}_${i}.txt # Full path to the data file

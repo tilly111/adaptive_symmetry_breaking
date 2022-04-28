@@ -71,11 +71,23 @@ else
 #   sh ARGoS_simulation/data_generation_scripts/ants_dens_adapt.sh 10635 10714 18 204
 
   # SYMMETRY BREAKING FINAL EXPERIMENTS
-  sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 13031 13166 2 2
-  sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 13167 13302 3 3
-  sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 13303 13438 4 4
-  sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 13439 13574 5 5
+#   sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 13031 13166 2 2
+#   sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 13167 13302 3 3
+#   sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 13303 13438 4 4
+#   sh ARGoS_simulation/data_generation_scripts/ants_symmetry_breaking.sh 13439 13574 5 5
 
+  # ANTS FINAL EXPERIMENTS:
+  # TODO (b) normal with kappa 0.9 ATTENTION set initial commitment in controller to 1
+#   sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 13711 13846 17 204
+
+  # TODO (c) adaptation with 15 samples kappa 0.9 vary time between samples
+#   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks_ps.sh 13847 13982 17 204 15
+
+  # TODO (g) adaptation with 5 samples different time between samples 2 options kappa=0.9 sigma=0.1
+  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks_ps.sh 13983 14118 17 204 5 2
+
+  # (h) adaptation with 5 samples different time between samples 2 options kappa=0.9 sigma=0.2
+  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks_ps.sh 13575 13710 17 204 5 4
 
 
   #sh ARGoS_simulation/data_generation_scripts/ants_experiments.sh ${1} ${2} ${3} ${4}

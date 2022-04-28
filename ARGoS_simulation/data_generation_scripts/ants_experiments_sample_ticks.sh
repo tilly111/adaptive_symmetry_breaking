@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###################################
-# script needs 102 slots
+# script needs 136 slots
 ###################################
 EXPECTED_ARGS=5
 if [ $# -lt ${EXPECTED_ARGS} ]; then
@@ -42,6 +42,10 @@ else
         MAX_COMMUNICATION_RANGE=8
       elif ((${tmp_counter} == 85)); then
         MAX_COMMUNICATION_RANGE=10
+      elif ((${tmp_counter} == 102)); then
+        MAX_COMMUNICATION_RANGE=12
+      elif ((${tmp_counter} == 119)); then
+        MAX_COMMUNICATION_RANGE=14
       fi
     # initial communication range = communication range
     if (($((${tmp_counter} % 17)) == 0)); then
@@ -79,7 +83,7 @@ else
     elif (($((${tmp_counter} % 17)) == 16)); then
           INITIAL_COMMUNICATION_RANGE=45
     fi
-    EXP_NAME=cl_sampling_ticks_cross_inhib_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_sample_ticks_${MAX_COMMUNICATION_RANGE}_env_${ENVIRONMENT}
+    EXP_NAME=ants_sampling_ticks_cross_inhib_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_sample_ticks_${MAX_COMMUNICATION_RANGE}_env_${ENVIRONMENT}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots
@@ -87,9 +91,9 @@ else
     EXP_LENGTH=2400      #length of the experiment in secs
     DATA_FREQUENCY=1     # frequency of saving the experiment data
 
-    HRS=23 # hours the script takes
-    MIN=59 # min the script takes
-    QUEUE=special # queue can eihter be short/special (max 1 day) or long (max 7 days)
+    HRS=72 # hours the script takes
+    MIN=00 # min the script takes
+    QUEUE=long # queue can eihter be short/special (max 1 day) or long (max 7 days)
 
     #path to main directory
     EXP_FOLDER=${HOME}/Programs/adaptive_symmetry_breaking
@@ -125,7 +129,7 @@ else
       -e "s|logfile|${JOB_NAME}|" \
       ${JOB_TEMPLATE_SRC} >${JOB_FILE}
     # TODO change back to higher number
-    for i in $(seq 0 39); do
+    for i in $(seq 0 29); do
 
       EXP_FILE=${EXP_DIR}/${EXP_NAME}_${i}.argos # full path to the experiment configuration file
       DATA_FILE=${EXP_NAME}_${i}.txt # Full path to the data file
