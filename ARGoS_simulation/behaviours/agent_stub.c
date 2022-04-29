@@ -840,7 +840,7 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         robot_gps_y = msg->data[1];
         random_walk_waypoint_model();  // select first goal
         // TODO change back -> not needed bc we only do adaptation studies atm for ants
-        robot_commitment = 2;//msg->data[2];
+        robot_commitment = 1;//msg->data[2];
         robot_commitment_quality = (msg->data[3])/255.0;
         NUMBER_OF_OPTIONS = msg->data[4];
         // how to init the robot

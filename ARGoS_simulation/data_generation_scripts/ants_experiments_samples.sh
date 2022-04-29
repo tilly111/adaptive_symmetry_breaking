@@ -129,7 +129,7 @@ else
       -e "s|logfile|${JOB_NAME}|" \
       ${JOB_TEMPLATE_SRC} >${JOB_FILE}
     # TODO change back to higher number
-    for i in $(seq 0 29); do
+    for i in $(seq 0 39); do
 
       EXP_FILE=${EXP_DIR}/${EXP_NAME}_${i}.argos # full path to the experiment configuration file
       DATA_FILE=${EXP_NAME}_${i}.txt # Full path to the data file
