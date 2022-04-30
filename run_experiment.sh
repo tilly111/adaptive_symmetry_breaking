@@ -81,7 +81,7 @@ else
 #   sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 13711 13846 17 204
 
   # TODO (c) adaptation with 15 samples kappa 0.9 vary time between samples
-  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 13847 13982 17 204 15
+#   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks.sh 13847 13982 17 204 15
 
   # (g) adaptation with 5 samples different time between samples 2 options kappa=0.9 sigma=0.1
 #   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks_ps.sh 13983 14118 17 204 5 2
@@ -90,7 +90,7 @@ else
 #   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks_ps.sh 13575 13710 17 204 5 4
 
   # g replacement! -> adaptation with 5 samples different time between samples 2 options kappa=0.9 sigma=0.0
-  sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks_ps.sh 14119 14254 17 204 5 0
+#   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks_ps.sh 14119 14254 17 204 5 0
 
   # adaptation for different kappa .. master thesis and paper
   sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 14255 14390 13 204
