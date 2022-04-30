@@ -52,8 +52,14 @@ void CKilogrid::Init(TConfigurationNode &t_tree) {
     GetSpace().GetFloorEntity().SetChanged();
     // initialize some helpers to track the kilobots - only needed in sim
     robot_positions.resize(kilobot_entities.size());
-    logg_commitment_state.resize(
-            number_of_options + 1);  // uncommitted is also a commitment state thus +1
+    if (number_of_options == 0){
+        // uncommitted is also a commitment state thus + 1
+        logg_commitment_state.resize(2 + 1);
+    }else{
+        // uncommitted is also a commitment state thus + 1
+        logg_commitment_state.resize(number_of_options + 1);
+    }
+
 
 
     // init logging

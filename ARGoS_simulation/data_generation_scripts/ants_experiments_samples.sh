@@ -83,7 +83,7 @@ else
     elif (($((${tmp_counter} % 17)) == 16)); then
           INITIAL_COMMUNICATION_RANGE=45
     fi
-    EXP_NAME=ants_sample_cross_inhib_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_samples_${INITIAL_COMMITMENT}_env_${ENVIRONMENT}
+    EXP_NAME=ants_adap_sample_cross_inhib_${j}_comrng_${INITIAL_COMMUNICATION_RANGE}_samples_${INITIAL_COMMITMENT}_env_${ENVIRONMENT}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots
