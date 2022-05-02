@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###################################
-# script for ants paper - sample time vs problem difficulty
+# script needs 80 slots
 ###################################
 EXPECTED_ARGS=4
 if [ $# -lt ${EXPECTED_ARGS} ]; then
@@ -16,7 +16,7 @@ if [ $# -lt ${EXPECTED_ARGS} ]; then
 else
   tmp_counter=0
   MAX_COMMUNICATION_RANGE=2 # sample ticks in 0.5 steps
-  INITIAL_COMMUNICATION_RANGE=3
+  INITIAL_COMMUNICATION_RANGE=1 # init comittment of the robot
   INITIAL_COMMITMENT=30 # currently Sample counter max
 
   # WE NEED 80 runs
@@ -75,9 +75,9 @@ else
       EXP_LENGTH=2400      #length of the experiment in secs
       DATA_FREQUENCY=1     # frequency of saving the experiment data
 
-      HRS=23 # hours the script takes
-      MIN=30 # min the script takes
-      QUEUE=special # queue can eihter be short/special (max 1 day) or long (max 7 days)
+      HRS=50 # hours the script takes
+      MIN=0 # min the script takes
+      QUEUE=long # queue can eihter be short/special (max 1 day) or long (max 7 days)
 
       #path to main directory
       EXP_FOLDER=${HOME}/Programs/adaptive_symmetry_breaking

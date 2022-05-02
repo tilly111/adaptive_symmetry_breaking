@@ -93,12 +93,21 @@ else
 #   sh ARGoS_simulation/data_generation_scripts/ants_experiments_sample_ticks_ps.sh 14119 14254 17 204 5 0
 
   # adaptation for different kappa .. master thesis and paper
-  sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 14255 14390 13 204
-  sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 14391 14526 15 204
-  sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 13711 13846 17 204
-  sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 14527 14662 18 204
+#   sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 14255 14390 13 204
+#   sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 14391 14526 15 204
+#   sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 13711 13846 17 204
+#   sh ARGoS_simulation/data_generation_scripts/ants_experiments_samples.sh 14527 14662 18 204
 
+  # density experiments
+  sh ARGoS_simulation/data_generation_scripts/ants_dens_adapt.sh 14663 14742 13 204
+  sh ARGoS_simulation/data_generation_scripts/ants_dens_adapt.sh 14743 14822 15 204
+  sh ARGoS_simulation/data_generation_scripts/ants_dens_adapt.sh 14823 14902 17 204
+  sh ARGoS_simulation/data_generation_scripts/ants_dens_adapt.sh 14903 14982 18 204
 
+  sh ARGoS_simulation/data_generation_scripts/ants_dens_sym_break.sh 14983 15062 2 2
+  sh ARGoS_simulation/data_generation_scripts/ants_dens_sym_break.sh 15063 15142 3 3
+  sh ARGoS_simulation/data_generation_scripts/ants_dens_sym_break.sh 15143 15222 4 4
+  sh ARGoS_simulation/data_generation_scripts/ants_dens_sym_break.sh 15223 15302 5 5
 
   #sh ARGoS_simulation/data_generation_scripts/ants_experiments.sh ${1} ${2} ${3} ${4}
   #sh ARGoS_simulation/data_generation_scripts/runjobs.sh

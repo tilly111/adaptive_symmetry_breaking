@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###################################
-# script for ants paper - sample time vs problem difficulty
+# script needs 80 slots
 ###################################
 EXPECTED_ARGS=4
 if [ $# -lt ${EXPECTED_ARGS} ]; then
@@ -17,7 +17,7 @@ else
   # 80 runs needed!
   tmp_counter=0
   MAX_COMMUNICATION_RANGE=2
-  INITIAL_COMMUNICATION_RANGE=3
+  INITIAL_COMMUNICATION_RANGE=2 # init comittment of the robot
   INITIAL_COMMITMENT=2 # initial commitment of the robots
 
   # stuff needs to be adjusted
