@@ -73,7 +73,7 @@ else
 
     HRS=23 # hours the script takes
     MIN=59 # min the script takes
-    QUEUE=special # queue can eihter be short/special (max 1 day) or long (max 7 days)
+    QUEUE=short # queue can eihter be short/special (max 1 day) or long (max 7 days)
 
     #path to main directory
     EXP_FOLDER=${HOME}/Programs/adaptive_symmetry_breaking
