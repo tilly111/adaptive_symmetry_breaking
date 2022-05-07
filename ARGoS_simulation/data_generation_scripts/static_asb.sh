@@ -61,6 +61,7 @@ else
           INITIAL_COMMUNICATION_RANGE=45
     elif (($((${tmp_counter} % 8)) == 7)); then
           INITIAL_COMMUNICATION_RANGE=60
+    fi
 
     EXP_NAME=asb_static_cross_inhib_${j}_samples_${INITIAL_COMMUNICATION_RANGE}_sample_ticks_${MAX_COMMUNICATION_RANGE}_env_${ENVIRONMENT}
     tmp_counter=$(( ${tmp_counter} + 1 ))
