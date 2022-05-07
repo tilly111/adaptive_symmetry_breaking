@@ -52,13 +52,14 @@ void CKilogrid::Init(TConfigurationNode &t_tree) {
     GetSpace().GetFloorEntity().SetChanged();
     // initialize some helpers to track the kilobots - only needed in sim
     robot_positions.resize(kilobot_entities.size());
-    if (number_of_options == 0){
+//    if (number_of_options == 0){
+//        // uncommitted is also a commitment state thus + 1
+//        logg_commitment_state.resize(2 + 1);
+//    }else{
         // uncommitted is also a commitment state thus + 1
-        logg_commitment_state.resize(2 + 1);
-    }else{
-        // uncommitted is also a commitment state thus + 1
-        logg_commitment_state.resize(number_of_options + 1);
-    }
+        // TODO: is done static for the last experiments
+        logg_commitment_state.resize(3 + 1);
+//    }
 
 
 
@@ -405,7 +406,7 @@ CColor CKilogrid::GetFloorColor(const CVector2 &vec_position_on_plane) {
     } else if (id == 2) {
         cColor = CColor::YELLOW;
     } else if (id == 3) {
-        cColor = CColor::GREEN;
+        cColor = CColor::RED;
     } else if (id == 4) {
         cColor = CColor::BROWN;
     } else if (id == 5) {
@@ -710,7 +711,7 @@ void CKilogrid::loop(int x, int y) {
             module_memory[x][y].ir_message_tx->crc = 0;
             module_memory[x][y].ir_message_tx->data[0] = module_memory[x][y].cell_x[f];
             module_memory[x][y].ir_message_tx->data[1] = module_memory[x][y].cell_y[f];
-            module_memory[x][y].ir_message_tx->data[2] = initial_commitment; // TODO adjustable for each robot
+            module_memory[x][y].ir_message_tx->data[2] = initial_commitment;
             module_memory[x][y].ir_message_tx->data[3] = initial_commitment_quality;
             module_memory[x][y].ir_message_tx->data[4] = number_of_options;
             module_memory[x][y].ir_message_tx->data[5] = module_memory[x][y].cell_colour[f];  // tested cast to unit_8 not needed

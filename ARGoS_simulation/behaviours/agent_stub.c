@@ -10,9 +10,6 @@
 //#define OPTIMALSAMPLE
 // #define TRACKQUALITY
 
-//#define RECRUITBACK
-//#define COMPARE_PROB
-
 
 /*-----------------------------------------------------------------------------------------------*/
 /* Imports - depending on the platform one has different imports                                 */
@@ -58,7 +55,7 @@
 
 // parameters
 // TODO made dynaic for ants paper
-//#define SAMPLE_COUNTER_MAX 30  // set to 15 and 5 ?
+//#define SAMPLE_COUNTER_MAX 30
 uint8_t SAMPLE_COUNTER_MAX = 30;
 //#define SAMPLE_TICKS 32
 uint32_t SAMPLE_TICKS = 32;
@@ -109,11 +106,6 @@ bool calculated_orientation = false;
 uint8_t robot_commitment = UNINITIALISED;
 float robot_commitment_quality = 0.0;
 float robot_commitment_quality_tmp = 0.0;
-
-#ifdef RECRUITBACK
-uint8_t last_robot_commitment = UNINITIALISED;
-float last_robot_commitment_quality = 0.0;
-#endif
 
 uint8_t communication_range = 0;  // communication range in cells
 uint8_t max_communication_range = 0;  // for dynamic setting
@@ -287,10 +279,6 @@ void sample(){
                 }
 #endif
                 robot_commitment_quality = discovered_quality;
-#ifdef RECRUITBACK
-                last_robot_commitment = UNINITIALISED;
-                last_robot_commitment_quality = 0.0;
-#endif
             }else{
                 // set discovery flag if we discovered something new!
                 discovered = true;
@@ -350,14 +338,7 @@ void update_commitment() {
 
         // Discovery and COMPARE: found a better option (in case of discovery robot is uncommitted
         // thus robot_commitment_quality should be 0
-        // TODO does it makes sense to introduce this random variable?!??
-#ifdef COMPARE_PROB
-        unsigned int rand_number = GetRandomNumber(10000);
-        unsigned int quality_int = (unsigned int)(10000 * quality)+1;
-        if(quality > robot_commitment_quality + PARAM && rand_number <= quality_int){
-#else
         if(quality > robot_commitment_quality + PARAM){
-#endif
             individual = true;
         }
         // RECRUITMENT and DIRECT-SWITCH: message with different option
@@ -387,13 +368,8 @@ void update_commitment() {
             /// set new commitment
             robot_commitment = discovered_option;
             robot_commitment_quality = discovered_quality;
-#ifdef RECRUITBACK
-            // reset last robot commitment
-            last_robot_commitment = UNINITIALISED;
-            last_robot_commitment_quality = 0.0;
-#endif
 #ifdef CROSS_INHIBITION
-        /// CROSS-INHIBITION MODEL
+        /// CROSS-INHIBITION SOCIAL PATTERN
         }else if(social){
             // basically the robot is recruited when it finishes sampling
             if (robot_commitment == UNCOMMITTED){
@@ -401,27 +377,8 @@ void update_commitment() {
                 robot_commitment = received_option;
                 // set new option the robot should sample
                 op_to_sample = received_option;
-#ifdef RECRUITBACK
-                /// Depending on the storage set commitment quality
-                if (last_robot_commitment == received_option){
-                    robot_commitment_quality = last_robot_commitment_quality;
-                    // reset last robot commitment
-                    last_robot_commitment = UNINITIALISED;
-                    last_robot_commitment_quality = 0.0;
-                } else {  // no information -> start form 0
-#endif
-                    robot_commitment_quality = 0.0;
-#ifdef RECRUITBACK
-                }
-#endif
+                robot_commitment_quality = 0.0;
             } else {  /// Robot is committed
-#ifdef RECRUITBACK
-                // remember last robot commitment if there is some information
-                if (robot_commitment_quality != 0.0){
-                    last_robot_commitment = robot_commitment;
-                    last_robot_commitment_quality = robot_commitment_quality;
-                }
-#endif
                 /// CROSS-INHIBITION - becomes uncommitted
                 robot_commitment = UNCOMMITTED;
                 robot_commitment_quality = 0.0;
@@ -436,29 +393,12 @@ void update_commitment() {
 #endif
         }
 #else
-        /// DIRECT-SWITCHING MODEL
+        /// DIRECT-SWITCHING SOCIAL PATTERN
         }else if(social){
-#ifdef RECRUITBACK
-            if (last_robot_commitment == received_option){
-                // set commitment
-                robot_commitment = received_option;
-                robot_commitment_quality = last_robot_commitment_quality;
-                // reset last robot commitment
-                last_robot_commitment = UNINITIALISED;
-                last_robot_commitment_quality = 0.0;
-            }else {
-                if (robot_commitment_quality != 0.0) {
-                    last_robot_commitment = robot_commitment;
-                    last_robot_commitment_quality = robot_commitment_quality;
-                }
-#endif
-                /// DIRECT-SWITCHING
-                robot_commitment = received_option;
-                robot_commitment_quality = 0.0;
-                op_to_sample = received_option;
-#ifdef RECRUITBACK
-            }
-#endif
+            /// DIRECT-SWITCHING
+            robot_commitment = received_option;
+            robot_commitment_quality = 0.0;
+            op_to_sample = received_option;
             /// reset sampling to make a new estimate on current commitment
             sample_op_counter = 0;
             sample_counter = 0;
@@ -840,9 +780,9 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         robot_gps_y = msg->data[1];
         random_walk_waypoint_model();  // select first goal
         // TODO change back -> not needed bc we only do adaptation studies atm for ants
-        robot_commitment = msg->data[6];//msg->data[2];
+        robot_commitment = msg->data[2];
         robot_commitment_quality = (msg->data[3])/255.0;
-        NUMBER_OF_OPTIONS = msg->data[4];
+        NUMBER_OF_OPTIONS = 3;  // msg->data[4];
         // how to init the robot
         // 1 -> start at option one
         // else start uniform distributed over all options
@@ -855,12 +795,11 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         current_ground = msg->data[5];
 #endif
         op_to_sample = current_ground;
-        communication_range = 3;//msg->data[6];
-        // TODO: changed for experiment for ants paper -> init
-        // max_communication_range = msg->data[7];
+        // TODO: changed for the static case
+        communication_range = msg->data[4];
+        SAMPLE_COUNTER_MAX = msg->data[6];
+        sample_counter_max_noise = SAMPLE_COUNTER_MAX;
         SAMPLE_TICKS = 16 * msg->data[7]; // NEEDS TO BE IN 0.5 SEC
-        SAMPLE_COUNTER_MAX = msg->data[2];
-        //sample_counter_max_noise = SAMPLE_COUNTER_MAX + (GetRandomNumber(10000) % SAMPLE_COUNTER_MAX);  // to ensure that no robot makes random estimate with only one
         init_flag = true;
     }else if(msg->type == GRID_MSG && init_flag){
         received_x = msg->data[0];
@@ -1011,10 +950,10 @@ void loop() {
                 set_color(RGB(3,3,0));
                 break;
             case 3:
-                set_color(RGB(0,0,3));
+                set_color(RGB(3,0,0));
                 break;
             case 4:
-                set_color(RGB(3,0,0));
+                set_color(RGB(0,0,3));
                 break;
             case 5:
                 set_color(RGB(0,0,0));
@@ -1055,7 +994,7 @@ void loop() {
 #endif
 
     // debug prints
-//    if(kilo_uid == 0){
+//    if(robot_commitment == 3){
 //        printf("[%d] %d %d \n", kilo_uid, SAMPLE_COUNTER_MAX, SAMPLE_TICKS);
 //    }
 #else

@@ -31,7 +31,7 @@
         <kilobot_communication implementation="default" medium="kilocomm" show_rays="false" />
     </sensors>
 
-    <params behavior="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/build/behaviours/agent_perfect_sample" />
+    <params behavior="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/build/behaviours/agent_stub" />
 
     </kilobot_controller>
 
@@ -45,13 +45,13 @@
     label="kilogrid_loop_functions">
 
     <variables
-        config_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sample_13_5.kconf"
-        second_config="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/sample_13_5.kconf"
+        config_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/asb_0_8.kconf"
+        second_config="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/ARGoS_simulation/loop_functions/kilogrid_conf_files/asb_0_8.kconf"
         data_file="/Users/tillkonradaust/Desktop/ProjectsXCode.nosync/argos3-test/data_cluster/step_adaptation_test_166.txt"
-        initial_commitment="25"
+        initial_commitment="1"
         initial_commitment_quality="204"
-        number_of_options="0"
-        initial_communication_range="5"
+        number_of_options="45"
+        initial_communication_range="30"
         max_communication_range="2"
     />
 </loop_functions>
