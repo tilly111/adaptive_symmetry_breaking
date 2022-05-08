@@ -109,22 +109,22 @@ else
 #   sh ARGoS_simulation/data_generation_scripts/ants_dens_sym_break.sh 15143 15222 4 4
 #   sh ARGoS_simulation/data_generation_scripts/ants_dens_sym_break.sh 15223 15302 5 5
 
-  # asb static experiments one takes 64
-  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15303 15366 0 204 2
-  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15367 15430 1 204 2
-  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15431 15494 2 204 2
-  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15495 15558 3 204 2
+  # asb static experiments one takes 64 slots
+#   sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15303 15366 0 204 2
+#   sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15367 15430 1 204 2
+#   sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15431 15494 2 204 2
+#   sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15495 15558 3 204 2
+#
+#   sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15559 15622 0 204 45
+#   sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15623 15686 1 204 45
+#   sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15687 15750 2 204 45
+#   sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15751 15814 3 204 45
 
-  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15559 15622 0 204 45
-  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15623 15686 1 204 45
-  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15687 15750 2 204 45
-  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15751 15814 3 204 45
-
-  # TODO dynamic
-#   sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15223 15302 0 204 xx
-#   sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15223 15302 1 204 xx
-#   sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15223 15302 2 204 xx
-#   sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15223 15302 3 204 xx
+  # asb dynamic one takes 64 slots - 1 min global speaking?
+  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15814 15877 0 204
+  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15878 15941 1 204
+  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 15942 16005 2 204
+  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 16006 16069 3 204
 
 
   #sh ARGoS_simulation/data_generation_scripts/ants_experiments.sh ${1} ${2} ${3} ${4}
