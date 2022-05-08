@@ -3,7 +3,7 @@
 ###################################
 # script needs 64 slots
 ###################################
-EXPECTED_ARGS=5
+EXPECTED_ARGS=4
 if [ $# -lt ${EXPECTED_ARGS} ]; then
   echo "This script creates N argos files for the cluster!"
   echo "Usage $0 <start> <end> "
