@@ -62,7 +62,7 @@ uint32_t SAMPLE_TICKS = 32;
 #define UPDATE_TICKS 60
 #define BROADCAST_TICKS 15
 #define MIN_COMMUNICATION_RANGE 1  // is used in dynamic com update
-#define COMMUNICATION_THRESHOLD_TIMER 1875*1 //1875 // in ticks - should be 1 min????
+#define COMMUNICATION_THRESHOLD_TIMER (1875*5) //1875 // in ticks - should be 1 min????
 #define PARAM 0.0
 
 // flags
@@ -748,9 +748,9 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         // how to init the robot
         // 1 -> start at option one
         // else start uniform distributed over all options
-        if (robot_commitment != 1){
-            robot_commitment = (kilo_uid % (NUMBER_OF_OPTIONS)) + 1;
-        }
+//        if (robot_commitment != 1){
+//            robot_commitment = (kilo_uid % (NUMBER_OF_OPTIONS)) + 1;
+//        }
 #ifdef OPTIMALSAMPLE
         current_ground = get_artificial_sample();
 #else
