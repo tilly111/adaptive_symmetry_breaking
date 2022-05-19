@@ -748,9 +748,9 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         // how to init the robot
         // 1 -> start at option one
         // else start uniform distributed over all options
-//        if (robot_commitment != 1){
-//            robot_commitment = (kilo_uid % (NUMBER_OF_OPTIONS)) + 1;
-//        }
+        if (robot_commitment != 1){
+            robot_commitment = (kilo_uid % (NUMBER_OF_OPTIONS)) + 1;
+        }
 #ifdef OPTIMALSAMPLE
         current_ground = get_artificial_sample();
 #else

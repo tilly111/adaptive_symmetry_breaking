@@ -17,33 +17,33 @@ else
   tmp_counter=0
   MAX_COMMUNICATION_RANGE=30 # delta_s
   INITIAL_COMMUNICATION_RANGE=1 # number of samples
-  INITIAL_COMMITMENT=1 # currently Sample counter max
+  INITIAL_COMMITMENT=${6}
 
   # stuff needs to be adjusted
-  ENVIRONMENT=${3}
-  INITIAL_COMMITMENT_QUALITY=${4}
+  INITIAL_COMMITMENT_QUALITY=${5}
   for j in $(seq ${1} ${2}); do
-      conf=asb_${ENVIRONMENT}
-      n=3
+      conf=${3}
+      n=${4}
+      MAX_COMMUNICATION_RANGE=2  # delta_s = 1 sec
 
       # max communication range = delta_s
-      if ((${tmp_counter}  == 0)); then
-        MAX_COMMUNICATION_RANGE=1
-      elif ((${tmp_counter} == 8)); then
-        MAX_COMMUNICATION_RANGE=2
-      elif ((${tmp_counter} == 16)); then
-        MAX_COMMUNICATION_RANGE=4
-      elif ((${tmp_counter} == 24)); then
-        MAX_COMMUNICATION_RANGE=6
-      elif ((${tmp_counter} == 32)); then
-        MAX_COMMUNICATION_RANGE=8
-      elif ((${tmp_counter} == 40)); then
-        MAX_COMMUNICATION_RANGE=10
-      elif ((${tmp_counter} == 48)); then
-        MAX_COMMUNICATION_RANGE=12
-      elif ((${tmp_counter} == 56)); then
-        MAX_COMMUNICATION_RANGE=14
-      fi
+#      if ((${tmp_counter}  == 0)); then
+#        MAX_COMMUNICATION_RANGE=1
+#      elif ((${tmp_counter} == 8)); then
+#        MAX_COMMUNICATION_RANGE=2
+#      elif ((${tmp_counter} == 16)); then
+#        MAX_COMMUNICATION_RANGE=4
+#      elif ((${tmp_counter} == 24)); then
+#        MAX_COMMUNICATION_RANGE=6
+#      elif ((${tmp_counter} == 32)); then
+#        MAX_COMMUNICATION_RANGE=8
+#      elif ((${tmp_counter} == 40)); then
+#        MAX_COMMUNICATION_RANGE=10
+#      elif ((${tmp_counter} == 48)); then
+#        MAX_COMMUNICATION_RANGE=12
+#      elif ((${tmp_counter} == 56)); then
+#        MAX_COMMUNICATION_RANGE=14
+#      fi
     # initial communication range = number of samples
     if (($((${tmp_counter} % 8)) == 0)); then
           INITIAL_COMMUNICATION_RANGE=5
@@ -63,7 +63,7 @@ else
           INITIAL_COMMUNICATION_RANGE=60
     fi
 
-    EXP_NAME=asb_static_cross_inhib_${j}_samples_${INITIAL_COMMUNICATION_RANGE}_sample_ticks_${MAX_COMMUNICATION_RANGE}_env_${ENVIRONMENT}
+    EXP_NAME=asb_simple_problems_cross_inhib_${j}_samples_${INITIAL_COMMUNICATION_RANGE}_sample_ticks_${MAX_COMMUNICATION_RANGE}_${ENVIRONMENT}
     tmp_counter=$(( ${tmp_counter} + 1 ))
 
     NUM_ROBOTS=50        # number of robots
@@ -108,7 +108,7 @@ else
       -e "s|logfile|${JOB_NAME}|" \
       ${JOB_TEMPLATE_SRC} >${JOB_FILE}
 
-    for i in $(seq 0 39); do
+    for i in $(seq 0 29); do
 
       EXP_FILE=${EXP_DIR}/${EXP_NAME}_${i}.argos # full path to the experiment configuration file
       DATA_FILE=${EXP_NAME}_${i}.txt # Full path to the data file

@@ -127,10 +127,14 @@ else
 #   sh ARGoS_simulation/data_generation_scripts/static_asb.sh 16006 16069 3 204
 
   # asb dynamic one takes 64 slots - 5 min global speaking
-  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 16070 16133 0 204
-  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 16134 16197 1 204
-  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 16198 16261 2 204
-  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 16262 16325 3 204
+#   sh ARGoS_simulation/data_generation_scripts/static_asb.sh 16070 16133 0 204
+#   sh ARGoS_simulation/data_generation_scripts/static_asb.sh 16134 16197 1 204
+#   sh ARGoS_simulation/data_generation_scripts/static_asb.sh 16198 16261 2 204
+#   sh ARGoS_simulation/data_generation_scripts/static_asb.sh 16262 16325 3 204
+
+  # asb for normal experiments - needs 8 slots -> number samles
+  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 16262 16325 sample_17 2 204 1
+  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 16262 16325 sym_break_4 4 64 2
 
   #sh ARGoS_simulation/data_generation_scripts/ants_experiments.sh ${1} ${2} ${3} ${4}
   #sh ARGoS_simulation/data_generation_scripts/runjobs.sh
