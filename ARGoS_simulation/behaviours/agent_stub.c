@@ -61,9 +61,10 @@ uint8_t SAMPLE_COUNTER_MAX = 30;
 uint32_t SAMPLE_TICKS = 32;
 #define UPDATE_TICKS 60
 #define BROADCAST_TICKS 15
-#define MIN_COMMUNICATION_RANGE 1  // is used in dynamic com update
+#define MIN_COMMUNICATION_RANGE 2  // is used in dynamic com update
 #define COMMUNICATION_THRESHOLD_TIMER (1875*5) //1875 // in ticks - should be 1 min????
 #define PARAM 0.0
+#define PARAM_U 10
 
 // flags
 #define CALIBRATED true
@@ -272,12 +273,13 @@ void sample(){
             // also delete the last commitment, bc the robot can only store one!
             if (op_to_sample == robot_commitment){
 #ifdef DYNAMICRANGE
-                if (robot_commitment_quality != 0.0 && robot_commitment_quality <= discovered_quality) {  // ensure that the robot only broadcast, iff it thinks its option is really better compared to an existing opinion
+//                if (robot_commitment_quality != 0.0 && robot_commitment_quality <= discovered_quality) {  // ensure that the robot only broadcast, iff it thinks its option is really better compared to an existing opinion
                     last_commitment_switch = kilo_ticks;
                     commitment_switch_flag = true;
                     // sprechen mit 10
-                    step_size = 2 + (int)((45.0) * 10 * (discovered_quality - robot_commitment_quality));
-                }
+                    step_size = (int)((45.0) * PARAM_U * (discovered_quality - robot_commitment_quality));
+//                    step_size = 45;
+//                }
 #endif
                 robot_commitment_quality = discovered_quality;
             }else{
@@ -364,7 +366,10 @@ void update_commitment() {
             last_commitment_switch = kilo_ticks;
             commitment_switch_flag = true;
             // in case we want to try communication range based on how large the change is
-            step_size = 2 + (int)(45.0 * 10 * (discovered_quality - robot_commitment_quality));
+            step_size = (int)((45.0) * PARAM_U * (discovered_quality - robot_commitment_quality));
+//            step_size = 45;
+//            commitment_switch_flag = false;
+//            printf("[%d] switch upon discovery ! \n", kilo_uid);
 #endif
             /// set new commitment
             robot_commitment = discovered_option;
@@ -429,8 +434,14 @@ void update_communication_range(){
     // check for bounds
     if (tmp_communication_range > 45) {
         tmp_communication_range = 45;
-    } else if (tmp_communication_range < 2) {
+    } else if (tmp_communication_range < 1) {
+        tmp_communication_range = 0;
+    }
+
+    // check if commitment_quality is 0 -> dont do large communication!
+    if (robot_commitment_quality == 0.0){
         tmp_communication_range = 2;
+        commitment_switch_flag = false;
     }
 
     communication_range = tmp_communication_range;
@@ -610,7 +621,7 @@ void move(){
             state_counter = STRAIGHT_COUNTER_MAX + GetRandomNumber(10000) % (STRAIGHT_COUNTER_MAX/2);
         }
     }else if(current_state == MOVE_STRAIGHT){
-        if(state_counter != 0){
+        if(state_counter >= 0){
             state_counter -= 1;
         }else{
             if (calculated_orientation) {
@@ -757,7 +768,7 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         current_ground = msg->data[5];
 #endif
         op_to_sample = current_ground;
-        communication_range = 2;
+        communication_range = 45;
         SAMPLE_COUNTER_MAX = msg->data[6];
         sample_counter_max_noise = SAMPLE_COUNTER_MAX;
         SAMPLE_TICKS = 16 * msg->data[7]; // NEEDS TO BE IN 0.5 SEC
@@ -955,9 +966,9 @@ void loop() {
 #endif
 
     // debug prints
-//    if(robot_commitment != 2 && communication_range != 2){
-//        printf("[%d] ERROR communication range %d commitment %d  \n", kilo_uid, communication_range, robot_commitment);
-//    }
+    if(robot_commitment_quality == 0.0 && communication_range > 5){
+        printf("[%d] ERROR samples %d  time between samples %d communication range %d  %f \n", kilo_uid, sample_counter_max_noise, SAMPLE_TICKS, communication_range, robot_commitment_quality_tmp);
+    }
 #else
     tracking_data.byte[1] = received_x;
     tracking_data.byte[2] = received_y;
