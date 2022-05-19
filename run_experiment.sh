@@ -133,8 +133,8 @@ else
 #   sh ARGoS_simulation/data_generation_scripts/static_asb.sh 16262 16325 3 204
 
   # asb for normal experiments - needs 8 slots -> number samles
-  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 16262 16325 sample_17 2 204 1
-  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 16262 16325 sym_break_4 4 64 2
+  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 16326 16333 sample_17 2 204 1
+  sh ARGoS_simulation/data_generation_scripts/static_asb.sh 16334 16341 sym_break_4 4 64 2
 
   #sh ARGoS_simulation/data_generation_scripts/ants_experiments.sh ${1} ${2} ${3} ${4}
   #sh ARGoS_simulation/data_generation_scripts/runjobs.sh
