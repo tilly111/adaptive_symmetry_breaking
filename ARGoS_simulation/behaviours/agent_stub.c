@@ -62,8 +62,8 @@ uint32_t SAMPLE_TICKS = 32;
 #define UPDATE_TICKS 60
 #define BROADCAST_TICKS 15
 #define MIN_COMMUNICATION_RANGE 2  // is used in dynamic com update
-//#define COMMUNICATION_THRESHOLD_TIMER (1875*5) //1875 // in ticks - should be 1 min????
-uint32_t COMMUNICATION_THRESHOLD_TIMER = 0;
+#define COMMUNICATION_THRESHOLD_TIMER (1875*0.5) //1875 // in ticks - should be 1 min????
+//uint32_t COMMUNICATION_THRESHOLD_TIMER = 0;
 #define PARAM 0.0
 #define PARAM_U 10
 
@@ -773,7 +773,7 @@ void message_rx( IR_message_t *msg, distance_measurement_t *d ) {
         SAMPLE_COUNTER_MAX = msg->data[6];
         sample_counter_max_noise = SAMPLE_COUNTER_MAX;
         SAMPLE_TICKS = 16 * msg->data[7]; // NEEDS TO BE IN 0.5 SEC
-        COMMUNICATION_THRESHOLD_TIMER = (SAMPLE_COUNTER_MAX * SAMPLE_TICKS) / 2;
+        //COMMUNICATION_THRESHOLD_TIMER = (SAMPLE_COUNTER_MAX * SAMPLE_TICKS) / 2;
         init_flag = true;
     }else if(msg->type == GRID_MSG && init_flag){
         received_x = msg->data[0];
